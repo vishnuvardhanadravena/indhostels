@@ -49,3 +49,31 @@ class LoginResponseModel {
     };
   }
 }
+class SignupResponceModel {
+  bool? success;
+  String? message;
+  int? otp;
+  String? otpExpiry;
+  int? statuscode;
+
+  SignupResponceModel(
+      {this.success, this.message, this.otp, this.otpExpiry, this.statuscode});
+
+  SignupResponceModel.fromJson(Map<String, dynamic> json) {
+    success = json['success'];
+    message = json['message'];
+    otp = json['otp'];
+    otpExpiry = json['otp_expiry'];
+    statuscode = json['statuscode'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['success'] = success;
+    data['message'] = message;
+    data['otp'] = otp;
+    data['otp_expiry'] = otpExpiry;
+    data['statuscode'] = statuscode;
+    return data;
+  }
+}

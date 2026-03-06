@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:indhostels/bloc/accommodation/accommodation_bloc.dart';
 import 'package:indhostels/bloc/auth/auth_bloc.dart';
+import 'package:indhostels/bloc/profile/profile_bloc.dart';
+import 'package:indhostels/bloc/profile/profile_event.dart';
 import 'package:indhostels/routing/app_roter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:indhostels/services/init.dart';
@@ -8,11 +11,16 @@ import 'package:indhostels/services/init.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await setup(); // very important
+  await setup();
 
   runApp(
     MultiBlocProvider(
-      providers: [BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>())],
+      providers: [
+        BlocProvider<ProfileBloc>(create: (_) => sl<ProfileBloc>()),
+
+        BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
+        BlocProvider<AccommodationBloc>(create: (_) => sl<AccommodationBloc>()),
+      ],
       child: const MyApp(),
     ),
   );

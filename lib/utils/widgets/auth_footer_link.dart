@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:indhostels/theame/app_themes.dart';
-import 'package:indhostels/theame/dimensions.dart';
+import 'package:indhostels/utils/theame/app_themes.dart';
+import 'package:indhostels/utils/theame/dimensions.dart';
 
 class AuthFooterLink extends StatelessWidget {
   final String normalText;

@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:indhostels/utils/widgets/auth_header.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:indhostels/bloc/auth/auth_bloc.dart';
+import 'package:indhostels/bloc/auth/auth_event.dart';
+import 'package:indhostels/bloc/auth/auth_state.dart';
+import 'package:indhostels/routing/route_constants.dart';
+import 'package:indhostels/utils/helpers/app_toast.dart';
 import 'package:indhostels/utils/widgets/authwidgts.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -17,19 +23,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _confirmPasswordController = TextEditingController();
 
   bool _termsAccepted = false;
-  bool _isLoading = false;
+  // bool _isLoading = false;
   Map<String, String?> _errors = {};
-
-  // ─── Validation ────────────────────────────────────────────────────────────
 
   bool _isValidEmail(String v) =>
       RegExp(r'^[\w.%+-]+@[\w.-]+\.[a-zA-Z]{2,}$').hasMatch(v);
 
   bool _isValidPhone(String v) => RegExp(r'^[0-9]{10}$').hasMatch(v);
-
-  // ─── Sign Up Handler ───────────────────────────────────────────────────────
-
-  Future<void> _onSignUp() async {
+  void _onSignUp() {
     final errors = <String, String?>{};
 
     final name = _fullNameController.text.trim();
@@ -38,165 +39,212 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final password = _passwordController.text;
     final confirm = _confirmPasswordController.text;
 
-    if (name.isEmpty)
+    if (name.isEmpty) {
       errors['name'] = '*Full name is required';
-    else if (name.length < 2)
+    } else if (name.length < 2) {
       errors['name'] = '*Enter a valid name';
+    }
 
-    if (email.isEmpty)
+    if (email.isEmpty) {
       errors['email'] = '*Email is required';
-    else if (!_isValidEmail(email))
+    } else if (!_isValidEmail(email)) {
       errors['email'] = '*Enter a valid email';
+    }
 
-    if (phone.isEmpty)
+    if (phone.isEmpty) {
       errors['phone'] = '*Phone number is required';
-    else if (!_isValidPhone(phone))
+    } else if (!_isValidPhone(phone)) {
       errors['phone'] = '*Enter valid 10-digit number';
+    }
 
-    if (password.isEmpty)
+    if (password.isEmpty) {
       errors['password'] = '*Password is required';
-    else if (password.length < 6)
+    } else if (password.length < 6) {
       errors['password'] = '*Minimum 6 characters';
+    }
 
-    if (confirm.isEmpty)
+    if (confirm.isEmpty) {
       errors['confirm'] = '*Please confirm your password';
-    else if (confirm != password)
+    } else if (confirm != password) {
       errors['confirm'] = '*Passwords do not match';
+    }
 
-    if (!_termsAccepted) errors['terms'] = '*Please accept terms & conditions';
+    if (!_termsAccepted) {
+      errors['terms'] = '*Please accept terms & conditions';
+    }
 
     setState(() => _errors = errors);
     if (errors.isNotEmpty) return;
 
-    setState(() => _isLoading = true);
-    // TODO: call your auth provider
-    await Future.delayed(const Duration(seconds: 2));
-    setState(() => _isLoading = false);
+    context.read<AuthBloc>().add(
+      SignUpRequested(
+        fullName: name,
+        email: email,
+        phone: phone,
+        password: password,
+        confirmPassword: confirm,
+        isTermsAccepted: _termsAccepted,
+        type: LoginType.password,
+      ),
+    );
   }
-
-  // ─── Build ─────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F8FF),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ── Header ──────────────────────────────────────────────────
-              const AuthHeader(
-                showBackButton: true,
-                title: 'Create an Account',
-                subtitle:
-                    'Join IndHostel to book stays, manage favorites, and more',
-              ),
+    return BlocConsumer<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is SignUpSuccess) {
+          AppToast.success(
+            state.message.message ?? "Signup Successful",
+            position: ToastPosition.bottom,
+          );
 
-              const SizedBox(height: 32),
+          context.pushNamed(
+  RouteList.otp,
+  extra: {
+    "phone": _phoneController.text.trim(),
+    "type": LoginType.signup, // or login
+  },
+);
+        }
 
-              // ── Full Name ────────────────────────────────────────────────
-              CustomTextField(
-                label: 'Full Name',
-                hintText: 'Enter your full name',
-                controller: _fullNameController,
-                keyboardType: TextInputType.name,
-                errorText: _errors['name'],
-                textInputAction: TextInputAction.next,
-              ),
+        if (state is SignUpError) {
+          AppToast.error(state.message, position: ToastPosition.top);
+        }
+      },
+      builder: (context, state) {
+        final size = MediaQuery.of(context).size;
+        final width = size.width;
+        final height = size.height;
 
-              const SizedBox(height: 16),
+        final isTablet = width >= 600;
+        final horizontalPadding = width * 0.06;
+        final verticalPadding = height * 0.04;
+        final fieldSpacing = height * 0.02;
 
-              // ── Email ────────────────────────────────────────────────────
-              CustomTextField(
-                label: 'Email Address',
-                hintText: 'Enter your email address',
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                errorText: _errors['email'],
-                textInputAction: TextInputAction.next,
-              ),
+        final isLoading = state is SignUpLoading;
 
-              const SizedBox(height: 16),
-
-              // ── Phone ────────────────────────────────────────────────────
-              PhoneInputField(
-                label: 'Phone Number',
-                controller: _phoneController,
-                errorText: _errors['phone'],
-              ),
-
-              const SizedBox(height: 16),
-
-              // ── Password ─────────────────────────────────────────────────
-              CustomTextField(
-                label: 'Password',
-                hintText: 'Enter your password',
-                controller: _passwordController,
-                isPassword: true,
-                errorText: _errors['password'],
-                textInputAction: TextInputAction.next,
-              ),
-
-              const SizedBox(height: 16),
-
-              // ── Confirm Password ─────────────────────────────────────────
-              CustomTextField(
-                label: 'Confirm Password',
-                hintText: 'Confirm your password',
-                controller: _confirmPasswordController,
-                isPassword: true,
-                errorText: _errors['confirm'],
-                textInputAction: TextInputAction.done,
-                onSubmitted: (_) => _onSignUp(),
-              ),
-
-              const SizedBox(height: 20),
-
-              // ── Terms Checkbox ───────────────────────────────────────────
-              TermsCheckbox(
-                value: _termsAccepted,
-                onChanged: (v) => setState(() => _termsAccepted = v ?? false),
-                onLinkTap: () {
-                  // TODO: open terms & conditions
-                },
-              ),
-
-              if (_errors['terms'] != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 6, left: 32),
-                  child: Text(
-                    _errors['terms']!,
-                    style: TextStyle(color: Colors.red.shade500, fontSize: 12),
+        return Scaffold(
+          backgroundColor: const Color(0xFFF7F8FF),
+          body: SafeArea(
+            child: isTablet
+                ? Center(
+                    child: _buildForm(
+                      horizontalPadding,
+                      verticalPadding,
+                      fieldSpacing,
+                      height,
+                      isLoading,
+                    ),
+                  )
+                : _buildForm(
+                    horizontalPadding,
+                    verticalPadding,
+                    fieldSpacing,
+                    height,
+                    isLoading,
                   ),
-                ),
-
-              const SizedBox(height: 24),
-
-              // ── Sign Up Button ───────────────────────────────────────────
-              PrimaryButton(
-                text: 'Sign Up',
-                isLoading: _isLoading,
-                onPressed: _onSignUp,
-              ),
-
-              const SizedBox(height: 20),
-
-              // ── Footer ───────────────────────────────────────────────────
-              AuthFooterLink(
-                normalText: 'Already have an account? ',
-                linkText: 'Sign In',
-                onLinkTap: () {
-                  Navigator.pop(context);
-                  // or: Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
-                },
-              ),
-
-              const SizedBox(height: 12),
-            ],
           ),
-        ),
+        );
+      },
+    );
+  }
+
+  Widget _buildForm(
+    double horizontalPadding,
+    double verticalPadding,
+    double fieldSpacing,
+    double height,
+    bool isLoading,
+  ) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(
+        horizontal: horizontalPadding,
+        vertical: verticalPadding,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const AuthHeader(
+            showBackButton: true,
+            title: 'Create an Account',
+            subtitle:
+                'Join IndHostel to book stays, manage favorites, and more',
+          ),
+
+          SizedBox(height: height * 0.04),
+
+          CustomTextField(
+            label: 'Full Name',
+            hintText: 'Enter your full name',
+            controller: _fullNameController,
+            errorText: _errors['name'],
+          ),
+
+          SizedBox(height: fieldSpacing),
+
+          CustomTextField(
+            label: 'Email Address',
+            hintText: 'Enter your email address',
+            controller: _emailController,
+            errorText: _errors['email'],
+          ),
+
+          SizedBox(height: fieldSpacing),
+
+          PhoneInputField(
+            label: 'Phone Number',
+            controller: _phoneController,
+            errorText: _errors['phone'],
+          ),
+
+          SizedBox(height: fieldSpacing),
+
+          CustomTextField(
+            label: 'Password',
+            hintText: 'Enter your password',
+            controller: _passwordController,
+            isPassword: true,
+            errorText: _errors['password'],
+          ),
+
+          SizedBox(height: fieldSpacing),
+
+          CustomTextField(
+            label: 'Confirm Password',
+            hintText: 'Confirm your password',
+            controller: _confirmPasswordController,
+            isPassword: true,
+            errorText: _errors['confirm'],
+          ),
+
+          SizedBox(height: height * 0.025),
+
+          TermsCheckbox(
+            value: _termsAccepted,
+            onChanged: (v) => setState(() => _termsAccepted = v ?? false),
+          ),
+
+          if (_errors['terms'] != null)
+            Padding(
+              padding: EdgeInsets.only(top: 6, left: 8),
+              child: Text(
+                _errors['terms']!,
+                style: TextStyle(color: Colors.red.shade500, fontSize: 12),
+              ),
+            ),
+
+          SizedBox(height: height * 0.04),
+
+          SizedBox(
+            width: double.infinity,
+            child: PrimaryButton(
+              text: 'Sign Up',
+              isLoading: isLoading,
+              onPressed: isLoading ? null : _onSignUp,
+            ),
+          ),
+        ],
       ),
     );
   }

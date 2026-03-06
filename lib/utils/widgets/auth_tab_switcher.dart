@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:indhostels/theame/app_themes.dart';
-import 'package:indhostels/theame/dimensions.dart';
+import 'package:indhostels/utils/theame/app_themes.dart';
+import 'package:indhostels/utils/theame/dimensions.dart';
 
 class AuthTabSwitcher extends StatelessWidget {
   final int selectedIndex;
   final List<String> tabs;
+  final bool isTab;
   final void Function(int) onTabSelected;
 
   const AuthTabSwitcher({
     super.key,
     required this.selectedIndex,
     required this.tabs,
+    required this.isTab,
     required this.onTabSelected,
   });
 
@@ -20,6 +22,7 @@ class AuthTabSwitcher extends StatelessWidget {
 
     return Container(
       height: 60,
+      width: isTab ? MediaQuery.of(context).size.width / 2 : double.infinity,
       padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
       decoration: BoxDecoration(
         color: AppColors.primaryFaded,

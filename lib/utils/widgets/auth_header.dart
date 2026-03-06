@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:indhostels/theame/app_themes.dart';
-import 'package:indhostels/theame/dimensions.dart';
+import 'package:indhostels/utils/theame/app_themes.dart';
+import 'package:indhostels/utils/theame/dimensions.dart';
 
 class AuthHeader extends StatelessWidget {
   final String title;

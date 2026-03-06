@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:indhostels/bloc/auth/auth_bloc.dart';
 import 'package:indhostels/bloc/auth/auth_event.dart';
 import 'package:indhostels/bloc/auth/auth_state.dart';
 import 'package:indhostels/pages/auth/signup.dart';
+import 'package:indhostels/routing/route_constants.dart';
 import 'package:indhostels/utils/helpers/app_toast.dart';
-import 'package:indhostels/utils/widgets/auth_header.dart';
 import 'package:indhostels/utils/widgets/authwidgts.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -25,8 +26,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Map<String, String?> _errors = {};
 
-  bool _isValidEmail(String v) =>
-      RegExp(r'^[\w.%+-]+@[\w.-]+\.[a-zA-Z]{2,}$').hasMatch(v);
+  // bool _isValidEmail(String v) =>
+  //     RegExp(r'^[\w.%+-]+@[\w.-]+\.[a-zA-Z]{2,}$').hasMatch(v);
 
   bool _isValidPhone(String v) => RegExp(r'^[0-9]{10}$').hasMatch(v);
 
@@ -37,9 +38,10 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text;
 
     if (email.isEmpty) {
-      errors['email'] = '*Phone number is required';
+      errors['phone'] = '*Phone number is required';
+    } else if (!_isValidPhone(email)) {
+      errors['phone'] = '*Enter valid 10-digit number';
     }
-
     if (password.isEmpty) {
       errors['password'] = '*Password is required';
     }
@@ -48,7 +50,11 @@ class _LoginScreenState extends State<LoginScreen> {
     if (errors.isNotEmpty) return;
 
     context.read<AuthBloc>().add(
-      LoginRequested(phone: email, password: password),
+      LoginRequested(
+        phone: email,
+        password: password,
+        type: LoginType.password,
+      ),
     );
   }
 
@@ -64,8 +70,69 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _errors = errors);
     if (errors.isNotEmpty) return;
 
-    // TODO: call your auth provider
-    await Future.delayed(const Duration(seconds: 2));
+    context.read<AuthBloc>().add(
+      LoginRequested(phone: phone, type: LoginType.otp),
+    );
+  }
+
+  Widget _buildContent(
+    BuildContext context,
+    double horizontalPadding,
+    double verticalPadding,
+    double sectionSpacing,
+    bool isLoading,
+    double height,
+    bool isTab,
+  ) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(
+        horizontal: horizontalPadding,
+        vertical: verticalPadding,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          AuthHeader(
+            title: 'Welcome Back!',
+            subtitle: 'Log in to manage your bookings and explore new stays',
+          ),
+
+          SizedBox(height: sectionSpacing),
+
+          AuthTabSwitcher(
+            isTab: isTab,
+            selectedIndex: _selectedTab,
+            tabs: const ['Password Login', 'OTP Login'],
+            onTabSelected: (i) => setState(() {
+              _selectedTab = i;
+              _errors = {};
+            }),
+          ),
+
+          SizedBox(height: sectionSpacing),
+
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: _selectedTab == 0
+                ? _passwordLoginContent(isLoading, height)
+                : _otpLoginContent(isLoading, height),
+          ),
+
+          SizedBox(height: sectionSpacing),
+
+          AuthFooterLink(
+            normalText: "Don't have an account? ",
+            linkText: 'Sign Up',
+            onLinkTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SignUpScreen()),
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -73,74 +140,73 @@ class _LoginScreenState extends State<LoginScreen> {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is LoginSuccess) {
-          AppToast.success(context, "Login Successful");
+          AppToast.success("Login Successful", position: ToastPosition.bottom);
+          context.goNamed(RouteList.home);
+        }
+        if (state is OtpSentSuccess) {
+          AppToast.success(
+            "OTP sent to ${state.phone}",
+            position: ToastPosition.bottom,
+          );
+          context.pushNamed(
+            RouteList.otp,
+            extra: {"phone": state.phone.trim(), "type": LoginType.login},
+          );
         }
 
         if (state is AuthError) {
-          AppToast.error(context, state.message);
+          AppToast.error(state.message, position: ToastPosition.top);
         }
       },
       builder: (context, state) {
+        final size = MediaQuery.of(context).size;
+        final width = size.width;
+        final height = size.height;
+
+        final isTablet = width >= 600;
+
+        final horizontalPadding = width * 0.06;
+        final verticalPadding = height * 0.04;
+        final sectionSpacing = height * 0.035;
+
+        final isLoading = state is AuthLoading;
+
         return Scaffold(
           backgroundColor: const Color(0xFFF7F8FF),
           body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const AuthHeader(
-                    title: 'Welcome Back!',
-                    subtitle:
-                        'Log in to manage your bookings and explore new stays',
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  AuthTabSwitcher(
-                    selectedIndex: _selectedTab,
-                    tabs: const ['Password Login', 'OTP Login'],
-                    onTabSelected: (i) => setState(() {
-                      _selectedTab = i;
-                      _errors = {};
-                    }),
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: _selectedTab == 0
-                        ? _passwordLoginContent(
-                            context.watch<AuthBloc>().state is AuthLoading,
-                          )
-                        : _otpLoginContent(
-                            context.watch<AuthBloc>().state is AuthLoading,
-                          ),
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  AuthFooterLink(
-                    normalText: "Don't have an account? ",
-                    linkText: 'Sign Up',
-                    onLinkTap: () {
-                      Navigator.push(
+            child: isTablet
+                ? Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: width * 0.65),
+                      child: _buildContent(
                         context,
-                        MaterialPageRoute(builder: (_) => const SignUpScreen()),
-                      );
-                    },
+                        horizontalPadding,
+                        verticalPadding,
+                        sectionSpacing,
+                        isLoading,
+                        height,
+                        isTablet,
+                      ),
+                    ),
+                  )
+                : _buildContent(
+                    context,
+                    horizontalPadding,
+                    verticalPadding,
+                    sectionSpacing,
+                    isLoading,
+                    height,
+                    isTablet,
                   ),
-                ],
-              ),
-            ),
           ),
         );
       },
     );
   }
 
-  Widget _passwordLoginContent(bool isLoading) {
+  Widget _passwordLoginContent(bool isLoading, double height) {
+    final fieldSpacing = height * 0.02;
+
     return Column(
       key: const ValueKey('password'),
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,7 +220,7 @@ class _LoginScreenState extends State<LoginScreen> {
           textInputAction: TextInputAction.next,
         ),
 
-        const SizedBox(height: 16),
+        SizedBox(height: fieldSpacing),
 
         CustomTextField(
           label: 'Password',
@@ -166,7 +232,7 @@ class _LoginScreenState extends State<LoginScreen> {
           onSubmitted: (_) => _onPasswordLogin(),
         ),
 
-        const SizedBox(height: 14),
+        SizedBox(height: height * 0.02),
 
         Row(
           children: [
@@ -177,10 +243,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 value: _rememberMe,
                 onChanged: (v) => setState(() => _rememberMe = v ?? false),
                 activeColor: const Color(0xFF3D3BF3),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                side: const BorderSide(color: Color(0xFFD1D5DB), width: 1.5),
               ),
             ),
             const SizedBox(width: 8),
@@ -195,7 +257,7 @@ class _LoginScreenState extends State<LoginScreen> {
             const Spacer(),
             GestureDetector(
               onTap: () {
-                // TODO: navigate to forgot password
+                context.pushNamed(RouteList.forgotPassWord);
               },
               child: const Text(
                 'Forgot Password',
@@ -209,18 +271,23 @@ class _LoginScreenState extends State<LoginScreen> {
           ],
         ),
 
-        const SizedBox(height: 24),
+        SizedBox(height: height * 0.035),
 
-        PrimaryButton(
-          text: 'Sign In',
-          isLoading: isLoading,
-          onPressed: isLoading ? null : _onPasswordLogin,
+        SizedBox(
+          width: double.infinity,
+          child: PrimaryButton(
+            text: 'Sign In',
+            isLoading: isLoading,
+            onPressed: isLoading ? null : _onPasswordLogin,
+          ),
         ),
       ],
     );
   }
 
-  Widget _otpLoginContent(bool isLoading) {
+  Widget _otpLoginContent(bool isLoading, double height) {
+    // final fieldSpacing = height * 0.02;
+
     return Column(
       key: const ValueKey('otp'),
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,11 +297,16 @@ class _LoginScreenState extends State<LoginScreen> {
           controller: _phoneController,
           errorText: _errors['phone'],
         ),
-        const SizedBox(height: 24),
-        PrimaryButton(
-          text: 'Get OTP',
-          isLoading: isLoading,
-          onPressed: isLoading ? null : _onGetOtp,
+
+        SizedBox(height: height * 0.035),
+
+        SizedBox(
+          width: double.infinity,
+          child: PrimaryButton(
+            text: 'Get OTP',
+            isLoading: isLoading,
+            onPressed: isLoading ? null : _onGetOtp,
+          ),
         ),
       ],
     );

@@ -21,14 +21,14 @@ class OnboardingData {
 
 final List<OnboardingData> onboardingPages = [
   OnboardingData(
-    imagePath: 'assets/images/hotel1.jpg',
+    imagePath: 'assets/landing1.png',
     networkImage:
         'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
     title: 'Find Your Perfect Stay',
     subtitle: 'Book hotels, PGs, and hostels all in one place.',
   ),
   OnboardingData(
-    imagePath: 'assets/images/hotel2.jpg',
+    imagePath: 'assets/landing2.png',
     networkImage:
         'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80',
     title: 'Choose Rooms Your Way',
@@ -36,7 +36,7 @@ final List<OnboardingData> onboardingPages = [
         'Select AC or Non-AC rooms with single, double, or shared options—just the way you need.',
   ),
   OnboardingData(
-    imagePath: 'assets/images/hotel3.jpg',
+    imagePath: 'assets/landing3.png',
     networkImage:
         'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=800&q=80',
     title: 'Book Easy, Stay Happy',
@@ -58,8 +58,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  static const Color _primaryColor = Color(0xFF5B4CDB);
-  static const Color _white = Colors.white;
+  // static const Color _primaryColor = Color(0xFF5B4CDB);
+  // static const Color _white = Colors.white;
 
   void _nextPage() {
     if (_currentPage < onboardingPages.length - 1) {
@@ -105,7 +105,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  // ── Mobile Layout: Full-screen PageView ────────────────────────────────────
   Widget _buildMobileLayout() {
     return Stack(
       children: [
@@ -121,10 +120,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  // ── Tablet Layout: Side-by-side pages ─────────────────────────────────────
   Widget _buildTabletLayout() {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    // final screenWidth = MediaQuery.of(context).size.width;
+    // final screenHeight = MediaQuery.of(context).size.height;
 
     return Stack(
       children: [
@@ -135,12 +133,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           itemBuilder: (context, index) {
             return Row(
               children: [
-                // Left: Image fills half screen
                 Expanded(
                   flex: 5,
                   child: _OnboardingImagePanel(data: onboardingPages[index]),
                 ),
-                // Right: Content panel with white/dark background
                 Expanded(
                   flex: 4,
                   child: _OnboardingContentPanel(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:indhostels/theame/app_themes.dart';
-import 'package:indhostels/theame/dimensions.dart';
+import 'package:indhostels/utils/theame/app_themes.dart';
+import 'package:indhostels/utils/theame/dimensions.dart';
 
 class SocialButton extends StatelessWidget {
   final String text;
