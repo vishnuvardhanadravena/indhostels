@@ -9,7 +9,7 @@ class ProfileRepository {
   final ApiClient api;
   ProfileRepository(this.api);
   Future<UserProfile> loadUserDetails() async {
-    final response = await api.get(ApiConstants.loadprofile);
+    final response = await api.get(ApiConstants.loadProfile);
 
     return UserProfile.fromApiResponse(response.data);
   }
@@ -17,14 +17,14 @@ class ProfileRepository {
     required ProfileUpdateRequest profile,
   }) async {
     final response = await api.put(
-      ApiConstants.updateprofile,
+      ApiConstants.updateProfile,
       data: profile.toJson(),
     );
     return response.data;
   }
   Future<dynamic> uploadProfileImg({required File profile}) async {
     final response = await api.multipart(
-      ApiConstants.updateprofilePic, 
+      ApiConstants.updateProfilePic, 
       filePath: profile.path,
       fileKey: "image",
       fields: {},

@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:indhostels/bloc/Serach/search_bloc.dart';
+import 'package:indhostels/bloc/accommodation/accommodation_bloc.dart';
+import 'package:indhostels/data/models/accomodation/user_liked_acommodation_res.dart';
+import 'package:indhostels/routing/route_constants.dart';
+import 'package:indhostels/utils/widgets/app_hostel_card.dart';
 import 'package:intl/intl.dart';
 
 const _kPrimary = Color(0xFF4F46E5);
@@ -8,8 +15,208 @@ const _kSubText = Color(0xFF6B7280);
 const _kCardBg = Colors.white;
 const _kBg = Color(0xFFF7F8FC);
 
+// class HotelsScreen extends StatefulWidget {
+//   final String title;
+//   const HotelsScreen({super.key, required this.title});
+
+//   @override
+//   State<HotelsScreen> createState() => _HotelsScreenState();
+// }
+
+// class _HotelsScreenState extends State<HotelsScreen> {
+//   String _selectedCity = 'Hyderabad';
+//   late DateTimeRange _dateRange;
+//   bool _isSearching = false;
+
+//   @override
+//   void initState() {
+//     super.initState();
+
+//     final now = DateTime.now();
+//     final today = DateTime(now.year, now.month, now.day);
+
+//     _dateRange = DateTimeRange(
+//       start: today,
+//       end: today.add(const Duration(days: 5)),
+//     );
+//   }
+
+//   final List<_HotelDeal> _deals = [
+//     _HotelDeal(
+//       name: 'Hotel Broholi Inn',
+//       location: 'Near Google Office, Kondapur Hit..',
+//       price: '₹1,300',
+//       rating: 4.0,
+//       amenities: ['AC', 'Food Included', 'Wifi', '+3'],
+//       imageColor: const Color(0xFFD4A86A),
+//     ),
+//     _HotelDeal(
+//       name: 'Hyderabad Grand',
+//       location: 'Opp-Hussain Sagar, Banjara Hills',
+//       price: '₹8,000',
+//       rating: 4.0,
+//       amenities: ['AC', 'Food Included', 'Pool'],
+//       imageColor: const Color(0xFF8B6F5E),
+//     ),
+//     _HotelDeal(
+//       name: 'The Pearl Residency',
+//       location: 'Jubilee Hills, Road No. 36',
+//       price: '₹3,500',
+//       rating: 4.5,
+//       amenities: ['AC', 'Wifi', 'Gym'],
+//       imageColor: const Color(0xFF5B8DB8),
+//     ),
+//     _HotelDeal(
+//       name: 'Secunderabad Suites',
+//       location: 'MG Road, Secunderabad',
+//       price: '₹2,200',
+//       rating: 3.8,
+//       amenities: ['AC', 'Breakfast', 'Parking'],
+//       imageColor: const Color(0xFF7B9E6B),
+//     ),
+//   ];
+
+//   int get _nights => _dateRange.end.difference(_dateRange.start).inDays;
+//   String _formatDate(DateTime d) => DateFormat('dd MMM, yy').format(d);
+//   String _formatApiDate(DateTime d) {
+//     return DateFormat('yyyy-MM-dd').format(d);
+//   }
+
+//   Future<void> _openDatePicker() async {
+//     final result = await showModalBottomSheet<DateTimeRange>(
+//       context: context,
+//       isScrollControlled: true,
+//       backgroundColor: Colors.transparent,
+//       builder: (_) => DateRangePickerSheet(initialRange: _dateRange),
+//     );
+//     if (result != null && mounted) setState(() => _dateRange = result);
+//   }
+
+//   Future<void> _openCityPicker() async {
+//     await showModalBottomSheet(
+//       context: context,
+//       isScrollControlled: true,
+//       backgroundColor: Colors.transparent,
+//       builder: (_) => _CityPickerSheet(
+//         selected: _selectedCity,
+//         onSelect: (city) => setState(() => _selectedCity = city),
+//       ),
+//     );
+//   }
+
+//   Future<void> _onSearch() async {
+//     setState(() => _isSearching = true);
+
+//     String checkInDate = _formatApiDate(_dateRange.start);
+//     String checkOutDate = _formatApiDate(_dateRange.end);
+
+//     print("Check In: $checkInDate");
+//     print("Check Out: $checkOutDate");
+//     context.pushNamed(
+//       RouteList.HotelListingScreen,
+//       extra: {
+//         "city": "HYD",
+//         "dateRange": "${checkInDate}-${checkOutDate}",
+//         "guestCount": 0,
+//       },
+//     );
+//     await Future.delayed(const Duration(seconds: 2));
+
+//     if (mounted) setState(() => _isSearching = false);
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: _kBg,
+//       appBar: AppBar(
+//         backgroundColor: _kCardBg,
+//         elevation: 0,
+//         centerTitle: true,
+//         leading: const BackButton(color: _kText),
+//         title: Text(
+//           widget.title,
+//           style: const TextStyle(
+//             color: _kText,
+//             fontWeight: FontWeight.w700,
+//             fontSize: 18,
+//           ),
+//         ),
+//         actions: [
+//           IconButton(
+//             icon: const Icon(Icons.more_vert, color: _kText),
+//             onPressed: () {},
+//           ),
+//         ],
+//       ),
+//       body: LayoutBuilder(
+//         builder: (context, constraints) {
+//           final isWide = constraints.maxWidth > 600;
+//           final hPad = isWide ? 32.0 : 16.0;
+//           final gridCols = isWide ? 3 : 2;
+//           final cardRatio = isWide ? 0.75 : 0.68;
+
+//           return SingleChildScrollView(
+//             padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 16),
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 const _SectionTitle('Find Your Stay'),
+//                 const SizedBox(height: 10),
+
+//                 Center(
+//                   child: ConstrainedBox(
+//                     constraints: BoxConstraints(
+//                       maxWidth: isWide ? 520 : double.infinity,
+//                     ),
+//                     child: _SearchCard(
+//                       city: _selectedCity,
+//                       dateRange: _dateRange,
+//                       nights: _nights,
+//                       formatDate: _formatDate,
+//                       onCityTap: _openCityPicker,
+//                       onDateTap: _openDatePicker,
+//                       onSearch: _onSearch,
+//                       isSearching: _isSearching,
+//                     ),
+//                   ),
+//                 ),
+
+//                 const SizedBox(height: 28),
+
+//                 const _SectionTitle('Featured Deals'),
+//                 const SizedBox(height: 2),
+//                 const Text(
+//                   'Best prices on top-rated stays',
+//                   style: TextStyle(color: _kSubText, fontSize: 13),
+//                 ),
+//                 const SizedBox(height: 14),
+
+//                 GridView.builder(
+//                   shrinkWrap: true,
+//                   physics: const NeverScrollableScrollPhysics(),
+//                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+//                     crossAxisCount: gridCols,
+//                     crossAxisSpacing: 14,
+//                     mainAxisSpacing: 14,
+//                     childAspectRatio: cardRatio,
+//                   ),
+//                   itemCount: _deals.length,
+//                   itemBuilder: (_, i) => _DealCard(deal: _deals[i]),
+//                 ),
+
+//                 const SizedBox(height: 24),
+//               ],
+//             ),
+//           );
+//         },
+//       ),
+//     );
+//   }
+// }
 class HotelsScreen extends StatefulWidget {
   final String title;
+
   const HotelsScreen({super.key, required this.title});
 
   @override
@@ -17,180 +224,235 @@ class HotelsScreen extends StatefulWidget {
 }
 
 class _HotelsScreenState extends State<HotelsScreen> {
-  String _selectedCity = 'Hyderabad';
-  late DateTimeRange _dateRange;
-  bool _isSearching = false;
-
   @override
   void initState() {
     super.initState();
 
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final type = widget.title == "Hostel"
+          ? "hostels"
+          : widget.title == "PG"
+          ? "pgs"
+          : "hotel";
 
-    _dateRange = DateTimeRange(
-      start: today,
-      end: today.add(const Duration(days: 5)),
-    );
+      context.read<AccommodationBloc>().add(
+        LikedAcommodationRequested(type: type),
+      );
+    });
   }
 
-  final List<_HotelDeal> _deals = [
-    _HotelDeal(
-      name: 'Hotel Broholi Inn',
-      location: 'Near Google Office, Kondapur Hit..',
-      price: '₹1,300',
-      rating: 4.0,
-      amenities: ['AC', 'Food Included', 'Wifi', '+3'],
-      imageColor: const Color(0xFFD4A86A),
-    ),
-    _HotelDeal(
-      name: 'Hyderabad Grand',
-      location: 'Opp-Hussain Sagar, Banjara Hills',
-      price: '₹8,000',
-      rating: 4.0,
-      amenities: ['AC', 'Food Included', 'Pool'],
-      imageColor: const Color(0xFF8B6F5E),
-    ),
-    _HotelDeal(
-      name: 'The Pearl Residency',
-      location: 'Jubilee Hills, Road No. 36',
-      price: '₹3,500',
-      rating: 4.5,
-      amenities: ['AC', 'Wifi', 'Gym'],
-      imageColor: const Color(0xFF5B8DB8),
-    ),
-    _HotelDeal(
-      name: 'Secunderabad Suites',
-      location: 'MG Road, Secunderabad',
-      price: '₹2,200',
-      rating: 3.8,
-      amenities: ['AC', 'Breakfast', 'Parking'],
-      imageColor: const Color(0xFF7B9E6B),
-    ),
-  ];
-
-  int get _nights => _dateRange.end.difference(_dateRange.start).inDays;
   String _formatDate(DateTime d) => DateFormat('dd MMM, yy').format(d);
 
-  Future<void> _openDatePicker() async {
+  String _formatApiDate(DateTime d) {
+    return DateFormat('yyyy-MM-dd').format(d);
+  }
+
+  Future<void> _openDatePicker(
+    BuildContext context,
+    DateTimeRange range,
+  ) async {
     final result = await showModalBottomSheet<DateTimeRange>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => DateRangePickerSheet(initialRange: _dateRange),
+      builder: (_) => DateRangePickerSheet(initialRange: range),
     );
-    if (result != null && mounted) setState(() => _dateRange = result);
+
+    if (result != null) {
+      context.read<SearchBloc>().add(
+        UpdateSearchParams(checkInDate: result.start, checkOutDate: result.end),
+      );
+    }
   }
 
-  Future<void> _openCityPicker() async {
+  Future<void> _openCityPicker(
+    BuildContext context,
+    String selectedCity,
+  ) async {
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _CityPickerSheet(
-        selected: _selectedCity,
-        onSelect: (city) => setState(() => _selectedCity = city),
-      ),
-    );
-  }
-
-  Future<void> _onSearch() async {
-    setState(() => _isSearching = true);
-    await Future.delayed(const Duration(seconds: 2));
-    if (mounted) setState(() => _isSearching = false);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _kBg,
-      appBar: AppBar(
-        backgroundColor: _kCardBg,
-        elevation: 0,
-        centerTitle: true,
-        leading: const BackButton(color: _kText),
-        title: Text(
-          widget.title,
-          style: const TextStyle(
-            color: _kText,
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert, color: _kText),
-            onPressed: () {},
-          ),
-        ],
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final isWide = constraints.maxWidth > 600;
-          final hPad = isWide ? 32.0 : 16.0;
-          final gridCols = isWide ? 3 : 2;
-          final cardRatio = isWide ? 0.75 : 0.68;
-
-          return SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const _SectionTitle('Find Your Stay'),
-                const SizedBox(height: 10),
-
-                Center(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: isWide ? 520 : double.infinity,
-                    ),
-                    child: _SearchCard(
-                      city: _selectedCity,
-                      dateRange: _dateRange,
-                      nights: _nights,
-                      formatDate: _formatDate,
-                      onCityTap: _openCityPicker,
-                      onDateTap: _openDatePicker,
-                      onSearch: _onSearch,
-                      isSearching: _isSearching,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 28),
-
-                const _SectionTitle('Featured Deals'),
-                const SizedBox(height: 2),
-                const Text(
-                  'Best prices on top-rated stays',
-                  style: TextStyle(color: _kSubText, fontSize: 13),
-                ),
-                const SizedBox(height: 14),
-
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: gridCols,
-                    crossAxisSpacing: 14,
-                    mainAxisSpacing: 14,
-                    childAspectRatio: cardRatio,
-                  ),
-                  itemCount: _deals.length,
-                  itemBuilder: (_, i) => _DealCard(deal: _deals[i]),
-                ),
-
-                const SizedBox(height: 24),
-              ],
-            ),
-          );
+      builder: (_) => CityPickerSheet(
+        selected: selectedCity,
+        onSelect: (city) {
+          context.read<SearchBloc>().add(UpdateSearchParams(city: city));
         },
       ),
     );
   }
+
+  void _onSearch(BuildContext context, SearchState state) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    final checkIn = state.checkInDate ?? today;
+    final checkOut = state.checkOutDate ?? today.add(const Duration(days: 5));
+    final city = state.city ?? "Hyderabad";
+
+    context.read<SearchBloc>().add(
+      UpdateSearchParams(
+        city: city,
+        checkInDate: checkIn,
+        checkOutDate: checkOut,
+      ),
+    );
+
+    debugPrint("City: $city");
+    debugPrint("CheckIn: ${DateFormat('yyyy-MM-dd').format(checkIn)}");
+    debugPrint("CheckOut: ${DateFormat('yyyy-MM-dd').format(checkOut)}");
+
+    context.pushNamed(RouteList.HotelListingScreen);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SearchBloc, SearchState>(
+      builder: (context, state) {
+        final start = state.checkInDate ?? DateTime.now();
+        final end =
+            state.checkOutDate ?? DateTime.now().add(const Duration(days: 1));
+
+        final range = DateTimeRange(start: start, end: end);
+
+        final nights = range.end.difference(range.start).inDays;
+
+        return Scaffold(
+          backgroundColor: _kBg,
+          appBar: AppBar(
+            backgroundColor: _kCardBg,
+            elevation: 0,
+            centerTitle: true,
+            leading: const BackButton(color: _kText),
+            title: Text(
+              widget.title,
+              style: const TextStyle(
+                color: _kText,
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+              ),
+            ),
+          ),
+          body: LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 600;
+              final hPad = isWide ? 32.0 : 16.0;
+
+              return SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const _SectionTitle('Find Your Stay'),
+                    const SizedBox(height: 10),
+
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: isWide ? 520 : double.infinity,
+                        ),
+                        child: SearchCard(
+                          city: state.city ?? "hyderabad",
+                          dateRange: range,
+                          nights: nights,
+                          formatDate: _formatDate,
+                          onCityTap: () =>
+                              _openCityPicker(context, state.city ?? ""),
+                          onDateTap: () => _openDatePicker(context, range),
+                          onSearch: () => _onSearch(context, state),
+                          isSearching: state.searchLoading,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const _SectionTitle('Featured Deals'),
+                    const SizedBox(height: 10),
+                    BlocConsumer<AccommodationBloc, AccommodationState>(
+                      listener: (context, state) {},
+                      builder: (context, state) {
+                        if (state.lIkedAcommodationsLoading) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        if (state.lIkedAcommodationsError != null) {
+                          return Center(
+                            child: Text(
+                              state.lIkedAcommodationsError!,
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          );
+                        }
+
+                        final deals = state.lIkedAcommodations ?? [];
+
+                        if (deals.isEmpty) {
+                          return const Center(child: Text("No Hotels Found"));
+                        }
+
+                        return SizedBox(
+                          height: 260,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: deals.length,
+                            itemBuilder: (context, index) {
+                              final deal = deals[index];
+
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 12),
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    minWidth: 180,
+                                    maxWidth: 240,
+                                  ),
+                                  child: InkWell(
+                                    onTap: () {
+                                      context.push(
+                                        RouteList.acommodationDetaiesScreen,
+                                        extra: {"id": deal.sId},
+                                      );
+                                    },
+
+                                    child: AppHotelCard(
+                                      amenities: const [],
+                                      imageUrl:
+                                          deal.imagesUrl?.isNotEmpty == true
+                                          ? deal.imagesUrl!.first
+                                          : null,
+                                      location: deal.location?.area ?? '',
+                                      price:
+                                          deal
+                                              .pricingData
+                                              ?.first
+                                              .pricing
+                                              ?.first
+                                              .price
+                                              ?.toString() ??
+                                          '',
+                                      rating: deal.averageRating ?? 0,
+                                      title: deal.propertyName ?? '',
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
 }
 
-class _SearchCard extends StatelessWidget {
+class SearchCard extends StatelessWidget {
   final String city;
   final DateTimeRange dateRange;
   final int nights;
@@ -198,7 +460,7 @@ class _SearchCard extends StatelessWidget {
   final VoidCallback onCityTap, onDateTap, onSearch;
   final bool isSearching;
 
-  const _SearchCard({
+  const SearchCard({
     required this.city,
     required this.dateRange,
     required this.nights,
@@ -302,160 +564,6 @@ class _SearchCard extends StatelessWidget {
             'Choose your city, dates and guests to find available options',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 12, color: _kSubText),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DealCard extends StatelessWidget {
-  final _HotelDeal deal;
-  const _DealCard({required this.deal});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: _kCardBg,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.07),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image
-          Expanded(
-            flex: 5,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(14),
-                  ),
-                  child: Container(
-                    color: deal.imageColor,
-                    child: const Icon(
-                      Icons.hotel,
-                      size: 40,
-                      color: Colors.white24,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.85),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.favorite_border,
-                      size: 14,
-                      color: Color(0xFF888888),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 8,
-                  left: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.star,
-                          size: 12,
-                          color: Color(0xFFFBBF24),
-                        ),
-                        const SizedBox(width: 3),
-                        Text(
-                          deal.rating.toStringAsFixed(1),
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Info
-          Expanded(
-            flex: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    deal.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                      color: _kText,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    deal.location,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 11, color: _kSubText),
-                  ),
-                  const SizedBox(height: 4),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: deal.price,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            color: _kText,
-                          ),
-                        ),
-                        const TextSpan(
-                          text: ' / night',
-                          style: TextStyle(fontSize: 11, color: _kSubText),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Wrap(
-                    spacing: 4,
-                    runSpacing: 4,
-                    children: deal.amenities
-                        .map((a) => _AmenityChip(label: a))
-                        .toList(),
-                  ),
-                ],
-              ),
-            ),
           ),
         ],
       ),
@@ -849,16 +957,16 @@ class _DateTile extends StatelessWidget {
   }
 }
 
-class _CityPickerSheet extends StatefulWidget {
+class CityPickerSheet extends StatefulWidget {
   final String selected;
   final ValueChanged<String> onSelect;
-  const _CityPickerSheet({required this.selected, required this.onSelect});
+  const CityPickerSheet({required this.selected, required this.onSelect});
 
   @override
-  State<_CityPickerSheet> createState() => _CityPickerSheetState();
+  State<CityPickerSheet> createState() => _CityPickerSheetState();
 }
 
-class _CityPickerSheetState extends State<_CityPickerSheet> {
+class _CityPickerSheetState extends State<CityPickerSheet> {
   final _cities = [
     'Hyderabad',
     'Bangalore',
@@ -963,10 +1071,6 @@ class _CityPickerSheetState extends State<_CityPickerSheet> {
     );
   }
 }
-
-// ══════════════════════════════════════════════════════════════════════════════
-// REUSABLE WIDGETS
-// ══════════════════════════════════════════════════════════════════════════════
 
 class PrimaryButton extends StatelessWidget {
   final String text;
@@ -1100,10 +1204,6 @@ class _AmenityChip extends StatelessWidget {
     );
   }
 }
-
-// ══════════════════════════════════════════════════════════════════════════════
-// MODEL
-// ══════════════════════════════════════════════════════════════════════════════
 
 class _HotelDeal {
   final String name, location, price;

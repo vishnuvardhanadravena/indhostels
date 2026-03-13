@@ -16,7 +16,7 @@ class DioClient {
   DioClient(this.storage) {
     dio = Dio(
       BaseOptions(
-        baseUrl: ApiConstants.BaseUrl,
+        baseUrl: ApiConstants.domain,
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
         headers: {"Content-Type": "application/json"},
@@ -33,7 +33,7 @@ class DioClient {
             options.headers["Authorization"] = "Bearer $token";
           }
 
-          AppLogger.log("📤 ${options.method} ${options.path}");
+          // AppLogger.log("📤 ${options.method} ${options.path}");
 
           if (options.data != null) {
             AppLogger.json(options.data);
@@ -71,9 +71,7 @@ class DioClient {
 
 class AppLogger {
   static bool enableLogs = true;
-
   static bool get _canLog => enableLogs && kDebugMode;
-
   static void log(String msg) {
     if (!_canLog) return;
     debugPrint(msg);
@@ -81,15 +79,11 @@ class AppLogger {
 
   static void json(dynamic data) {
     if (!_canLog) return;
-
-    /// FormData cannot be encoded
     if (data is FormData) {
       debugPrint("📦 FormData request (multipart upload)");
       return;
     }
-
     const encoder = JsonEncoder.withIndent('  ');
-
     try {
       debugPrint(encoder.convert(data));
     } catch (_) {

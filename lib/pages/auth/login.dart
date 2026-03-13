@@ -124,10 +124,8 @@ class _LoginScreenState extends State<LoginScreen> {
             normalText: "Don't have an account? ",
             linkText: 'Sign Up',
             onLinkTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const SignUpScreen()),
-              );
+               context.push(RouteList.signup);
+             
             },
           ),
         ],

@@ -31,43 +31,45 @@ class ProfileMenuItem {
   });
 }
 
+// ─── r_class.dart ────────────────────────────────────────────────────────────
+
 class R {
   final bool isTablet;
 
   R(double width) : isTablet = width >= 600;
 
-  /// Screen padding
+  // Screen padding
   double get screenPadH => isTablet ? 48.0 : 18.0;
   double get screenPadV => isTablet ? 24.0 : 16.0;
 
-  /// Spacing
+  // Spacing
   double get sectionGap => isTablet ? 32.0 : 24.0;
   double get fieldGap => isTablet ? 20.0 : 16.0;
   double get headerGap => isTablet ? 28.0 : 20.0;
 
-  /// App bar / titles
+  // App bar / titles
   double get titleFontSize => isTablet ? 26.0 : 20.0;
   double get backIconSize => isTablet ? 26.0 : 22.0;
 
-  /// Avatar
+  // Avatar
   double get avatarRadius => isTablet ? 56.0 : 40.0;
   double get avatarGap => isTablet ? 24.0 : 18.0;
 
-  /// Profile text
+  // Profile text
   double get nameFontSize => isTablet ? 22.0 : 18.0;
   double get emailFontSize => isTablet ? 14.0 : 13.0;
 
-  /// Gender selection
+  // Gender selection
   double get genderFontSize => isTablet ? 15.0 : 13.0;
   double get genderIconSize => isTablet ? 22.0 : 18.0;
   double get radioGap => isTablet ? 28.0 : 20.0;
 
-  /// Cards
+  // Cards
   double get cardRadius => isTablet ? 24.0 : 18.0;
   double get cardPadH => isTablet ? 28.0 : 20.0;
   double get cardPadV => isTablet ? 28.0 : 20.0;
 
-  /// Menu items
+  // Menu items
   double get itemPadH => isTablet ? 24.0 : 20.0;
   double get itemPadV => isTablet ? 20.0 : 18.0;
   double get iconBox => isTablet ? 46.0 : 38.0;
@@ -77,13 +79,65 @@ class R {
   double get labelFontSize => isTablet ? 17.0 : 15.0;
   double get chevronSize => isTablet ? 26.0 : 22.0;
 
-  /// Logout button
+  // Logout button
   double get logoutH => isTablet ? 62.0 : 52.0;
   double get logoutRadius => isTablet ? 18.0 : 14.0;
   double get logoutFont => isTablet ? 18.0 : 16.0;
   double get logoutIcon => isTablet ? 22.0 : 20.0;
   double get logoutPadH => isTablet ? 20.0 : 16.0;
   double get logoutPadB => isTablet ? 20.0 : 16.0;
+
+  // ── Rooms-screen specific extras ──────────────────────────────────────────
+  double get roomImageHeight => isTablet ? 260.0 : 190.0;
+  double get roomTitleFont => isTablet ? 20.0 : 16.0;
+  double get roomDescFont => isTablet ? 14.0 : 12.0;
+  double get roomPriceFont => isTablet ? 22.0 : 17.0;
+  double get roomPriceSufFont => isTablet ? 13.0 : 11.0;
+  double get badgeFontSize => isTablet ? 13.0 : 11.0;
+  double get badgePadH => isTablet ? 12.0 : 8.0;
+  double get badgePadV => isTablet ? 6.0 : 4.0;
+  double get badgeRadius => isTablet ? 20.0 : 16.0;
+  double get ratingFont => isTablet ? 14.0 : 12.0;
+  double get ratingIconSize => isTablet ? 16.0 : 13.0;
+  double get taxFont => isTablet ? 12.0 : 10.0;
+  double get amenityFont => isTablet ? 13.0 : 11.0;
+  double get emptyIconSize => isTablet ? 120.0 : 90.0;
+  double get emptyTitleFont => isTablet ? 24.0 : 20.0;
+  double get emptySubFont => isTablet ? 16.0 : 14.0;
+  double get detailImageHeight => isTablet ? 320.0 : 220.0;
+  double get detailTitleFont => isTablet ? 22.0 : 18.0;
+  double get detailBodyFont => isTablet ? 15.0 : 13.0;
+  double get detailSectionTitle => isTablet ? 18.0 : 15.0;
+  double get detailGridLabelFont => isTablet ? 13.0 : 11.5;
+  double get detailGridValueFont => isTablet ? 15.0 : 13.0;
+  double get detailGridIconSize => isTablet ? 22.0 : 18.0;
+  double get facilityChipFont => isTablet ? 13.0 : 11.5;
+  double get facilityChipIconSize => isTablet ? 18.0 : 15.0;
+  double get facilityChipPadH => isTablet ? 14.0 : 10.0;
+  double get facilityChipPadV => isTablet ? 8.0 : 6.0;
+  double get bottomBarHeight => isTablet ? 90.0 : 74.0;
+  double get bookBtnFont => isTablet ? 18.0 : 15.0;
+  double get bookBtnRadius => isTablet ? 16.0 : 12.0;
+  double get bookBtnPadH => isTablet ? 36.0 : 28.0;
+  double get detailPriceFont => isTablet ? 26.0 : 20.0;
+  double get detailPriceSufFont => isTablet ? 14.0 : 12.0;
+  double get featureCardRadius => isTablet ? 16.0 : 12.0;
+  double get featureCardPad => isTablet ? 20.0 : 14.0;
+  double get reviewAvatarRadius => isTablet ? 36.0 : 26.0;
+  double get reviewNameFont => isTablet ? 18.0 : 15.0;
+  double get reviewDateFont => isTablet ? 13.0 : 11.0;
+  double get reviewBodyFont => isTablet ? 15.0 : 13.0;
+  double get reviewStarSize => isTablet ? 18.0 : 14.0;
+  double get reviewRatingFont => isTablet ? 16.0 : 13.0;
+  double get reviewCountFont => isTablet ? 18.0 : 15.0;
+  double get reviewDividerH => isTablet ? 1.0 : 0.8;
+  double get reviewItemGapV => isTablet ? 20.0 : 16.0;
+  double get reviewAvatarContentGap => isTablet ? 16.0 : 12.0;
+  double get reviewAvgSubFont => isTablet ? 14.0 : 12.0;
+  double get reviewBadgeFont => isTablet ? 12.0 : 10.5;
+  double get reviewBadgePadH => isTablet ? 10.0 : 8.0;
+  double get reviewBadgePadV => isTablet ? 5.0 : 4.0;
+  double get reviewBadgeRadius => isTablet ? 20.0 : 14.0;
 }
 
 class ProfileScreen extends StatefulWidget {

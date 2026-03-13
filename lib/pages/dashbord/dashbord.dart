@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:indhostels/bloc/profile/profile_bloc.dart';
 import 'package:indhostels/bloc/profile/profile_event.dart';
+import 'package:indhostels/routing/route_constants.dart';
 import 'package:indhostels/utils/theame/app_themes.dart';
 
 class MainNavBarScreen extends StatefulWidget {
@@ -20,7 +21,7 @@ class _MainNavBarScreenState extends State<MainNavBarScreen> {
 
     if (location.startsWith('/home')) return 0;
     if (location.startsWith('/search')) return 1;
-    if (location.startsWith('/bookings')) return 2;
+    if (location.startsWith(RouteList.bookings)) return 2;
     if (location.startsWith('/profile')) return 3;
 
     return 0;
@@ -35,7 +36,7 @@ class _MainNavBarScreenState extends State<MainNavBarScreen> {
         context.go('/search');
         break;
       case 2:
-        context.go('/bookings');
+        context.go(RouteList.bookings);
         break;
       case 3:
         context.go('/profile');
@@ -44,12 +45,12 @@ class _MainNavBarScreenState extends State<MainNavBarScreen> {
   }
 
   @override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    context.read<ProfileBloc>().add(ProfileLoadEvent());
-  });
-}
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProfileBloc>().add(ProfileLoadEvent());
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

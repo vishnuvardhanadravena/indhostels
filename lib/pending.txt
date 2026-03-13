@@ -1,0 +1,4 @@
+1. clear- all-serches 
+2.user-liked-accomodations
+3. deactivateaccount
+4.

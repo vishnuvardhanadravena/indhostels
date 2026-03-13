@@ -43,38 +43,41 @@ class ApiClient {
     );
   }
 
-  Future<Response> delete(String path, {dynamic data}) {
+  Future<Response> delete(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+  }) {
     return _request(
-      () => _dio.delete(path, data: data),
+      () => _dio.delete(path, data: data, queryParameters: queryParameters),
       method: "DELETE",
       path: path,
-      body: data,
+      body: data ?? queryParameters,
     );
   }
 
-Future<Response> multipart(
-  String path, {
-  Map<String, dynamic>? fields,
-  required String filePath,
-  required String fileKey,
-}) async {
+  Future<Response> multipart(
+    String path, {
+    Map<String, dynamic>? fields,
+    required String filePath,
+    required String fileKey,
+  }) async {
+    final formData = FormData.fromMap({
+      ...?fields,
+      fileKey: await MultipartFile.fromFile(filePath),
+    });
 
-  final formData = FormData.fromMap({
-    ...?fields,
-    fileKey: await MultipartFile.fromFile(filePath),
-  });
-
-  return _request(
-    () => _dio.post(
-      path,
-      data: formData,
-      options: Options(contentType: "multipart/form-data"),
-    ),
-    method: "MULTIPART",
-    path: path,
-    body: fields,
-  );
-}
+    return _request(
+      () => _dio.post(
+        path,
+        data: formData,
+        options: Options(contentType: "multipart/form-data"),
+      ),
+      method: "MULTIPART",
+      path: path,
+      body: fields,
+    );
+  }
 
   Future<Response> _request(
     Future<Response> Function() request, {

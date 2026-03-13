@@ -48,7 +48,7 @@ class AuthRepository {
   Future<ApiResponseModel> forgotPassword(String email) async {
     try {
       final response = await api.post(
-        ApiConstants.forgotpassword,
+        ApiConstants.forgotPassword,
         data: {"email": email},
       );
 

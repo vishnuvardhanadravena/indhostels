@@ -5,11 +5,6 @@ const _kPrimary = Color(0xFF3D35C0);
 const _kPrimaryLight = Color(0xFFEEEDFB);
 const _kText = Color(0xFF1A1A2E);
 const _kSubText = Color(0xFF6B7280);
-const _kBg = Color(0xFFF7F8FC);
-
-// ══════════════════════════════════════════════════════════════════════════════
-// PUBLIC API — call this from anywhere
-// ══════════════════════════════════════════════════════════════════════════════
 
 Future<DateTimeRange?> showDateRangePickerSheet(
   BuildContext context, {

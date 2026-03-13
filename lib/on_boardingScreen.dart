@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:indhostels/routing/route_constants.dart';
@@ -82,9 +83,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _onGetStarted() {
     context.go(RouteList.login);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Welcome! Navigate to Login Screen.')),
-    );
   }
 
   @override
@@ -218,34 +216,77 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 }
 
-// ─── Full-Screen Image Page (Mobile) ──────────────────────────────────────────
 class _OnboardingPage extends StatelessWidget {
   final OnboardingData data;
 
   const _OnboardingPage({required this.data});
+
+  Widget buildImage(OnboardingData data) {
+    final path = data.imagePath.isNotEmpty ? data.imagePath : data.networkImage;
+
+    final isNetwork = path.startsWith("http");
+    final isSvg = path.toLowerCase().endsWith(".svg");
+
+    if (isNetwork && isSvg) {
+      return SvgPicture.network(
+        path,
+        fit: BoxFit.cover,
+        placeholderBuilder: (_) => Container(
+          color: const Color(0xFF1A1A2E),
+          child: const Center(
+            child: CircularProgressIndicator(color: Colors.white),
+          ),
+        ),
+      );
+    }
+
+    if (isNetwork) {
+      return Image.network(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _errorWidget(),
+        loadingBuilder: (_, child, progress) {
+          if (progress == null) return child;
+          return _loadingWidget();
+        },
+      );
+    }
+
+    /// ASSET SVG
+    if (isSvg) {
+      return SvgPicture.asset(path, fit: BoxFit.cover);
+    }
+
+    /// ASSET IMAGE
+    return Image.asset(
+      path,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => _errorWidget(),
+    );
+  }
+
+  Widget _loadingWidget() {
+    return Container(
+      color: const Color(0xFF1A1A2E),
+      child: const Center(
+        child: CircularProgressIndicator(color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _errorWidget() {
+    return Container(
+      color: const Color(0xFF1A1A2E),
+      child: const Icon(Icons.hotel, color: Colors.white30, size: 80),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Image.network(
-          data.networkImage,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Container(
-            color: const Color(0xFF1A1A2E),
-            child: const Icon(Icons.hotel, color: Colors.white30, size: 80),
-          ),
-          loadingBuilder: (_, child, progress) {
-            if (progress == null) return child;
-            return Container(
-              color: const Color(0xFF1A1A2E),
-              child: const Center(
-                child: CircularProgressIndicator(color: Colors.white),
-              ),
-            );
-          },
-        ),
+        buildImage(data),
         Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(

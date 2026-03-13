@@ -17,6 +17,10 @@ class RouteList {
   static const String profile = '/profile';
 
 static const String  categoryScreen = '/categoryscreen';
+static const String  HotelListingScreen = '/HotelListingScreen';
+ static const String acommodationDetaiesScreen = '/acommodationDetaiesScreen';
+ static const String reviews = '/reviews';
+
   
   static const String edit_profile = '/updateprofile';
   static const String change_password = '/change_password';
@@ -24,4 +28,7 @@ static const String  categoryScreen = '/categoryscreen';
   static const String notifications = '/notifications';
   static const String privacy = '/privacy';
   static const String help = '/help';
+    static const String rooms = '/rooms';
+
+  static const String roomDetails = '/roomDetails';
 }
