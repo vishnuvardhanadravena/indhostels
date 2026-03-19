@@ -126,4 +126,10 @@ class AuthRepository {
 
     return response.data;
   }
+
+  Future<dynamic> deactivate() async {
+    final response = await api.put(ApiConstants.deactivate);
+
+    return response.data;
+  }
 }

@@ -27,6 +27,7 @@ class ApiConstants {
   static String get changePassword => "$baseUrl/auth/user/password/change";
 
   static String get logout => "$baseUrl/auth/user/logout";
+  static String get deactivate => "$baseUrl/auth/user/deactivateaccount";
 
   /// ───────────────── PROFILE ─────────────────
 
