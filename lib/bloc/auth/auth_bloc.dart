@@ -13,6 +13,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   AuthBloc(this.repository) : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
+    on<DeActivateRequested>(_onDeActivateRequested);
     on<SignUpRequested>(_onSignUpRequested);
     on<VerifyOtpRequested>(_onVerifyOtpRequested);
     on<ForgotPasswordRequested>(_onForgotPasswordRequested);
@@ -230,6 +231,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       print(e);
       print(s);
       emit(LogoutReqError(e.toString()));
+    }
+  }
+
+  Future<void> _onDeActivateRequested(
+    DeActivateRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(DeActivateReqLoading());
+
+    try {
+      final response = await repository.deactivate();
+      if (response["success"] == true) {
+        emit(DeActivateReqSuccess(response["message"]));
+      }
+    } on ApiException catch (e) {
+      emit(DeActivateReqError(e.message));
+    } catch (e, s) {
+      print(e);
+      print(s);
+      emit(DeActivateReqError(e.toString()));
     }
   }
 

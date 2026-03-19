@@ -64,3 +64,7 @@ class ChangePasswordRequested extends AuthEvent {
 class LogoutRequested extends AuthEvent {
   LogoutRequested();
 }
+
+class DeActivateRequested extends AuthEvent {
+  DeActivateRequested();
+}

@@ -138,20 +138,20 @@ class R {
   double get reviewBadgePadH => isTablet ? 10.0 : 8.0;
   double get reviewBadgePadV => isTablet ? 5.0 : 4.0;
   double get reviewBadgeRadius => isTablet ? 20.0 : 14.0;
-  double get supportTabFont     => isTablet ? 15.0 : 13.0;
-double get supportTabPadH     => isTablet ? 22.0 : 16.0;
-double get supportTabPadV     => isTablet ? 13.0 : 10.0;
-double get supportTabRadius   => isTablet ? 30.0 : 24.0;
-double get supportFieldRadius => isTablet ? 16.0 : 12.0;
-double get supportFieldFont   => isTablet ? 15.0 : 14.0;
-double get supportLabelFont   => isTablet ? 15.0 : 14.0;
-double get supportMsgHeight   => isTablet ? 160.0 : 120.0;
-double get supportBtnHeight   => isTablet ? 62.0 : 52.0;
-double get supportBtnFont     => isTablet ? 18.0 : 16.0;
-double get supportBtnRadius   => isTablet ? 18.0 : 14.0;
-double get supportUploadFont  => isTablet ? 15.0 : 13.0;
-double get supportUploadIcon  => isTablet ? 22.0 : 18.0;
-double get supportUploadH     => isTablet ? 64.0 : 52.0;
+  double get supportTabFont => isTablet ? 15.0 : 13.0;
+  double get supportTabPadH => isTablet ? 22.0 : 16.0;
+  double get supportTabPadV => isTablet ? 13.0 : 10.0;
+  double get supportTabRadius => isTablet ? 30.0 : 24.0;
+  double get supportFieldRadius => isTablet ? 16.0 : 12.0;
+  double get supportFieldFont => isTablet ? 15.0 : 14.0;
+  double get supportLabelFont => isTablet ? 15.0 : 14.0;
+  double get supportMsgHeight => isTablet ? 160.0 : 120.0;
+  double get supportBtnHeight => isTablet ? 62.0 : 52.0;
+  double get supportBtnFont => isTablet ? 18.0 : 16.0;
+  double get supportBtnRadius => isTablet ? 18.0 : 14.0;
+  double get supportUploadFont => isTablet ? 15.0 : 13.0;
+  double get supportUploadIcon => isTablet ? 22.0 : 18.0;
+  double get supportUploadH => isTablet ? 64.0 : 52.0;
 }
 
 class ProfileScreen extends StatefulWidget {
@@ -217,6 +217,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
 
           if (state is LogoutReqError) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!context.mounted) return;
+              Navigator.of(context, rootNavigator: true).pop();
+            });
+
+            AppToast.error(state.message);
+          }
+
+          if (state is DeActivateReqSuccess) {
+            await sl<AppSecureStorage>().writeString("token", "");
+            await sl<AppSecureStorage>().writeBool("login", false);
+            await UserSession().clear();
+
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!context.mounted) return;
+
+              Navigator.of(context, rootNavigator: true).pop();
+
+              context.go(RouteList.login);
+            });
+
+            AppToast.success("Account Deactivated successfully");
+          }
+
+          if (state is DeActivateReqError) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!context.mounted) return;
               Navigator.of(context, rootNavigator: true).pop();
@@ -521,6 +546,44 @@ class _MenuCard extends StatelessWidget {
               r.logoutPadB,
             ),
             child: _LogoutButton(
+              buttonTitle: 'DeActivate',
+              r: r,
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (_) {
+                    return BlocBuilder<AuthBloc, AuthState>(
+                      builder: (context, state) {
+                        final loading = state is DeActivateReqLoading;
+
+                        return ConfirmationPopup(
+                          illustrationAsset: 'assets/log-out.png',
+                          title: 'DeActivate',
+                          message:
+                              'Are you sure you want to DeActivate your account?',
+                          confirmLabel: 'DeActivate',
+                          loading: loading,
+                          onConfirm: () {
+                            context.read<AuthBloc>().add(DeActivateRequested());
+                          },
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              r.logoutPadH,
+              1,
+              r.logoutPadH,
+              r.logoutPadB,
+            ),
+            child: _LogoutButton(
+              buttonTitle: 'Logout',
               r: r,
               onPressed: () {
                 showDialog(
@@ -646,7 +709,12 @@ class _MenuItemState extends State<_MenuItem> {
 class _LogoutButton extends StatefulWidget {
   final VoidCallback onPressed;
   final R r;
-  const _LogoutButton({required this.onPressed, required this.r});
+  final String buttonTitle;
+  const _LogoutButton({
+    required this.onPressed,
+    required this.r,
+    required this.buttonTitle,
+  });
 
   @override
   State<_LogoutButton> createState() => _LogoutButtonState();
@@ -716,14 +784,16 @@ class _LogoutButtonState extends State<_LogoutButton>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.logout_rounded,
-                color: Colors.white,
-                size: r.logoutIcon,
-              ),
+              widget.buttonTitle == 'Logout'
+                  ? Icon(
+                      Icons.logout_rounded,
+                      color: Colors.white,
+                      size: r.logoutIcon,
+                    )
+                  : SizedBox(),
               const SizedBox(width: 8),
               Text(
-                'Logout',
+                widget.buttonTitle == 'Logout' ? 'Logout' : widget.buttonTitle,
                 style: TextStyle(
                   fontSize: r.logoutFont,
                   fontWeight: FontWeight.w600,

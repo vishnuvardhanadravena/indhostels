@@ -105,3 +105,15 @@ class LogoutReqError extends AuthState {
   final String message;
   LogoutReqError(this.message);
 }
+
+class DeActivateReqLoading extends AuthState {}
+
+class DeActivateReqSuccess extends AuthState {
+  final String message;
+  DeActivateReqSuccess(this.message);
+}
+
+class DeActivateReqError extends AuthState {
+  final String message;
+  DeActivateReqError(this.message);
+}
