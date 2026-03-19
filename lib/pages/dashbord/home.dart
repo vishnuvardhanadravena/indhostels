@@ -386,7 +386,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               _SectionHeader(
                                 title: 'Popular Hotels',
-                                onViewAll: () {},
+                                onViewAll: () {
+                                  context.pushNamed(
+                                    RouteList.categoryScreen,
+                                    extra: {"title": 'Hostel'},
+                                  );
+                                },
                               ),
                               SizedBox(
                                 height: listHeight,
@@ -435,7 +440,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       _SectionHeader(
                         title: "Budget-Friendly PG's",
-                        onViewAll: () {},
+                        onViewAll: () {
+                          context.pushNamed(
+                            RouteList.categoryScreen,
+                            extra: {"title": 'PG'},
+                          );
+                        },
                       ),
                       BlocBuilder<AccommodationBloc, AccommodationState>(
                         buildWhen: (previous, current) =>

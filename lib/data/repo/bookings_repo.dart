@@ -13,6 +13,18 @@ class BookingsRepository {
   }) async {
     final response = await api.get(
       ApiConstants.myBookings(),
+      query: {"page": page, "limit": limit, "status": true},
+    );
+
+    return BookingsResponse.fromJson(response.data);
+  }
+
+  Future<BookingsResponse> getBookingsHistory({
+    required int page,
+    required int limit,
+  }) async {
+    final response = await api.get(
+      ApiConstants.myBookings(),
       query: {"page": page, "limit": limit},
     );
 

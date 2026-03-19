@@ -17,6 +17,16 @@ class FetchBookings extends BookingsEvent {
   List<Object?> get props => [page, limit];
 }
 
+class FetchBookingsHistory extends BookingsEvent {
+  final int page;
+  final int limit;
+
+  const FetchBookingsHistory({this.page = 1, this.limit = 10});
+
+  @override
+  List<Object?> get props => [page, limit];
+}
+
 class FetchBookingDetailes extends BookingsEvent {
   final String id;
 
@@ -25,6 +35,7 @@ class FetchBookingDetailes extends BookingsEvent {
   @override
   List<Object?> get props => [id];
 }
+
 class InvoiceDownloadRequested extends BookingsEvent {
   final String bookingId;
 
@@ -33,6 +44,7 @@ class InvoiceDownloadRequested extends BookingsEvent {
   @override
   List<Object?> get props => [bookingId];
 }
+
 class InvoiceReset extends BookingsEvent {
   const InvoiceReset();
 

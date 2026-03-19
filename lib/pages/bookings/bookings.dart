@@ -4,16 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:indhostels/bloc/bookings/bookings_bloc.dart';
-import 'package:indhostels/data/models/accomodation/accomodation_details_res.dart';
 import 'package:indhostels/data/models/bookings/booking_res.dart';
-import 'package:indhostels/pages/bookings/booking_details.dart';
 import 'package:indhostels/routing/route_constants.dart';
 import 'package:indhostels/utils/shimmers/booking_card_shimmer.dart';
 import 'package:indhostels/utils/widgets/authwidgts.dart';
-import 'package:intl/intl.dart';
-
-import 'dart:convert';
-import 'package:flutter/material.dart';
 
 class BookingsScreen extends StatefulWidget {
   const BookingsScreen({super.key});
@@ -24,12 +18,16 @@ class BookingsScreen extends StatefulWidget {
 
 class _BookingsScreenState extends State<BookingsScreen> {
   final ScrollController _scrollController = ScrollController();
+  int _selectedTab = 0;
 
   @override
   void initState() {
     super.initState();
 
     context.read<BookingsBloc>().add(const FetchBookings(page: 1, limit: 10));
+    context.read<BookingsBloc>().add(
+      const FetchBookingsHistory(page: 1, limit: 10),
+    );
 
     _scrollController.addListener(_onScroll);
   }
@@ -43,6 +41,10 @@ class _BookingsScreenState extends State<BookingsScreen> {
       if (!state.bookingsMoreLoading && !state.hasReachedMax) {
         bloc.add(FetchBookings(page: state.currentPage + 1, limit: 10));
       }
+
+      if (!state.bookingshistoryMoreLoading && !state.historyhasReachedMax) {
+        bloc.add(FetchBookingsHistory(page: state.currentPage + 1, limit: 10));
+      }
     }
   }
 
@@ -51,10 +53,21 @@ class _BookingsScreenState extends State<BookingsScreen> {
     return BlocBuilder<BookingsBloc, BookingsState>(
       builder: (context, state) {
         return MyBookingsScreen(
+          selectedTab: _selectedTab,
+          onTabChanged: (index) {
+            setState(() {
+              _selectedTab = index;
+            });
+          },
           bookings: state.bookings,
-          isLoading: state.bookingsLoading,
+          bookingshistory: state.bookingshistory,
+          isLoading: _selectedTab == 0
+              ? state.bookingsLoading
+              : state.bookingsHistoryLoading,
           scrollController: _scrollController,
-          isLoadingMore: state.bookingsMoreLoading,
+          isLoadingMore: _selectedTab == 0
+              ? state.bookingsMoreLoading
+              : state.bookingshistoryMoreLoading,
         );
       },
     );
@@ -63,17 +76,23 @@ class _BookingsScreenState extends State<BookingsScreen> {
 
 class MyBookingsScreen extends StatefulWidget {
   final List<BookingModel> bookings;
+  final List<BookingModel> bookingshistory;
   final bool isLoading;
   final bool isLoadingMore;
   final ScrollController scrollController;
+  final int selectedTab;
+  final Function(int) onTabChanged;
   final Future<void> Function()? onRefresh;
 
   const MyBookingsScreen({
     super.key,
+    required this.bookingshistory,
     required this.bookings,
     required this.scrollController,
     this.isLoading = false,
     this.isLoadingMore = false,
+    required this.selectedTab,
+    required this.onTabChanged,
     this.onRefresh,
   });
 
@@ -82,8 +101,6 @@ class MyBookingsScreen extends StatefulWidget {
 }
 
 class _MyBookingsScreenState extends State<MyBookingsScreen> {
-  int _selectedTab = 0;
-
   List<BookingModel> get _booked => widget.bookings
       .where(
         (b) => b.checkOut.isAfter(
@@ -92,11 +109,12 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       )
       .toList();
 
-  List<BookingModel> get _history => widget.bookings
-      .where((b) => b.checkOut.isBefore(DateTime.now()))
-      .toList();
+  List<BookingModel> get _history => widget.bookingshistory;
+  // .where((b) => b.checkOut.isBefore(DateTime.now()))
+  // .toList();
 
-  List<BookingModel> get _current => _selectedTab == 0 ? _booked : _history;
+  List<BookingModel> get _current =>
+      widget.selectedTab == 0 ? _booked : _history;
 
   @override
   Widget build(BuildContext context) {
@@ -171,9 +189,9 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     padding: EdgeInsets.symmetric(horizontal: isTab ? 32 : 20, vertical: 12),
     child: AuthTabSwitcher(
       isTab: isTab,
-      selectedIndex: _selectedTab,
+      selectedIndex: widget.selectedTab,
       tabs: ['Booked (${_booked.length})', 'History (${_history.length})'],
-      onTabSelected: (i) => setState(() => _selectedTab = i),
+      onTabSelected: widget.onTabChanged,
     ),
   );
 
@@ -197,7 +215,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         return BookingCard(
           booking: _current[i],
           isTab: isTab,
-          isHistory: _selectedTab == 1,
+          isHistory: widget.selectedTab == 1,
           onPrimaryAction: () => _handlePrimary(_current[i]),
           onSecondaryAction: () => _handleSecondary(_current[i]),
         );
@@ -230,7 +248,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         return BookingCard(
           booking: _current[i],
           isTab: isTab,
-          isHistory: _selectedTab == 1,
+          isHistory: widget.selectedTab == 1,
           onPrimaryAction: () => _handlePrimary(_current[i]),
           onSecondaryAction: () => _handleSecondary(_current[i]),
         );
@@ -244,7 +262,9 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            _selectedTab == 0 ? Icons.hotel_outlined : Icons.history_rounded,
+            widget.selectedTab == 0
+                ? Icons.hotel_outlined
+                : Icons.history_rounded,
             size: isTab ? 72 : 56,
             color: const Color(0xFFD0C8FF),
           ),
@@ -252,7 +272,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
           const SizedBox(height: 16),
 
           Text(
-            _selectedTab == 0 ? 'No active bookings' : 'No past bookings',
+            widget.selectedTab == 0 ? 'No active bookings' : 'No past bookings',
             style: TextStyle(
               fontSize: isTab ? 18 : 15,
               fontWeight: FontWeight.w600,
@@ -275,7 +295,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   );
 
   void _handlePrimary(BookingModel booking) {
-    if (_selectedTab == 0) {
+    if (widget.selectedTab == 0) {
       context.push(
         RouteList.bookingDetails,
         extra: {"bookingId": booking.bookingId},
@@ -289,7 +309,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   }
 
   void _handleSecondary(BookingModel booking) {
-    if (_selectedTab == 0) {
+    if (widget.selectedTab == 0) {
       _showCancelDialog(booking);
     } else {
       context.push(RouteList.updatereviews, extra: {"booking": booking});

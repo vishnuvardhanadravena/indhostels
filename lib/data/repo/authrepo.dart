@@ -31,10 +31,7 @@ class AuthRepository {
   Future<Map<String, dynamic>> verifyOtp(String phone, String otp) async {
     final response = await api.post(
       ApiConstants.verify,
-      queryParameters: {
-        "otp": otp,
-        //  "phone": phone
-      },
+      queryParameters: {"otp": otp, "phone": phone},
       // data: {"phone": phone, "otp": otp},
     );
 
