@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:indhostels/bloc/Serach/search_bloc.dart';
 import 'package:indhostels/bloc/accommodation/accommodation_bloc.dart';
 import 'package:indhostels/bloc/profile/profile_bloc.dart';
 import 'package:indhostels/data/models/accomodation/popular_hstl_res.dart';
+import 'package:indhostels/pages/dashbord/search.dart';
 import 'package:indhostels/routing/route_constants.dart';
 import 'package:indhostels/utils/shimmers/popular_hstl_shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -19,6 +21,14 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedCategory = 0;
+  final TextEditingController _searchController = TextEditingController();
+  bool isSearching = false;
+  String searchText = "";
+  final ScrollController _scrollController = ScrollController();
+
+  int page = 1;
+  final int limit = 10;
+  bool isFetchingMore = false;
 
   final List<_CategoryTab> _categories = const [
     // _CategoryTab(label: 'Hotel', icon: Icons.hotel),
@@ -29,6 +39,22 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     loadData();
+
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      if (!isFetchingMore) {
+        isFetchingMore = true;
+        page++;
+
+        context.read<SearchBloc>().add(
+          GlobalSearchRequested(text: searchText, page: page, limit: limit),
+        );
+      }
+    }
   }
 
   void loadData() {
@@ -36,6 +62,93 @@ class _HomeScreenState extends State<HomeScreen> {
 
     bloc.add(TopHStlRequested());
     bloc.add(const BudgetHStlRequested(type: "budget", page: 1, limit: 10));
+  }
+
+  void _onSearch(String value) {
+    setState(() {
+      searchText = value;
+      isSearching = value.isNotEmpty;
+      page = 1; // 🔥 RESET
+    });
+
+    if (value.isNotEmpty) {
+      context.read<SearchBloc>().add(
+        GlobalSearchRequested(text: value, page: 1, limit: limit),
+      );
+    }
+  }
+
+  Widget _buildSearchResults() {
+    return BlocBuilder<SearchBloc, SearchState>(
+      builder: (context, state) {
+        if (state.globalLoading && page == 1) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state.globalError != null) {
+          return Center(child: Text(state.globalError!));
+        }
+
+        final hotels = state.globalResponse?.data ?? [];
+
+        if (hotels.isEmpty) {
+          return const Center(child: Text("No results found"));
+        }
+
+        return ListView.builder(
+          controller: _scrollController,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+
+          /// 🔥 IMPORTANT
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+
+          itemCount: hotels.length + 1, // loader
+
+          itemBuilder: (context, index) {
+            if (index == hotels.length) {
+              return state.globalLoading
+                  ? const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  : const SizedBox();
+            }
+
+            final hotel = hotels[index];
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: InkWell(
+                onTap: () {
+                  context.pushNamed(
+                    RouteList.accommodationDetails,
+                    extra: {"id": hotel.sId},
+                  );
+                },
+                child: HotelCard(
+                  model: HotelModel(
+                    id: hotel.sId ?? "",
+                    name: hotel.propertyName ?? "",
+                    location: hotel.location?.area ?? "",
+                    rating: hotel.averageRating ?? 0,
+                    pricePerNight:
+                        (hotel.pricingData != null &&
+                            hotel.pricingData!.isNotEmpty &&
+                            hotel.pricingData!.first.pricing != null &&
+                            hotel.pricingData!.first.pricing!.isNotEmpty)
+                        ? (hotel.pricingData!.first.pricing!.first.price ?? 0)
+                              .toDouble()
+                        : 0,
+                    imageUrl: hotel.imagesUrl?.first ?? "",
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -208,9 +321,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                     size: 20,
                                   ),
                                   const SizedBox(width: 8),
-                                  const Expanded(
+                                  Expanded(
                                     child: TextField(
-                                      decoration: InputDecoration(
+                                      onChanged: _onSearch,
+                                      decoration: const InputDecoration(
                                         hintText:
                                             'Search hotels, PGs, hostels...',
                                         hintStyle: TextStyle(
@@ -242,267 +356,326 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
 
                             const SizedBox(height: 10),
+                            isSearching && searchText == ""
+                                ? SizedBox(
+                                    height:
+                                        MediaQuery.of(context).size.height *
+                                        0.05,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(0.0),
+                                      child: ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: _categories.length,
+                                        itemBuilder: (context, i) {
+                                          final isSelected =
+                                              i == _selectedCategory;
 
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.05,
-                              child: Padding(
-                                padding: const EdgeInsets.all(0.0),
-                                child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: _categories.length,
-                                  itemBuilder: (context, i) {
-                                    final isSelected = i == _selectedCategory;
+                                          return GestureDetector(
+                                            onTap: () {
+                                              setState(
+                                                () => _selectedCategory = i,
+                                              );
+                                              context.pushNamed(
+                                                RouteList.categoryScreen,
+                                                extra: {
+                                                  "title": _categories[i].label,
+                                                },
+                                              );
+                                            },
 
-                                    return GestureDetector(
-                                      onTap: () {
-                                        setState(() => _selectedCategory = i);
-                                        context.pushNamed(
-                                          RouteList.categoryScreen,
-                                          extra: {
-                                            "title": _categories[i].label,
-                                          },
-                                        );
-                                      },
-
-                                      child: AnimatedContainer(
-                                        duration: const Duration(
-                                          milliseconds: 200,
-                                        ),
-                                        margin: EdgeInsets.only(
-                                          right: i < _categories.length - 1
-                                              ? 8
-                                              : 0,
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 10,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: isSelected
-                                              ? Colors.white
-                                              : Colors.white.withOpacity(0.45),
-                                          borderRadius: const BorderRadius.all(
-                                            Radius.circular(12),
-                                          ),
-                                          boxShadow: isSelected
-                                              ? [
-                                                  BoxShadow(
-                                                    color: Colors.black
-                                                        .withOpacity(0.08),
-                                                    blurRadius: 6,
-                                                    offset: const Offset(0, -2),
+                                            child: AnimatedContainer(
+                                              duration: const Duration(
+                                                milliseconds: 200,
+                                              ),
+                                              margin: EdgeInsets.only(
+                                                right:
+                                                    i < _categories.length - 1
+                                                    ? 8
+                                                    : 0,
+                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 16,
+                                                    vertical: 10,
                                                   ),
-                                                ]
-                                              : [],
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(
-                                              _categories[i].icon,
-                                              size: 18,
-                                              color: isSelected
-                                                  ? const Color(0xFF7B5EA7)
-                                                  : const Color(0xFF888888),
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Text(
-                                              _categories[i].label,
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                fontWeight: isSelected
-                                                    ? FontWeight.w700
-                                                    : FontWeight.w500,
+                                              decoration: BoxDecoration(
                                                 color: isSelected
-                                                    ? const Color(0xFF7B5EA7)
-                                                    : const Color(0xFF888888),
+                                                    ? Colors.white
+                                                    : Colors.white.withOpacity(
+                                                        0.45,
+                                                      ),
+                                                borderRadius:
+                                                    const BorderRadius.all(
+                                                      Radius.circular(12),
+                                                    ),
+                                                boxShadow: isSelected
+                                                    ? [
+                                                        BoxShadow(
+                                                          color: Colors.black
+                                                              .withOpacity(
+                                                                0.08,
+                                                              ),
+                                                          blurRadius: 6,
+                                                          offset: const Offset(
+                                                            0,
+                                                            -2,
+                                                          ),
+                                                        ),
+                                                      ]
+                                                    : [],
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(
+                                                    _categories[i].icon,
+                                                    size: 18,
+                                                    color: isSelected
+                                                        ? const Color(
+                                                            0xFF7B5EA7,
+                                                          )
+                                                        : const Color(
+                                                            0xFF888888,
+                                                          ),
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    _categories[i].label,
+                                                    style: TextStyle(
+                                                      fontSize: 13,
+                                                      fontWeight: isSelected
+                                                          ? FontWeight.w700
+                                                          : FontWeight.w500,
+                                                      color: isSelected
+                                                          ? const Color(
+                                                              0xFF7B5EA7,
+                                                            )
+                                                          : const Color(
+                                                              0xFF888888,
+                                                            ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
-                                          ],
-                                        ),
+                                          );
+                                        },
                                       ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
+                                    ),
+                                  )
+                                : SizedBox(),
                           ],
                         ),
                       ),
-                      BlocBuilder<AccommodationBloc, AccommodationState>(
-                        buildWhen: (previous, current) =>
-                            previous.topHostelLoading !=
-                                current.topHostelLoading ||
-                            previous.topHostels != current.topHostels ||
-                            previous.topHostelError != current.topHostelError,
-                        builder: (context, state) {
-                          if (state.topHostelLoading) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                      !isSearching && searchText == ""
+                          ? Column(
                               children: [
-                                _SectionHeader(
-                                  title: 'Popular Hotels',
-                                  onViewAll: () {},
-                                ),
-                                SizedBox(
-                                  height: listHeight,
-                                  child: ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount: 3,
-                                    itemBuilder: (_, __) {
-                                      return Padding(
-                                        padding: const EdgeInsets.only(
-                                          left: 10,
-                                          right: 12,
-                                        ),
-                                        child: SizedBox(
-                                          width: cardWidth,
-                                          child:
-                                              const PopularHotelCardShimmer(),
+                                BlocBuilder<
+                                  AccommodationBloc,
+                                  AccommodationState
+                                >(
+                                  buildWhen: (previous, current) =>
+                                      previous.topHostelLoading !=
+                                          current.topHostelLoading ||
+                                      previous.topHostels !=
+                                          current.topHostels ||
+                                      previous.topHostelError !=
+                                          current.topHostelError,
+                                  builder: (context, state) {
+                                    if (state.topHostelLoading) {
+                                      return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          _SectionHeader(
+                                            title: 'Popular Hotels',
+                                            onViewAll: () {},
+                                          ),
+                                          SizedBox(
+                                            height: listHeight,
+                                            child: ListView.builder(
+                                              scrollDirection: Axis.horizontal,
+                                              itemCount: 3,
+                                              itemBuilder: (_, __) {
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        left: 10,
+                                                        right: 12,
+                                                      ),
+                                                  child: SizedBox(
+                                                    width: cardWidth,
+                                                    child:
+                                                        const PopularHotelCardShimmer(),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }
+
+                                    if (state.topHostelError != null) {
+                                      return const Padding(
+                                        padding: EdgeInsets.all(16),
+                                        child: Center(
+                                          child: Text("Unable to load data"),
                                         ),
                                       );
-                                    },
-                                  ),
-                                ),
-                              ],
-                            );
-                          }
+                                    }
 
-                          if (state.topHostelError != null) {
-                            return const Padding(
-                              padding: EdgeInsets.all(16),
-                              child: Center(child: Text("Unable to load data")),
-                            );
-                          }
+                                    final hostels = state.topHostels ?? [];
 
-                          final hostels = state.topHostels ?? [];
+                                    if (hostels.isEmpty) {
+                                      return const SizedBox();
+                                    }
 
-                          if (hostels.isEmpty) {
-                            return const SizedBox();
-                          }
-
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _SectionHeader(
-                                title: 'Popular Hotels',
-                                onViewAll: () {
-                                  context.pushNamed(
-                                    RouteList.categoryScreen,
-                                    extra: {"title": 'Hostel'},
-                                  );
-                                },
-                              ),
-                              SizedBox(
-                                height: listHeight,
-                                child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: hostels.length,
-                                  itemBuilder: (_, i) {
-                                    final hotel = hostels[i];
-
-                                    return GestureDetector(
-                                      onTap: () {
-                                        context.pushNamed(
-                                          RouteList.accommodationDetails,
-                                          extra: {"id": hotel.id},
-                                        );
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                          left: 10,
-                                          right: 12,
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        _SectionHeader(
+                                          title: 'Popular Hotels',
+                                          onViewAll: () {
+                                            context.pushNamed(
+                                              RouteList.categoryScreen,
+                                              extra: {"title": 'Hostel'},
+                                            );
+                                          },
                                         ),
-                                        child: SizedBox(
-                                          width: cardWidth,
-                                          child: AppHotelCard(
-                                            trailingWidget: WishlistButton(
-                                              accommodationId: hotel.id ?? "",
-                                            ),
-                                            amenities: hotel.amenities ?? [],
-                                            imageUrl: hotel.imagesUrl?.first,
-                                            location:
-                                                hotel.location?.area ?? '',
-                                            price:
-                                                '₹${hotel.pricingData?.first.pricing?.first.price ?? ''}',
-                                            rating: hotel.averageRating ?? 0,
-                                            title: hotel.propertyName ?? '',
+                                        SizedBox(
+                                          height: listHeight,
+                                          child: ListView.builder(
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount: hostels.length,
+                                            itemBuilder: (_, i) {
+                                              final hotel = hostels[i];
+
+                                              return GestureDetector(
+                                                onTap: () {
+                                                  context.pushNamed(
+                                                    RouteList
+                                                        .accommodationDetails,
+                                                    extra: {"id": hotel.id},
+                                                  );
+                                                },
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        left: 10,
+                                                        right: 12,
+                                                      ),
+                                                  child: SizedBox(
+                                                    width: cardWidth,
+                                                    child: AppHotelCard(
+                                                      trailingWidget:
+                                                          WishlistButton(
+                                                            accommodationId:
+                                                                hotel.id ?? "",
+                                                          ),
+                                                      amenities:
+                                                          hotel.amenities ?? [],
+                                                      imageUrl: hotel
+                                                          .imagesUrl
+                                                          ?.first,
+                                                      location:
+                                                          hotel
+                                                              .location
+                                                              ?.area ??
+                                                          '',
+                                                      price:
+                                                          '₹${hotel.pricingData?.first.pricing?.first.price ?? ''}',
+                                                      rating:
+                                                          hotel.averageRating ??
+                                                          0,
+                                                      title:
+                                                          hotel.propertyName ??
+                                                          '',
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            },
                                           ),
                                         ),
-                                      ),
+                                      ],
                                     );
                                   },
                                 ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                      _SectionHeader(
-                        title: "Budget-Friendly PG's",
-                        onViewAll: () {
-                          context.pushNamed(
-                            RouteList.categoryScreen,
-                            extra: {"title": 'PG'},
-                          );
-                        },
-                      ),
-                      BlocBuilder<AccommodationBloc, AccommodationState>(
-                        buildWhen: (previous, current) =>
-                            previous.budgetHostelLoading !=
-                                current.budgetHostelLoading ||
-                            previous.budgetHostels != current.budgetHostels ||
-                            previous.budgetHostelError !=
-                                current.budgetHostelError,
-                        builder: (context, state) {
-                          if (state.budgetHostelLoading) {
-                            return SizedBox(
-                              height: listHeight,
-                              child: ListView.builder(
-                                itemCount: 6,
-                                itemBuilder: (_, __) =>
-                                    const PGListTileSkeleton(),
-                              ),
-                            );
-                          }
-
-                          if (state.budgetHostelError != null) {
-                            return const Padding(
-                              padding: EdgeInsets.all(16),
-                              child: Center(
-                                child: Text(
-                                  "Something went wrong please try again later",
-                                ),
-                              ),
-                            );
-                          }
-
-                          final hostels = state.budgetHostels ?? [];
-
-                          if (hostels.isEmpty) {
-                            return const SizedBox();
-                          }
-
-                          /// DATA
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ...hostels.map(
-                                (hotel) => GestureDetector(
-                                  onTap: () {
+                                _SectionHeader(
+                                  title: "Budget-Friendly PG's",
+                                  onViewAll: () {
                                     context.pushNamed(
-                                      RouteList.accommodationDetails,
-                                      extra: {"id": hotel.sId},
+                                      RouteList.categoryScreen,
+                                      extra: {"title": 'PG'},
                                     );
                                   },
-                                  child: _PGListTile(hotel: hotel),
                                 ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                      SizedBox(height: bottom + 24),
+                                BlocBuilder<
+                                  AccommodationBloc,
+                                  AccommodationState
+                                >(
+                                  buildWhen: (previous, current) =>
+                                      previous.budgetHostelLoading !=
+                                          current.budgetHostelLoading ||
+                                      previous.budgetHostels !=
+                                          current.budgetHostels ||
+                                      previous.budgetHostelError !=
+                                          current.budgetHostelError,
+                                  builder: (context, state) {
+                                    if (state.budgetHostelLoading) {
+                                      return SizedBox(
+                                        height: listHeight,
+                                        child: ListView.builder(
+                                          itemCount: 6,
+                                          itemBuilder: (_, __) =>
+                                              const PGListTileSkeleton(),
+                                        ),
+                                      );
+                                    }
+
+                                    if (state.budgetHostelError != null) {
+                                      return const Padding(
+                                        padding: EdgeInsets.all(16),
+                                        child: Center(
+                                          child: Text(
+                                            "Something went wrong please try again later",
+                                          ),
+                                        ),
+                                      );
+                                    }
+
+                                    final hostels = state.budgetHostels ?? [];
+
+                                    if (hostels.isEmpty) {
+                                      return const SizedBox();
+                                    }
+
+                                    /// DATA
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        ...hostels.map(
+                                          (hotel) => GestureDetector(
+                                            onTap: () {
+                                              context.pushNamed(
+                                                RouteList.accommodationDetails,
+                                                extra: {"id": hotel.sId},
+                                              );
+                                            },
+                                            child: _PGListTile(hotel: hotel),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                                SizedBox(height: bottom + 24),
+                              ],
+                            )
+                          : _buildSearchResults(),
                     ],
                   ),
                 ),
