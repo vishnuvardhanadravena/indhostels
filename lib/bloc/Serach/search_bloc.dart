@@ -56,6 +56,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       currentPage = 1;
 
       emit(state.copyWith(searchLoading: true, searchError: null));
+    } else {
+      emit(state.copyWith(searchMoreLoading: true)); // ✅ ADD THIS
     }
 
     try {
@@ -87,13 +89,26 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
       response.data = hotels;
 
-      emit(state.copyWith(searchLoading: false, searchResponse: response));
+      emit(
+        state.copyWith(
+          searchLoading: false,
+          searchMoreLoading: false,
+          searchResponse: response,
+        ),
+      );
     } on ApiException catch (e) {
-      emit(state.copyWith(searchLoading: false, searchError: e.message));
+      emit(
+        state.copyWith(
+          searchLoading: false,
+          searchMoreLoading: false,
+          searchError: e.message,
+        ),
+      );
     } catch (_) {
       emit(
         state.copyWith(
           searchLoading: false,
+          searchMoreLoading: false,
           searchError: "Something went wrong",
         ),
       );
@@ -114,9 +129,22 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     if (event.page == 1) {
       globalHotels.clear();
       globalHasMore = true;
+
       globalCurrentPage = 1;
 
-      emit(state.copyWith(globalLoading: true, globalError: null));
+      emit(
+        state.copyWith(
+          globalLoading: true,
+          searchMoreLoading: false,
+          globalError: null,
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          searchMoreLoading: true, // 🔥 THIS WAS MISSING
+        ),
+      );
     }
 
     try {
@@ -139,15 +167,28 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
       response.data = globalHotels;
 
-      emit(state.copyWith(globalLoading: false, globalResponse: response));
+      emit(
+        state.copyWith(
+          globalLoading: false,
+          searchMoreLoading: false,
+          globalResponse: response,
+        ),
+      );
     } on ApiException catch (e) {
-      emit(state.copyWith(globalLoading: false, globalError: e.message));
+      emit(
+        state.copyWith(
+          globalLoading: false,
+          searchMoreLoading: false,
+          globalError: e.message,
+        ),
+      );
     } catch (e, s) {
       print(e);
       print(s);
       emit(
         state.copyWith(
           globalLoading: false,
+          searchMoreLoading: false,
           globalError: "Something went wrong",
         ),
       );
