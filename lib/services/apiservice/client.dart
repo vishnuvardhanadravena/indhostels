@@ -31,7 +31,7 @@ class DioClient {
 
           if (token != null && token.isNotEmpty) {
             options.headers["Authorization"] =
-                "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MDlkZDhlMGQwMmY3NjY4NTFmMDY3NyIsInN0YXR1cyI6ImFjdGl2ZSIsImlhdCI6MTc3MzgxOTU4MCwiZXhwIjoxNzczOTA1OTgwfQ.g4qDWlkYqTSVlb6mvCMVePDaqtTAX1OpFsZjtGNIue4";
+                "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MDlkZDhlMGQwMmY3NjY4NTFmMDY3NyIsInN0YXR1cyI6ImFjdGl2ZSIsImlhdCI6MTc3MzkxNDIwMywiZXhwIjoxNzc0MDAwNjAzfQ.vLwTV3lpTL0NoD_0JLj-stTHhDA9PM429ZrtXs3Am_Y";
 
             // options.headers["Authorization"] = "Bearer $token";
           }

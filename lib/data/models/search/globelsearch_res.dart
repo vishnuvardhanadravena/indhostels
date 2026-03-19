@@ -103,7 +103,7 @@ class Accomdations {
         pricingData!.add(new PricingData.fromJson(v));
       });
     }
-    averageRating = json['averageRating'];
+  averageRating = (json['averageRating'] as num?)?.toDouble();
     totalReviews = json['totalReviews'];
   }
 

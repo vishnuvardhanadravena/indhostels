@@ -7,7 +7,7 @@ class ApiConstants {
 
   /// ───────────────── BASE DOMAINS ─────────────────
 
-  static const String _devDomain = "http://192.168.1.47:3000";
+  static const String _devDomain = "https://vishnu-backend.onrender.com";
   static const String _prodDomain = "https://api.indhostel.com";
 
   static String get domain => isProduction ? _prodDomain : _devDomain;

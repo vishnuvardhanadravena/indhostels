@@ -142,7 +142,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       emit(state.copyWith(globalLoading: false, globalResponse: response));
     } on ApiException catch (e) {
       emit(state.copyWith(globalLoading: false, globalError: e.message));
-    } catch (_) {
+    } catch (e, s) {
+      print(e);
+      print(s);
       emit(
         state.copyWith(
           globalLoading: false,
