@@ -30,10 +30,13 @@ class DioClient {
           final token = await storage.readString("token");
 
           if (token != null && token.isNotEmpty) {
-            options.headers["Authorization"] = "Bearer $token";
+            options.headers["Authorization"] =
+                "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MDlkZDhlMGQwMmY3NjY4NTFmMDY3NyIsInN0YXR1cyI6ImFjdGl2ZSIsImlhdCI6MTc3MzgxOTU4MCwiZXhwIjoxNzczOTA1OTgwfQ.g4qDWlkYqTSVlb6mvCMVePDaqtTAX1OpFsZjtGNIue4";
+
+            // options.headers["Authorization"] = "Bearer $token";
           }
 
-          // AppLogger.log("📤 ${options.method} ${options.path}");
+          AppLogger.log("📤 ${options.method} ${options.path}");
 
           if (options.data != null) {
             AppLogger.json(options.data);

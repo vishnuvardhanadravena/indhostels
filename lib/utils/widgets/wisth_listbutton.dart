@@ -1,15 +1,8 @@
-// lib/widgets/wishlist_button.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:indhostels/bloc/wishlist/wishlist_bloc.dart';
+import 'package:indhostels/utils/helpers/app_toast.dart';
 
-/// Drop-in heart button — pass [accommodationId], it handles everything.
-///
-/// Usage on a property card:
-/// ```dart
-/// WishlistButton(accommodationId: '6954ea01ce0dada4efae5bcf')
-/// ```
 class WishlistButton extends StatelessWidget {
   const WishlistButton({
     super.key,
@@ -25,36 +18,51 @@ class WishlistButton extends StatelessWidget {
   final double size;
   final Color activeColor;
   final Color inactiveColor;
-
-  /// Wraps icon in a circular container when set (great for card overlays).
   final Color? backgroundColor;
   final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<WishlistBloc, WishlistState>(
-      // Only rebuild when THIS item's wishlisted/pending state changes
       buildWhen: (prev, curr) =>
-          _wishlisted(prev) != _wishlisted(curr) ||
-          _isPending(prev) != _isPending(curr),
-      listenWhen: (_, curr) => curr is WishlistToggleError,
+          prev.isWishlisted(accommodationId) !=
+              curr.isWishlisted(accommodationId) ||
+          prev.isPending(accommodationId) != curr.isPending(accommodationId),
+
+      listenWhen: (prev, curr) =>
+          prev.addSuccess != curr.addSuccess ||
+          prev.removeSuccess != curr.removeSuccess ||
+          prev.addError != curr.addError ||
+          prev.removeError != curr.removeError ||
+          prev.error != curr.error,
+
       listener: (context, state) {
-        if (state is WishlistToggleError) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                behavior: SnackBarBehavior.floating,
-                backgroundColor: const Color(0xFFE53935),
-              ),
-            );
+        if (state.addSuccess) {
+          AppToast.success("Added to wishlist", position: ToastPosition.top);
+        }
+
+        if (state.removeSuccess) {
+          AppToast.success(
+            "Removed from wishlist",
+            position: ToastPosition.top,
+          );
+        }
+
+        if (state.addError != null) {
+          AppToast.error(state.addError!, position: ToastPosition.top);
+        }
+
+        if (state.removeError != null) {
+          AppToast.error(state.removeError!, position: ToastPosition.top);
+        }
+
+        if (state.error != null) {
+          AppToast.error(state.error!, position: ToastPosition.top);
         }
       },
       builder: (context, state) {
-        final isWishlisted = _wishlisted(state);
-        final isPending = _isPending(state);
-
+        final isWishlisted = state.isWishlisted(accommodationId);
+        final isPending = state.isPending(accommodationId);
         return GestureDetector(
           onTap: isPending
               ? null
@@ -114,22 +122,8 @@ class WishlistButton extends StatelessWidget {
 
     return Padding(padding: padding ?? EdgeInsets.zero, child: icon);
   }
-
-  bool _wishlisted(WishlistState state) => switch (state) {
-    WishlistLoaded s => s.isWishlisted(accommodationId),
-    WishlistToggleError s => s.isWishlisted(accommodationId),
-    _ => false,
-  };
-
-  bool _isPending(WishlistState state) => switch (state) {
-    WishlistLoaded s => s.isPending(accommodationId),
-    _ => false,
-  };
 }
 
-// ─── TOTAL BADGE ─────────────────────────────────────────────────────────────
-
-/// App bar / nav bar wishlist icon with live count badge.
 class WishlistCountBadge extends StatelessWidget {
   const WishlistCountBadge({
     super.key,
@@ -147,9 +141,10 @@ class WishlistCountBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<WishlistBloc, WishlistState>(
-      buildWhen: (prev, curr) => _total(prev) != _total(curr),
+      buildWhen: (prev, curr) => prev.total != curr.total,
       builder: (context, state) {
-        final count = _total(state);
+        final count = state.total;
+
         return GestureDetector(
           onTap: onTap,
           child: Stack(
@@ -191,10 +186,4 @@ class WishlistCountBadge extends StatelessWidget {
       },
     );
   }
-
-  int _total(WishlistState state) => switch (state) {
-    WishlistLoaded s => s.total,
-    WishlistToggleError s => s.total,
-    _ => 0,
-  };
 }

@@ -7,6 +7,7 @@ import 'package:indhostels/routing/route_constants.dart';
 import 'package:indhostels/utils/widgets/app_hostel_card.dart';
 import 'package:indhostels/utils/widgets/serachfelid.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:indhostels/utils/widgets/wisth_listbutton.dart';
 import 'package:intl/intl.dart';
 
 class HotelListingScreen extends StatefulWidget {
@@ -82,65 +83,9 @@ class _HotelListingScreenState extends State<HotelListingScreen> {
       );
     }
   }
-  // void _onScroll() {
-  //   final bloc = context.read<SearchBloc>();
-  //   final state = bloc.state;
-
-  //   if (!_scrollController.hasClients) return;
-
-  //   final threshold = 150;
-
-  //   if (_scrollController.position.maxScrollExtent -
-  //           _scrollController.position.pixels <=
-  //       threshold) {
-  //     if (!bloc.hasMore || bloc.isFetching) return;
-
-  //     final hotels = state.searchResponse?.data ?? [];
-
-  //     bloc.add(
-  //       SearchRequested(
-  //         page: bloc.currentPage + 1,
-  //         limit: 10,
-  //         stayType: const ['hostels'],
-
-  //         checkInDate: state.checkInDate != null
-  //             ? DateFormat('yyyy-MM-dd').format(state.checkInDate!)
-  //             : null,
-
-  //         checkOutDate: state.checkOutDate != null
-  //             ? DateFormat('yyyy-MM-dd').format(state.checkOutDate!)
-  //             : null,
-
-  //         roomType: _activeFilter?.selectedRoomTypes.isNotEmpty == true
-  //             ? _activeFilter!.selectedRoomTypes.toList()
-  //             : null,
-
-  //         amenities: _activeFilter?.selectedAmenities.isNotEmpty == true
-  //             ? _activeFilter!.selectedAmenities.toList()
-  //             : null,
-
-  //         category: _activeFilter?.selectedCategory,
-  //         location: _activeFilter?.selectedLocation ?? state.city,
-  //         minPrice: _activeFilter?.priceRange.start,
-  //         maxPrice: _activeFilter?.priceRange.end,
-  //       ),
-  //     );
-  //   }
-  // }
 
   void _onHotelTap(Data hotel) {
-    context.pushNamed(
-      RouteList.acommodationDetaiesScreen,
-      extra: {"id": hotel.sId},
-    );
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   SnackBar(
-    //     content: Text('Tapped: ${hotel.propertyName ?? ""}'),
-    //     backgroundColor: const Color(0xFF5B4FCF),
-    //     behavior: SnackBarBehavior.floating,
-    //     duration: const Duration(seconds: 1),
-    //   ),
-    // );
+    context.pushNamed(RouteList.accommodationDetails, extra: {"id": hotel.sId});
   }
 
   @override
@@ -321,7 +266,7 @@ class _HotelListingScreenState extends State<HotelListingScreen> {
     );
   }
 
-  Widget buildHotelList(BuildContext context, List hotels) {
+  Widget buildHotelList(BuildContext context, List<Data> hotels) {
     final isTablet = MediaQuery.of(context).size.width > 600;
 
     if (isTablet) {
@@ -356,7 +301,7 @@ class _HotelListingScreenState extends State<HotelListingScreen> {
                         : "0"
                   : "N/A",
               amenities: hotel.amenities,
-              trailingWidget: const Icon(Icons.favorite_border),
+              trailingWidget: WishlistButton(accommodationId: hotel.sId ?? ""),
             ),
           );
         },
@@ -373,7 +318,7 @@ class _HotelListingScreenState extends State<HotelListingScreen> {
     );
   }
 
-  Widget buildHotelItem(BuildContext context, hotel) {
+  Widget buildHotelItem(BuildContext context, Data hotel) {
     final isTablet = MediaQuery.of(context).size.width > 600;
 
     final card = GestureDetector(
@@ -392,7 +337,7 @@ class _HotelListingScreenState extends State<HotelListingScreen> {
                   : "0"
             : "N/A",
         amenities: hotel.amenities,
-        trailingWidget: const Icon(Icons.favorite_border),
+        trailingWidget: WishlistButton(accommodationId: hotel.sId ?? ""),
       ),
     );
 

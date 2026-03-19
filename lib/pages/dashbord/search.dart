@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:indhostels/bloc/Serach/search_bloc.dart';
 import 'package:indhostels/routing/route_constants.dart';
+import 'package:indhostels/utils/helpers/app_toast.dart';
 
 class RecentSearchModel {
   final String title;
@@ -44,15 +45,6 @@ class _SearchScreenState extends State<SearchScreen> {
   final int limit = 10;
   String currentQuery = "";
 
-  final List<RecentSearchModel> _recentSearches = const [
-    RecentSearchModel(
-      title: 'Golden Sands Retreat',
-      subtitle: 'Clearwater, FL',
-    ),
-    RecentSearchModel(title: 'Crystal Peak Lodge', subtitle: 'Aspen, CO'),
-    RecentSearchModel(title: 'Coral Bay Resort', subtitle: 'Miami Beach, FL'),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -81,9 +73,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void _clearAllRecentSearches() {
-    setState(() {
-      _recentSearches.clear();
-    });
+    AppToast.warning("Clearing the history");
   }
 
   void _onSearch(String value) {
@@ -199,7 +189,7 @@ class _SearchScreenState extends State<SearchScreen> {
               hotels: recentlyViewedHotels,
               onTap: (id) {
                 context.pushNamed(
-                  RouteList.acommodationDetaiesScreen,
+                  RouteList.accommodationDetails,
                   extra: {"id": id},
                 );
               },
@@ -237,7 +227,7 @@ class _SearchScreenState extends State<SearchScreen> {
           child: InkWell(
             onTap: () {
               context.pushNamed(
-                RouteList.acommodationDetaiesScreen,
+                RouteList.accommodationDetails,
                 extra: {"id": hotel.sId},
               );
             },

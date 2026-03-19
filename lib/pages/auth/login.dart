@@ -255,7 +255,7 @@ class _LoginScreenState extends State<LoginScreen> {
             const Spacer(),
             GestureDetector(
               onTap: () {
-                context.pushNamed(RouteList.forgotPassWord);
+                context.pushNamed(RouteList.forgotPassword);
               },
               child: const Text(
                 'Forgot Password',

@@ -1,28 +1,31 @@
-
-
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:indhostels/data/models/accomodation/accomodation_details_res.dart';
 import 'package:indhostels/data/models/accomodation/room_card_model.dart';
 import 'package:indhostels/pages/profile/profile.dart';
+import 'package:indhostels/routing/route_constants.dart';
 import 'package:indhostels/utils/widgets/room_card.dart';
-
-
 
 class RoomDetailScreen extends StatelessWidget {
   final RoomModel room;
-  final String? pgName;
-  final String? location;
-  final String? checkInTime;
-  final String? cancellationPolicy;
-  final VoidCallback? onBookNow;
+   final Acommodation? acommodation;
+  // final String? pgName;
+  // final String? location;
+  // final String? checkInTime;
+  // final String? cancellationPolicy;
+  // final VoidCallback? onBookNow;
+  // final String? staytype;
 
   const RoomDetailScreen({
     super.key,
     required this.room,
-    this.pgName,
-    this.location,
-    this.checkInTime,
-    this.cancellationPolicy,
-    this.onBookNow,
+    required this.acommodation
+    // this.pgName,
+    // this.location,
+    // this.checkInTime,
+    // this.cancellationPolicy,
+    // this.onBookNow,
+    // this.staytype,
   });
 
   @override
@@ -48,7 +51,7 @@ class RoomDetailScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _DetailTitle(room: room, pgName: pgName, r: r),
+                          _DetailTitle(room: room, pgName: acommodation?.propertyName, r: r),
                           SizedBox(height: r.fieldGap * 0.5),
 
                           Text(
@@ -82,19 +85,22 @@ class RoomDetailScreen extends StatelessWidget {
                           SizedBox(height: r.fieldGap * 0.7),
                           _RoomDetailsGrid(
                             room: room,
-                            location: location,
-                            checkInTime: checkInTime,
+                            location: acommodation?.location?.address,
+                            checkInTime: acommodation?.checkInTime,
                             r: r,
                           ),
                           SizedBox(height: r.sectionGap),
 
                           _SectionTitle(title: 'Common Facilities', r: r),
                           SizedBox(height: r.fieldGap * 0.7),
-                          _FacilitiesWrap(amenities: room.parsedAmenities, r: r),
+                          _FacilitiesWrap(
+                            amenities: room.parsedAmenities,
+                            r: r,
+                          ),
                           SizedBox(height: r.fieldGap),
 
                           _CancellationPolicyChip(
-                            policy: cancellationPolicy ?? 'Before 48 hrs',
+                            policy: acommodation?.cancellationPolicy ?? 'Before 48 hrs',
                             r: r,
                           ),
                           SizedBox(height: r.sectionGap),
@@ -109,7 +115,23 @@ class RoomDetailScreen extends StatelessWidget {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                child: _BottomBookBar(room: room, r: r, onBookNow: onBookNow),
+                child: _BottomBookBar(
+                  room: room,
+                  r: r,
+                  onBookNow: () {
+                    context.pushNamed(
+                      RouteList.bookingSummary,
+                      extra: {
+                        "room": room,
+                        // "stayType": "pgs",
+                        // "pricePerNight": double.tryParse(room.priceAmount) ?? 0,
+                        // "cancellationPolicy": cancellationPolicy,
+                        // "checkInTime": checkInTime,
+                        "accommodation":acommodation
+                      },
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -119,12 +141,15 @@ class RoomDetailScreen extends StatelessWidget {
   }
 }
 
-
 class _DetailTitle extends StatelessWidget {
   final RoomModel room;
   final String? pgName;
   final R r;
-  const _DetailTitle({required this.room, required this.pgName, required this.r});
+  const _DetailTitle({
+    required this.room,
+    required this.pgName,
+    required this.r,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -232,8 +257,12 @@ class _RoomImageFullState extends State<_RoomImageFull> {
               errorBuilder: (_, __, ___) => Container(
                 color: const Color(0xFFF0F0F0),
                 child: const Center(
-                    child: Icon(Icons.broken_image_outlined,
-                        size: 48, color: Color(0xFFBDBDBD))),
+                  child: Icon(
+                    Icons.broken_image_outlined,
+                    size: 48,
+                    color: Color(0xFFBDBDBD),
+                  ),
+                ),
               ),
             ),
           ),
@@ -373,10 +402,12 @@ class _RoomDetailsGrid extends StatelessWidget {
           spacing: r.fieldGap,
           runSpacing: r.fieldGap,
           children: items
-              .map((item) => SizedBox(
-                    width: colWidth,
-                    child: _DetailGridCell(item: item, r: r),
-                  ))
+              .map(
+                (item) => SizedBox(
+                  width: colWidth,
+                  child: _DetailGridCell(item: item, r: r),
+                ),
+              )
               .toList(),
         );
       },
@@ -405,7 +436,11 @@ class _DetailGridCell extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(item.icon, size: r.detailGridIconSize, color: const Color(0xFF6B7280)),
+        Icon(
+          item.icon,
+          size: r.detailGridIconSize,
+          color: const Color(0xFF6B7280),
+        ),
         SizedBox(width: r.fieldGap * 0.4),
         Expanded(
           child: Column(
@@ -479,9 +514,7 @@ class _FacilitiesWrap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final list = amenities.isNotEmpty
-        ? amenities
-        : ['AC', 'Wi-Fi', 'Swimming Pool'];
+    final list = amenities.isNotEmpty ? amenities : ['Wi-Fi'];
 
     return Wrap(
       spacing: 8,
@@ -497,7 +530,11 @@ class _FacilityChip extends StatelessWidget {
   final String label;
   final IconData icon;
   final R r;
-  const _FacilityChip({required this.label, required this.icon, required this.r});
+  const _FacilityChip({
+    required this.label,
+    required this.icon,
+    required this.r,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -514,7 +551,11 @@ class _FacilityChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: r.facilityChipIconSize, color: const Color(0xFF4B5563)),
+          Icon(
+            icon,
+            size: r.facilityChipIconSize,
+            color: const Color(0xFF4B5563),
+          ),
           const SizedBox(width: 5),
           Text(
             label,
@@ -551,8 +592,11 @@ class _CancellationPolicyChip extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.policy_outlined,
-              size: r.detailGridIconSize + 2, color: const Color(0xFF6B7280)),
+          Icon(
+            Icons.policy_outlined,
+            size: r.detailGridIconSize + 2,
+            color: const Color(0xFF6B7280),
+          ),
           SizedBox(width: r.fieldGap * 0.5),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -588,11 +632,7 @@ class _BottomBookBar extends StatelessWidget {
   final R r;
   final VoidCallback? onBookNow;
 
-  const _BottomBookBar({
-    required this.room,
-    required this.r,
-    this.onBookNow,
-  });
+  const _BottomBookBar({required this.room, required this.r, this.onBookNow});
 
   @override
   Widget build(BuildContext context) {

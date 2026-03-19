@@ -8,6 +8,7 @@ import 'package:indhostels/routing/route_constants.dart';
 import 'package:indhostels/utils/shimmers/popular_hstl_shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:indhostels/utils/widgets/app_hostel_card.dart';
+import 'package:indhostels/utils/widgets/wisth_listbutton.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,14 +28,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    loaddata();
+    loadData();
   }
 
-  Future<void> loaddata() async {
+  void loadData() {
     final bloc = context.read<AccommodationBloc>();
 
     bloc.add(TopHStlRequested());
-    //  await bloc.add(BudgetHStlRequested(limit: 10, page: 1, type: "budget"));
+    bloc.add(const BudgetHStlRequested(type: "budget", page: 1, limit: 10));
   }
 
   @override
@@ -146,20 +147,40 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Container(
                                   width: 36,
                                   height: 36,
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     shape: BoxShape.circle,
-                                    gradient: const LinearGradient(
+                                    gradient: LinearGradient(
                                       colors: [
                                         Color(0xFF7B5EA7),
                                         Color(0xFF9B7FBF),
                                       ],
                                     ),
-                                    image: DecorationImage(
-                                      image: NetworkImage(
-                                        UserSession().user?.profileUrl ?? "",
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
+                                  ),
+                                  child: ClipOval(
+                                    child:
+                                        (UserSession().user?.profileUrl !=
+                                                null &&
+                                            UserSession()
+                                                .user!
+                                                .profileUrl!
+                                                .isNotEmpty &&
+                                            UserSession().user!.profileUrl!
+                                                .startsWith('http'))
+                                        ? Image.network(
+                                            UserSession().user!.profileUrl!,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) =>
+                                                const Icon(
+                                                  Icons.person,
+                                                  color: Colors.white,
+                                                  size: 18,
+                                                ),
+                                          )
+                                        : const Icon(
+                                            Icons.person,
+                                            color: Colors.white,
+                                            size: 18,
+                                          ),
                                   ),
                                 ),
                               ],
@@ -378,7 +399,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     return GestureDetector(
                                       onTap: () {
                                         context.pushNamed(
-                                          RouteList.acommodationDetaiesScreen,
+                                          RouteList.accommodationDetails,
                                           extra: {"id": hotel.id},
                                         );
                                       },
@@ -390,6 +411,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                         child: SizedBox(
                                           width: cardWidth,
                                           child: AppHotelCard(
+                                            trailingWidget: WishlistButton(
+                                              accommodationId: hotel.id ?? "",
+                                            ),
                                             amenities: hotel.amenities ?? [],
                                             imageUrl: hotel.imagesUrl?.first,
                                             location:
@@ -409,6 +433,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           );
                         },
                       ),
+                      _SectionHeader(
+                        title: "Budget-Friendly PG's",
+                        onViewAll: () {},
+                      ),
                       BlocBuilder<AccommodationBloc, AccommodationState>(
                         buildWhen: (previous, current) =>
                             previous.budgetHostelLoading !=
@@ -417,12 +445,17 @@ class _HomeScreenState extends State<HomeScreen> {
                             previous.budgetHostelError !=
                                 current.budgetHostelError,
                         builder: (context, state) {
-                          /// LOADING
                           if (state.budgetHostelLoading) {
-                            return PGListTileShimmer();
+                            return SizedBox(
+                              height: listHeight,
+                              child: ListView.builder(
+                                itemCount: 6,
+                                itemBuilder: (_, __) =>
+                                    const PGListTileSkeleton(),
+                              ),
+                            );
                           }
 
-                          /// ERROR
                           if (state.budgetHostelError != null) {
                             return const Padding(
                               padding: EdgeInsets.all(16),
@@ -444,15 +477,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _SectionHeader(
-                                title: "Budget-Friendly PG's",
-                                onViewAll: () {},
-                              ),
                               ...hostels.map(
                                 (hotel) => GestureDetector(
                                   onTap: () {
                                     context.pushNamed(
-                                      RouteList.acommodationDetaiesScreen,
+                                      RouteList.accommodationDetails,
                                       extra: {"id": hotel.sId},
                                     );
                                   },
@@ -526,138 +555,6 @@ class _SectionHeader extends StatelessWidget {
     );
   }
 }
-
-// class PopularHotelCard extends StatelessWidget {
-//   final TopHstlData hotel;
-//   const PopularHotelCard({required this.hotel});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final isTablet = MediaQuery.of(context).size.width > 600;
-
-//     return Card(
-//       elevation: 6,
-//       shadowColor: Colors.black.withOpacity(0.15),
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-//       clipBehavior: Clip.antiAlias,
-//       color: Colors.white,
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           Expanded(
-//             flex: isTablet ? 5 : 6,
-//             child: Stack(
-//               fit: StackFit.expand,
-//               children: [
-//                 _HotelImagePlaceholder(
-//                   imageUrl: hotel.imagesUrl?.isNotEmpty == true
-//                       ? hotel.imagesUrl!.first
-//                       : "",
-//                   color: hotel.imagesUrl != null
-//                       ? Colors.transparent
-//                       : const Color(0xFFCCCCCC),
-//                 ),
-
-//                 Positioned(
-//                   bottom: 8,
-//                   left: 8,
-//                   child: RatingBadge(rating: hotel.averageRating ?? 0),
-//                 ),
-
-//                 Positioned(
-//                   top: 8,
-//                   right: 8,
-//                   child: WishlistButton(
-//                     accommodationId: hotel.id ?? '',
-//                     size: 16,
-//                     backgroundColor: Colors.white.withOpacity(0.85),
-//                     activeColor: const Color(0xFFE53935),
-//                     inactiveColor: const Color(0xFF888888),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-
-//           /// CONTENT
-//           Expanded(
-//             flex: isTablet ? 4 : 5,
-//             child: Padding(
-//               padding: const EdgeInsets.all(10),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   /// HOTEL NAME
-//                   Text(
-//                     hotel.propertyName ?? '',
-//                     maxLines: 1,
-//                     overflow: TextOverflow.ellipsis,
-//                     style: const TextStyle(
-//                       fontWeight: FontWeight.w700,
-//                       fontSize: 13,
-//                       color: Color(0xFF222222),
-//                     ),
-//                   ),
-
-//                   const SizedBox(height: 2),
-
-//                   /// LOCATION
-//                   Text(
-//                     hotel.location?.area ?? '',
-//                     maxLines: 1,
-//                     overflow: TextOverflow.ellipsis,
-//                     style: const TextStyle(
-//                       fontSize: 11,
-//                       color: Color(0xFF888888),
-//                     ),
-//                   ),
-
-//                   const SizedBox(height: 4),
-
-//                   /// PRICE
-//                   Text.rich(
-//                     TextSpan(
-//                       children: [
-//                         TextSpan(
-//                           text:
-//                               '₹${hotel.pricingData?.first.pricing?.first.price ?? ''}',
-//                           style: const TextStyle(
-//                             fontSize: 14,
-//                             fontWeight: FontWeight.w800,
-//                             color: Color(0xFF222222),
-//                           ),
-//                         ),
-//                         const TextSpan(
-//                           text: ' / night',
-//                           style: TextStyle(
-//                             fontSize: 11,
-//                             color: Color(0xFF888888),
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-
-//                   const SizedBox(height: 6),
-
-//                   /// AMENITIES
-//                   Wrap(
-//                     spacing: 4,
-//                     runSpacing: 4,
-//                     children: (hotel.amenities ?? [])
-//                         .take(isTablet ? 3 : 4)
-//                         .map((a) => AmenityChip(label: a))
-//                         .toList(),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
 
 class _PGListTile extends StatelessWidget {
   final PopularHstlData hotel;

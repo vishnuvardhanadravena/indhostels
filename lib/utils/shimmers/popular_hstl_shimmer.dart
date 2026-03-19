@@ -192,78 +192,96 @@ class _SweepTransform implements GradientTransform {
       Matrix4.translationValues(bounds.width * offset, 0, 0);
 }
 
-
-class PGListTileShimmer extends StatelessWidget {
-  const PGListTileShimmer({super.key});
-
-  Widget _box({
-    double width = double.infinity,
-    double height = 12,
-    double radius = 6,
-  }) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(radius),
-      ),
-    );
-  }
+class PGListTileSkeleton extends StatelessWidget {
+  const PGListTileSkeleton({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-      baseColor: const Color(0xFFE0E0E0),
-      highlightColor: const Color(0xFFF5F5F5),
-      period: const Duration(milliseconds: 1400),
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(14),
-        ),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey.shade300,
+        highlightColor: Colors.grey.shade100,
         child: Row(
           children: [
-
-            /// IMAGE
-            Container(
-              width: 90,
-              height: 90,
-              decoration: BoxDecoration(
+            /// IMAGE SKELETON
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(14),
+                bottomLeft: Radius.circular(14),
+              ),
+              child: Container(
+                width: 90,
+                height: 90,
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
               ),
             ),
 
-            const SizedBox(width: 12),
-
-            /// TEXT CONTENT
+            /// TEXT AREA
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    /// TITLE + RATING
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            height: 14,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
 
-                  /// TITLE
-                  Row(
-                    children: [
-                      Expanded(child: _box(height: 14)),
-                      const SizedBox(width: 8),
-                      _box(width: 35, height: 12, radius: 20),
-                    ],
-                  ),
+                        /// RATING BADGE
+                        Container(
+                          width: 32,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                      ],
+                    ),
 
-                  const SizedBox(height: 8),
+                    const SizedBox(height: 6),
 
-                  /// LOCATION
-                  _box(width: 120, height: 12),
+                    /// LOCATION
+                    Container(
+                      width: 120,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
 
-                  const SizedBox(height: 10),
+                    const SizedBox(height: 8),
 
-                  /// PRICE
-                  _box(width: 80, height: 14),
-                ],
+                    /// PRICE
+                    Container(
+                      width: 80,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

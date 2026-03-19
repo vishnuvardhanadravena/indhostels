@@ -1,25 +1,30 @@
-
 part of 'wishlist_bloc.dart';
 
-sealed class WishlistState extends Equatable {
-  const WishlistState();
+class WishlistState extends Equatable {
+  final bool loading;
 
-  @override
-  List<Object?> get props => [];
-}
-
-final class WishlistInitial extends WishlistState {}
-
-final class WishlistLoading extends WishlistState {}
-
-final class WishlistLoaded extends WishlistState {
-  const WishlistLoaded({
-    required this.items,
-    this.pendingId, 
-  });
+  final String? error;
 
   final List<WishlistItem> items;
+
   final String? pendingId;
+
+  final bool addSuccess;
+  final bool removeSuccess;
+
+  final String? addError;
+  final String? removeError;
+
+  const WishlistState({
+    this.loading = false,
+    this.error,
+    this.items = const [],
+    this.pendingId,
+    this.addSuccess = false,
+    this.removeSuccess = false,
+    this.addError,
+    this.removeError,
+  });
 
   int get total => items.length;
 
@@ -28,38 +33,40 @@ final class WishlistLoaded extends WishlistState {
 
   bool isPending(String accommodationId) => pendingId == accommodationId;
 
-  WishlistLoaded copyWith({
+  WishlistState copyWith({
+    bool? loading,
+    String? error,
     List<WishlistItem>? items,
     String? pendingId,
     bool clearPending = false,
-  }) =>
-      WishlistLoaded(
-        items: items ?? this.items,
-        pendingId: clearPending ? null : (pendingId ?? this.pendingId),
-      );
+
+    bool? addSuccess,
+    bool? removeSuccess,
+    String? addError,
+    String? removeError,
+  }) {
+    return WishlistState(
+      loading: loading ?? this.loading,
+      error: error,
+      items: items ?? this.items,
+      pendingId: clearPending ? null : (pendingId ?? this.pendingId),
+
+      addSuccess: addSuccess ?? false,
+      removeSuccess: removeSuccess ?? false,
+      addError: addError,
+      removeError: removeError,
+    );
+  }
 
   @override
-  List<Object?> get props => [items, pendingId];
-}
-
-final class WishlistToggleError extends WishlistState {
-  const WishlistToggleError({required this.items, required this.message});
-
-  final List<WishlistItem> items;
-  final String message;
-
-  int get total => items.length;
-  bool isWishlisted(String id) => items.any((e) => e.accommodationId == id);
-
-  @override
-  List<Object?> get props => [items, message];
-}
-
-final class WishlistError extends WishlistState {
-  const WishlistError(this.message);
-
-  final String message;
-
-  @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [
+    loading,
+    error,
+    items,
+    pendingId,
+    addSuccess,
+    removeSuccess,
+    addError,
+    removeError,
+  ];
 }

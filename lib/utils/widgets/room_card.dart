@@ -1,9 +1,6 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:indhostels/data/models/accomodation/room_card_model.dart';
 import 'package:indhostels/pages/profile/profile.dart';
-
 
 class RoomsAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -46,7 +43,6 @@ class RoomsAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 }
-
 
 class RoomBadge extends StatelessWidget {
   final String label;
@@ -103,8 +99,11 @@ class RatingChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.star_rounded,
-              color: const Color(0xFFFFB300), size: r.ratingIconSize),
+          Icon(
+            Icons.star_rounded,
+            color: const Color(0xFFFFB300),
+            size: r.ratingIconSize,
+          ),
           const SizedBox(width: 3),
           Text(
             rating.toStringAsFixed(1),
@@ -145,7 +144,8 @@ class _RoomImageWidgetState extends State<RoomImageWidget> {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.vertical(
-              top: Radius.circular(widget.r.cardRadius)),
+            top: Radius.circular(widget.r.cardRadius),
+          ),
           child: SizedBox(
             width: double.infinity,
             height: widget.r.roomImageHeight,
@@ -154,9 +154,8 @@ class _RoomImageWidgetState extends State<RoomImageWidget> {
                     widget.imageUrl!,
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => _placeholder(),
-                    loadingBuilder: (_, child, progress) => progress == null
-                        ? child
-                        : _shimmer(),
+                    loadingBuilder: (_, child, progress) =>
+                        progress == null ? child : _shimmer(),
                   )
                 : _placeholder(),
           ),
@@ -180,11 +179,17 @@ class _RoomImageWidgetState extends State<RoomImageWidget> {
                 color: Colors.white,
                 shape: BoxShape.circle,
                 boxShadow: [
-                  BoxShadow(color: Colors.black12, blurRadius: 6, spreadRadius: 1)
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 6,
+                    spreadRadius: 1,
+                  ),
                 ],
               ),
               child: Icon(
-                _isFaved ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                _isFaved
+                    ? Icons.favorite_rounded
+                    : Icons.favorite_border_rounded,
                 size: 18,
                 color: _isFaved ? Colors.redAccent : Colors.grey,
               ),
@@ -196,23 +201,26 @@ class _RoomImageWidgetState extends State<RoomImageWidget> {
   }
 
   Widget _placeholder() => Container(
-        color: const Color(0xFFF0F0F0),
-        child: const Center(
-          child: Icon(Icons.bed_outlined, size: 40, color: Color(0xFFBDBDBD)),
-        ),
-      );
+    color: const Color(0xFFF0F0F0),
+    child: const Center(
+      child: Icon(Icons.bed_outlined, size: 40, color: Color(0xFFBDBDBD)),
+    ),
+  );
 
   Widget _shimmer() => Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.grey.shade200, Colors.grey.shade100, Colors.grey.shade200],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
-        ),
-      );
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [
+          Colors.grey.shade200,
+          Colors.grey.shade100,
+          Colors.grey.shade200,
+        ],
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+      ),
+    ),
+  );
 }
-
 
 class AmenitiesRow extends StatelessWidget {
   final List<String> amenities;
@@ -226,8 +234,11 @@ class AmenitiesRow extends StatelessWidget {
 
     return Row(
       children: [
-        Icon(Icons.check_circle_outline_rounded,
-            size: r.amenityFont + 2, color: const Color(0xFF43A047)),
+        Icon(
+          Icons.check_circle_outline_rounded,
+          size: r.amenityFont + 2,
+          color: const Color(0xFF43A047),
+        ),
         const SizedBox(width: 4),
         Text(
           'All amenities included',
@@ -244,6 +255,8 @@ class AmenitiesRow extends StatelessWidget {
 
 class RoomCard extends StatelessWidget {
   final RoomModel room;
+  final bool taxenable;
+  final int taxamount;
   final R r;
   final VoidCallback? onTap;
 
@@ -252,6 +265,8 @@ class RoomCard extends StatelessWidget {
     required this.room,
     required this.r,
     this.onTap,
+    required this.taxamount,
+    required this.taxenable,
   });
 
   @override
@@ -273,11 +288,7 @@ class RoomCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            RoomImageWidget(
-              imageUrl: room.primaryImage,
-              r: r,
-              rating: 4.0,
-            ),
+            RoomImageWidget(imageUrl: room.primaryImage, r: r, rating: 4.0),
 
             Padding(
               padding: EdgeInsets.symmetric(
@@ -355,15 +366,15 @@ class RoomCard extends StatelessWidget {
 
                   AmenitiesRow(amenities: room.parsedAmenities, r: r),
                   SizedBox(height: r.fieldGap * 0.25),
-
-                  Text(
-                    '+ ₹10 tax',
-                    style: TextStyle(
-                      fontSize: r.taxFont,
-                      color: const Color(0xFF43A047),
-                      fontWeight: FontWeight.w500,
+                  if (taxenable)
+                    Text(
+                      "+ ${taxamount.toString()}-tax",
+                      style: TextStyle(
+                        fontSize: r.taxFont,
+                        color: const Color(0xFF43A047),
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -373,7 +384,6 @@ class RoomCard extends StatelessWidget {
     );
   }
 }
-
 
 class EmptyRoomsWidget extends StatelessWidget {
   final R r;
@@ -385,7 +395,8 @@ class EmptyRoomsWidget extends StatelessWidget {
     super.key,
     required this.r,
     this.title = 'No Rooms Found',
-    this.subtitle = 'There are no rooms available right now.\nPlease try again later.',
+    this.subtitle =
+        'There are no rooms available right now.\nPlease try again later.',
     this.onRetry,
   });
 

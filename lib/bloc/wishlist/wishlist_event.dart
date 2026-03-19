@@ -1,4 +1,3 @@
-
 part of 'wishlist_bloc.dart';
 
 sealed class WishlistEvent extends Equatable {
@@ -8,32 +7,30 @@ sealed class WishlistEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-final class FetchWishlistEvent extends WishlistEvent {
-  const FetchWishlistEvent();
-}
+class FetchWishlistEvent extends WishlistEvent {}
 
-final class ToggleWishlistEvent extends WishlistEvent {
+class ToggleWishlistEvent extends WishlistEvent {
+  final String accommodationId;
+
   const ToggleWishlistEvent(this.accommodationId);
 
-  final String accommodationId;
-
   @override
   List<Object?> get props => [accommodationId];
 }
 
-final class AddToWishlistEvent extends WishlistEvent {
+class AddToWishlistEvent extends WishlistEvent {
+  final String accommodationId;
+
   const AddToWishlistEvent(this.accommodationId);
 
-  final String accommodationId;
-
   @override
   List<Object?> get props => [accommodationId];
 }
 
-final class RemoveFromWishlistEvent extends WishlistEvent {
-  const RemoveFromWishlistEvent(this.accommodationId);
-
+class RemoveFromWishlistEvent extends WishlistEvent {
   final String accommodationId;
+
+  const RemoveFromWishlistEvent(this.accommodationId);
 
   @override
   List<Object?> get props => [accommodationId];

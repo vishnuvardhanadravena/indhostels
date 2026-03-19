@@ -122,7 +122,7 @@ class PopularHstlData {
       });
     }
     totalRatings = json['totalRatings'];
-    averageRating = json['averageRating'];
+    averageRating = (json['averageRating'] as num?)?.toDouble();
     checkOutTime = json['check_out_time'];
     taxAmount = json['tax_amount'];
     dealOfTheDay = json['deal_of_the_day'];

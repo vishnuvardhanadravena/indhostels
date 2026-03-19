@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:indhostels/data/models/Reviews/reviews_res.dart';
-import 'package:indhostels/data/repo/reviews_repo.dart';
+import 'package:indhostels/data/models/ReviewsAndSupport/reviews_res.dart';
+import 'package:indhostels/data/repo/reviews_support_repo.dart';
 import 'package:indhostels/exceptions/api_exceptions.dart';
 
 part 'review_event.dart';
@@ -13,6 +13,7 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
   ReviewBloc(this.repository) : super(const ReviewState()) {
     on<ReviewsRequested>(_onReviewsRequested);
     on<ReviewsNextPageRequested>(_onReviewsNextPageRequested);
+    on<ReviewCreateRequested>(_onReviewCreateRequested);
   }
 
   Future<void> _onReviewsRequested(
@@ -119,4 +120,45 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
       );
     }
   }
+
+Future<void> _onReviewCreateRequested(
+  ReviewCreateRequested event,
+  Emitter<ReviewState> emit,
+) async {
+  emit(state.copyWith(
+    createLoading: true,
+    createSuccess: false,
+    createError: null,
+  ));
+
+  try {
+    final res = await repository.createReview(
+      propertyId: event.propertyId,
+      rating: event.rating,
+      aboutStay: event.aboutStay,
+      verifiedStay: event.verifiedStay,
+      stayDate: event.stayDate,
+      roomType: event.roomType,
+    );
+
+    if (res["success"] == true) {
+      emit(state.copyWith(
+        createLoading: false,
+        createSuccess: true,
+      ));
+    } else {
+      emit(state.copyWith(
+        createLoading: false,
+        createError: res["message"] ?? "Failed to post review",
+      ));
+    }
+  } on ApiException catch (e) {
+    emit(state.copyWith(createLoading: false, createError: e.message));
+  } catch (_) {
+    emit(state.copyWith(
+      createLoading: false,
+      createError: "Something went wrong",
+    ));
+  }
+}
 }

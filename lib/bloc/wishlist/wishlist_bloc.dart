@@ -1,4 +1,3 @@
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:indhostels/data/models/wishlist/wish_list_res.dart';
@@ -8,108 +7,143 @@ part 'wishlist_event.dart';
 part 'wishlist_state.dart';
 
 class WishlistBloc extends Bloc<WishlistEvent, WishlistState> {
-  WishlistBloc(this._repository) : super(WishlistInitial()) {
-    on<FetchWishlistEvent>(_onFetch);
-    on<ToggleWishlistEvent>(_onToggle);
-    on<AddToWishlistEvent>(_onAdd);
-    on<RemoveFromWishlistEvent>(_onRemove);
+  final WishlistRepository repository;
+
+  WishlistBloc(this.repository) : super(const WishlistState()) {
+    on<FetchWishlistEvent>(_fetch);
+    on<ToggleWishlistEvent>(_toggle);
+    on<AddToWishlistEvent>(_add);
+    on<RemoveFromWishlistEvent>(_remove);
   }
 
-  final WishlistRepository _repository;
-
-
-  Future<void> _onFetch(
+  /// ───────── FETCH ─────────
+  Future<void> _fetch(
     FetchWishlistEvent event,
     Emitter<WishlistState> emit,
   ) async {
-    emit(WishlistLoading());
+
+    emit(state.copyWith(loading: true, error: null));
+
     try {
-      List<WishlistItem> items;
+
+      final localItems = await repository.getLocalWishlist();
+
+      emit(state.copyWith(
+        loading: false,
+        items: localItems,
+      ));
+
       try {
-        items = await _repository.fetchWishlist();
-      } catch (_) {
-        items = await _repository.getLocalWishlist();
-      }
-      emit(WishlistLoaded(items: items));
+
+        final apiItems = await repository.fetchWishlist();
+
+        emit(state.copyWith(items: apiItems));
+
+      } catch (_) {}
+
     } catch (e) {
-      emit(WishlistError(e.toString()));
+
+      emit(state.copyWith(
+        loading: false,
+        error: e.toString(),
+      ));
+
     }
   }
 
-
-  Future<void> _onToggle(
+  /// ───────── TOGGLE ─────────
+  Future<void> _toggle(
     ToggleWishlistEvent event,
     Emitter<WishlistState> emit,
   ) async {
-    final alreadyAdded = _currentItems().any(
+
+    final exists = state.items.any(
       (e) => e.accommodationId == event.accommodationId,
     );
 
-    if (alreadyAdded) {
+    if (exists) {
       add(RemoveFromWishlistEvent(event.accommodationId));
     } else {
       add(AddToWishlistEvent(event.accommodationId));
     }
   }
 
-
-  Future<void> _onAdd(
+  /// ───────── ADD ─────────
+  Future<void> _add(
     AddToWishlistEvent event,
     Emitter<WishlistState> emit,
   ) async {
-    final currentItems = _currentItems();
 
-    // Show per-item spinner
-    emit(WishlistLoaded(items: currentItems, pendingId: event.accommodationId));
+    emit(state.copyWith(
+      pendingId: event.accommodationId,
+      addError: null,
+      addSuccess: false,
+    ));
 
     try {
-      final newItem = await _repository.addToWishlist(event.accommodationId);
 
-      final updated = List<WishlistItem>.from(currentItems)
+      final newItem =
+          await repository.addToWishlist(event.accommodationId);
+
+      final updated = List<WishlistItem>.from(state.items)
         ..removeWhere((e) => e.accommodationId == event.accommodationId)
         ..add(newItem);
-      emit(WishlistLoaded(items: updated));
+
+      emit(state.copyWith(
+        items: updated,
+        clearPending: true,
+        addSuccess: true,
+      ));
+
+      /// reset success
+      emit(state.copyWith(addSuccess: false));
+
     } catch (e) {
-      emit(
-        WishlistToggleError(
-          items: currentItems,
-          message: 'Could not add to wishlist. Please try again.',
-        ),
-      );
+
+      emit(state.copyWith(
+        clearPending: true,
+        addError: "Failed to add wishlist",
+      ));
+
     }
   }
 
-
-  Future<void> _onRemove(
+  /// ───────── REMOVE ─────────
+  Future<void> _remove(
     RemoveFromWishlistEvent event,
     Emitter<WishlistState> emit,
   ) async {
-    final currentItems = _currentItems();
 
-    emit(WishlistLoaded(items: currentItems, pendingId: event.accommodationId));
+    emit(state.copyWith(
+      pendingId: event.accommodationId,
+      removeError: null,
+      removeSuccess: false,
+    ));
 
     try {
-      await _repository.removeFromWishlist(event.accommodationId);
 
-      final updated = currentItems
+      await repository.removeFromWishlist(event.accommodationId);
+
+      final updated = state.items
           .where((e) => e.accommodationId != event.accommodationId)
           .toList();
 
-      emit(WishlistLoaded(items: updated));
+      emit(state.copyWith(
+        items: updated,
+        clearPending: true,
+        removeSuccess: true,
+      ));
+
+      /// reset success
+      emit(state.copyWith(removeSuccess: false));
+
     } catch (e) {
-      emit(
-        WishlistToggleError(
-          items: currentItems,
-          message: 'Could not remove from wishlist. Please try again.',
-        ),
-      );
+
+      emit(state.copyWith(
+        clearPending: true,
+        removeError: "Failed to remove wishlist",
+      ));
+
     }
   }
-
-
-  List<WishlistItem> _currentItems() => switch (state) {
-    WishlistLoaded s => List<WishlistItem>.from(s.items),
-    WishlistToggleError s => List<WishlistItem>.from(s.items),
-    _ => [],
-  };
 }

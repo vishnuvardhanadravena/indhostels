@@ -1,43 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:indhostels/data/models/accomodation/accomodation_details_res.dart';
 import 'package:indhostels/data/models/accomodation/room_card_model.dart';
-import 'package:indhostels/pages/acommadtion/roomDetails_Screen.dart';
 import 'package:indhostels/pages/profile/profile.dart';
 import 'package:indhostels/routing/app_roter.dart';
 import 'package:indhostels/routing/route_constants.dart';
 import 'package:indhostels/utils/widgets/room_card.dart';
 
 class RoomsScreen extends StatelessWidget {
-  final List<RoomModel> rooms;
+  // final List<RoomModel> rooms;
   final VoidCallback? onRetry;
   final void Function(RoomModel room)? onRoomTap;
-  final String? pgName;
-  final String? location;
-  final String? checkInTime;
-  final String? cancellationPolicy;
+  final Acommodation? acommodation;
+  // final String? pgName;
+  // final String? location;
+  // final String? checkInTime;
+  // final String? staytype;
+  // final String? cancellationPolicy;
 
   const RoomsScreen({
     super.key,
-    required this.rooms,
+    // required this.rooms,
     this.onRetry,
     this.onRoomTap,
-    this.pgName,
-    this.location,
-    this.checkInTime,
-    this.cancellationPolicy,
+    this.acommodation,
+    // this.pgName,
+    // this.location,
+    // this.checkInTime,
+    // this.cancellationPolicy,
+    // this.staytype,
   });
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final r = R(constraints.maxWidth);
-
+        final rooms = (acommodation?.roomId ?? [])
+            .map((e) => RoomModel.fromRoomId(e))
+            .toList();
         return Scaffold(
           backgroundColor: const Color(0xFFF7F8FC),
           appBar: RoomsAppBar(title: 'Rooms', r: r),
           body: rooms.isEmpty
               ? EmptyRoomsWidget(r: r, onRetry: onRetry)
               : _RoomsList(
+                taxamount: acommodation?.taxAmount??0,
+                taxenable: acommodation?.tax??false,
                   rooms: rooms,
                   r: r,
                   onRoomTap:
@@ -46,10 +54,13 @@ class RoomsScreen extends StatelessWidget {
                         RouteList.roomDetails,
                         extra: RoomDetailArgs(
                           room: room,
-                          pgName: pgName ?? "N?A",
-                          location: location ?? "N?A",
-                          checkInTime: checkInTime ?? "N?A",
-                          cancellationPolicy: cancellationPolicy ?? "N?A",
+                          acommodation: acommodation,
+                          // pgName: acommodation?.propertyName ?? "N?A",
+                          // location: acommodation?.location?.address ?? "N?A",
+                          // checkInTime: acommodation?.checkInTime ?? "N?A",
+                          // cancellationPolicy:
+                          //     acommodation?.cancellationPolicy ?? "N?A",
+                          // staytype: acommodation?.propertyType ?? "hostels",
                         ),
                       ),
                 ),
@@ -61,10 +72,18 @@ class RoomsScreen extends StatelessWidget {
 
 class _RoomsList extends StatelessWidget {
   final List<RoomModel> rooms;
+  final bool taxenable;
+  final int taxamount;
   final R r;
   final void Function(RoomModel room)? onRoomTap;
 
-  const _RoomsList({required this.rooms, required this.r, this.onRoomTap});
+  const _RoomsList({
+    required this.rooms,
+    required this.r,
+    this.onRoomTap,
+    required this.taxamount,
+    required this.taxenable,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +102,8 @@ class _RoomsList extends StatelessWidget {
       itemCount: rooms.length,
       separatorBuilder: (_, __) => SizedBox(height: r.fieldGap),
       itemBuilder: (context, index) => RoomCard(
+        taxamount:taxamount ,
+        taxenable:taxenable ,
         room: rooms[index],
         r: r,
         onTap: () => onRoomTap?.call(rooms[index]),
@@ -104,6 +125,8 @@ class _RoomsList extends StatelessWidget {
       ),
       itemCount: rooms.length,
       itemBuilder: (context, index) => RoomCard(
+        taxamount:taxamount ,
+        taxenable:taxenable ,
         room: rooms[index],
         r: r,
         onTap: () => onRoomTap?.call(rooms[index]),

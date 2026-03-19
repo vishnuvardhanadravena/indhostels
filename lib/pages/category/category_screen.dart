@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:indhostels/bloc/Serach/search_bloc.dart';
 import 'package:indhostels/bloc/accommodation/accommodation_bloc.dart';
-import 'package:indhostels/data/models/accomodation/user_liked_acommodation_res.dart';
 import 'package:indhostels/routing/route_constants.dart';
 import 'package:indhostels/utils/widgets/app_hostel_card.dart';
+import 'package:indhostels/utils/widgets/wisth_listbutton.dart';
 import 'package:intl/intl.dart';
 
 const _kPrimary = Color(0xFF4F46E5);
@@ -15,205 +15,6 @@ const _kSubText = Color(0xFF6B7280);
 const _kCardBg = Colors.white;
 const _kBg = Color(0xFFF7F8FC);
 
-// class HotelsScreen extends StatefulWidget {
-//   final String title;
-//   const HotelsScreen({super.key, required this.title});
-
-//   @override
-//   State<HotelsScreen> createState() => _HotelsScreenState();
-// }
-
-// class _HotelsScreenState extends State<HotelsScreen> {
-//   String _selectedCity = 'Hyderabad';
-//   late DateTimeRange _dateRange;
-//   bool _isSearching = false;
-
-//   @override
-//   void initState() {
-//     super.initState();
-
-//     final now = DateTime.now();
-//     final today = DateTime(now.year, now.month, now.day);
-
-//     _dateRange = DateTimeRange(
-//       start: today,
-//       end: today.add(const Duration(days: 5)),
-//     );
-//   }
-
-//   final List<_HotelDeal> _deals = [
-//     _HotelDeal(
-//       name: 'Hotel Broholi Inn',
-//       location: 'Near Google Office, Kondapur Hit..',
-//       price: '₹1,300',
-//       rating: 4.0,
-//       amenities: ['AC', 'Food Included', 'Wifi', '+3'],
-//       imageColor: const Color(0xFFD4A86A),
-//     ),
-//     _HotelDeal(
-//       name: 'Hyderabad Grand',
-//       location: 'Opp-Hussain Sagar, Banjara Hills',
-//       price: '₹8,000',
-//       rating: 4.0,
-//       amenities: ['AC', 'Food Included', 'Pool'],
-//       imageColor: const Color(0xFF8B6F5E),
-//     ),
-//     _HotelDeal(
-//       name: 'The Pearl Residency',
-//       location: 'Jubilee Hills, Road No. 36',
-//       price: '₹3,500',
-//       rating: 4.5,
-//       amenities: ['AC', 'Wifi', 'Gym'],
-//       imageColor: const Color(0xFF5B8DB8),
-//     ),
-//     _HotelDeal(
-//       name: 'Secunderabad Suites',
-//       location: 'MG Road, Secunderabad',
-//       price: '₹2,200',
-//       rating: 3.8,
-//       amenities: ['AC', 'Breakfast', 'Parking'],
-//       imageColor: const Color(0xFF7B9E6B),
-//     ),
-//   ];
-
-//   int get _nights => _dateRange.end.difference(_dateRange.start).inDays;
-//   String _formatDate(DateTime d) => DateFormat('dd MMM, yy').format(d);
-//   String _formatApiDate(DateTime d) {
-//     return DateFormat('yyyy-MM-dd').format(d);
-//   }
-
-//   Future<void> _openDatePicker() async {
-//     final result = await showModalBottomSheet<DateTimeRange>(
-//       context: context,
-//       isScrollControlled: true,
-//       backgroundColor: Colors.transparent,
-//       builder: (_) => DateRangePickerSheet(initialRange: _dateRange),
-//     );
-//     if (result != null && mounted) setState(() => _dateRange = result);
-//   }
-
-//   Future<void> _openCityPicker() async {
-//     await showModalBottomSheet(
-//       context: context,
-//       isScrollControlled: true,
-//       backgroundColor: Colors.transparent,
-//       builder: (_) => _CityPickerSheet(
-//         selected: _selectedCity,
-//         onSelect: (city) => setState(() => _selectedCity = city),
-//       ),
-//     );
-//   }
-
-//   Future<void> _onSearch() async {
-//     setState(() => _isSearching = true);
-
-//     String checkInDate = _formatApiDate(_dateRange.start);
-//     String checkOutDate = _formatApiDate(_dateRange.end);
-
-//     print("Check In: $checkInDate");
-//     print("Check Out: $checkOutDate");
-//     context.pushNamed(
-//       RouteList.HotelListingScreen,
-//       extra: {
-//         "city": "HYD",
-//         "dateRange": "${checkInDate}-${checkOutDate}",
-//         "guestCount": 0,
-//       },
-//     );
-//     await Future.delayed(const Duration(seconds: 2));
-
-//     if (mounted) setState(() => _isSearching = false);
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: _kBg,
-//       appBar: AppBar(
-//         backgroundColor: _kCardBg,
-//         elevation: 0,
-//         centerTitle: true,
-//         leading: const BackButton(color: _kText),
-//         title: Text(
-//           widget.title,
-//           style: const TextStyle(
-//             color: _kText,
-//             fontWeight: FontWeight.w700,
-//             fontSize: 18,
-//           ),
-//         ),
-//         actions: [
-//           IconButton(
-//             icon: const Icon(Icons.more_vert, color: _kText),
-//             onPressed: () {},
-//           ),
-//         ],
-//       ),
-//       body: LayoutBuilder(
-//         builder: (context, constraints) {
-//           final isWide = constraints.maxWidth > 600;
-//           final hPad = isWide ? 32.0 : 16.0;
-//           final gridCols = isWide ? 3 : 2;
-//           final cardRatio = isWide ? 0.75 : 0.68;
-
-//           return SingleChildScrollView(
-//             padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 16),
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 const _SectionTitle('Find Your Stay'),
-//                 const SizedBox(height: 10),
-
-//                 Center(
-//                   child: ConstrainedBox(
-//                     constraints: BoxConstraints(
-//                       maxWidth: isWide ? 520 : double.infinity,
-//                     ),
-//                     child: _SearchCard(
-//                       city: _selectedCity,
-//                       dateRange: _dateRange,
-//                       nights: _nights,
-//                       formatDate: _formatDate,
-//                       onCityTap: _openCityPicker,
-//                       onDateTap: _openDatePicker,
-//                       onSearch: _onSearch,
-//                       isSearching: _isSearching,
-//                     ),
-//                   ),
-//                 ),
-
-//                 const SizedBox(height: 28),
-
-//                 const _SectionTitle('Featured Deals'),
-//                 const SizedBox(height: 2),
-//                 const Text(
-//                   'Best prices on top-rated stays',
-//                   style: TextStyle(color: _kSubText, fontSize: 13),
-//                 ),
-//                 const SizedBox(height: 14),
-
-//                 GridView.builder(
-//                   shrinkWrap: true,
-//                   physics: const NeverScrollableScrollPhysics(),
-//                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-//                     crossAxisCount: gridCols,
-//                     crossAxisSpacing: 14,
-//                     mainAxisSpacing: 14,
-//                     childAspectRatio: cardRatio,
-//                   ),
-//                   itemCount: _deals.length,
-//                   itemBuilder: (_, i) => _DealCard(deal: _deals[i]),
-//                 ),
-
-//                 const SizedBox(height: 24),
-//               ],
-//             ),
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
 class HotelsScreen extends StatefulWidget {
   final String title;
 
@@ -302,7 +103,7 @@ class _HotelsScreenState extends State<HotelsScreen> {
     debugPrint("CheckIn: ${DateFormat('yyyy-MM-dd').format(checkIn)}");
     debugPrint("CheckOut: ${DateFormat('yyyy-MM-dd').format(checkOut)}");
 
-    context.pushNamed(RouteList.HotelListingScreen);
+    context.pushNamed(RouteList.hotelListing);
   }
 
   @override
@@ -398,7 +199,6 @@ class _HotelsScreenState extends State<HotelsScreen> {
                             itemCount: deals.length,
                             itemBuilder: (context, index) {
                               final deal = deals[index];
-
                               return Padding(
                                 padding: const EdgeInsets.only(right: 12),
                                 child: ConstrainedBox(
@@ -409,12 +209,14 @@ class _HotelsScreenState extends State<HotelsScreen> {
                                   child: InkWell(
                                     onTap: () {
                                       context.push(
-                                        RouteList.acommodationDetaiesScreen,
+                                        RouteList.accommodationDetails,
                                         extra: {"id": deal.sId},
                                       );
                                     },
-
                                     child: AppHotelCard(
+                                      trailingWidget: WishlistButton(
+                                        accommodationId: deal.sId??"",
+                                      ),
                                       amenities: const [],
                                       imageUrl:
                                           deal.imagesUrl?.isNotEmpty == true
@@ -1182,41 +984,4 @@ class _NearMeChip extends StatelessWidget {
       ),
     );
   }
-}
-
-class _AmenityChip extends StatelessWidget {
-  final String label;
-  const _AmenityChip({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: _kBg,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: 10, color: _kSubText),
-      ),
-    );
-  }
-}
-
-class _HotelDeal {
-  final String name, location, price;
-  final double rating;
-  final List<String> amenities;
-  final Color imageColor;
-
-  const _HotelDeal({
-    required this.name,
-    required this.location,
-    required this.price,
-    required this.rating,
-    required this.amenities,
-    required this.imageColor,
-  });
 }

@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:indhostels/bloc/review/review_bloc.dart';
-import 'package:indhostels/data/models/Reviews/reviews_res.dart';
+import 'package:indhostels/data/models/ReviewsAndSupport/reviews_res.dart';
 import 'package:indhostels/pages/profile/profile.dart';
 
 class AppBackButton extends StatelessWidget {

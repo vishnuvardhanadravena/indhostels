@@ -21,19 +21,24 @@ class ApiClient {
     );
   }
 
-  Future<Response> post(
-    String path, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-  }) {
-    return _request(
-      () => _dio.post(path, data: data, queryParameters: queryParameters),
-      method: "POST",
-      path: path,
-      body: data,
-    );
-  }
-
+Future<Response> post(
+  String path, {
+  dynamic data,
+  Map<String, dynamic>? queryParameters,
+  Options? options, // ✅ ADD THIS
+}) {
+  return _request(
+    () => _dio.post(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options, // ✅ PASS HERE
+    ),
+    method: "POST",
+    path: path,
+    body: data,
+  );
+}
   Future<Response> put(String path, {dynamic data}) {
     return _request(
       () => _dio.put(path, data: data),

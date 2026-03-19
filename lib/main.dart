@@ -3,8 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:indhostels/bloc/Serach/search_bloc.dart';
 import 'package:indhostels/bloc/accommodation/accommodation_bloc.dart';
 import 'package:indhostels/bloc/auth/auth_bloc.dart';
+import 'package:indhostels/bloc/bookings/bookings_bloc.dart';
+import 'package:indhostels/bloc/notification/notification_bloc.dart';
+import 'package:indhostels/bloc/payment/payment_bloc.dart';
 import 'package:indhostels/bloc/profile/profile_bloc.dart';
 import 'package:indhostels/bloc/review/review_bloc.dart';
+import 'package:indhostels/bloc/support/support_bloc.dart';
 import 'package:indhostels/bloc/wishlist/wishlist_bloc.dart';
 import 'package:indhostels/routing/app_roter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -99,9 +103,15 @@ void main() async {
 
         BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
         BlocProvider<AccommodationBloc>(create: (_) => sl<AccommodationBloc>()),
-        BlocProvider<WishlistBloc>(create: (_) => sl<WishlistBloc>()),
+        BlocProvider<WishlistBloc>(
+          create: (_) => sl<WishlistBloc>()..add(FetchWishlistEvent()),
+        ),
         BlocProvider<SearchBloc>(create: (_) => sl<SearchBloc>()),
         BlocProvider<ReviewBloc>(create: (_) => sl<ReviewBloc>()),
+        BlocProvider<BookingsBloc>(create: (_) => sl<BookingsBloc>()),
+        BlocProvider<PaymentBloc>(create: (_) => sl<PaymentBloc>()),
+        BlocProvider<NotificationBloc>(create: (_) => sl<NotificationBloc>()),
+        BlocProvider<SupportBloc>(create: (_) => sl<SupportBloc>()),
       ],
       child: const MyApp(),
     ),

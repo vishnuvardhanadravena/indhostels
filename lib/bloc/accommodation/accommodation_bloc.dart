@@ -53,8 +53,6 @@ class AccommodationBloc extends Bloc<AccommodationEvent, AccommodationState> {
         ),
       );
     }
-
-    add(const BudgetHStlRequested(type: "budget", page: 1, limit: 10));
   }
 
   Future<void> _onBudgetHStlRequested(
@@ -92,7 +90,9 @@ class AccommodationBloc extends Bloc<AccommodationEvent, AccommodationState> {
           budgetHostelError: e.message,
         ),
       );
-    } catch (_) {
+    } catch (e,s) {
+      print("Budget-->${e}");
+      print("Budget-->${s}");
       emit(
         state.copyWith(
           budgetHostelLoading: false,

@@ -1,54 +1,13 @@
-// class ApiConstants {
-//   ApiConstants._();
-//   static const String domin = false
-//       ? 'https://api.indhostel.com'
-//       : 'http://192.168.1.12:3000';
-
-//   static const String BaseUrl = "$domin/indhostels";
-//   static const String signin = "$domin/indhostels/auth/user/signin";
-//   static const String signup = "$domin/indhostels/auth/user/signup";
-//   static const String verify = "$domin/indhostels/auth/user/verify";
-//   static const String forgotpassword =
-//       "$domin/indhostels/auth/user/password/forget";
-//   static const String changePassword =
-//       "$domin/indhostels/auth/user/password/change";
-//   static const String logout = "$domin/indhostels/auth/user/logout";
-//   //profile
-//   static const String loadprofile = "$domin/indhostels/auth/user/me";
-//   static const String updateprofile = "$domin/indhostels/auth/user/update";
-//   static const String updateprofilePic =
-//       "$domin/indhostels/auth/user/profilepic";
-//   static const String getTopHstl =
-//       "$domin/indhostels/auth/accommodation/topaccommodations";
-//   static const String getBudgetHstl = "$domin/indhostels/auth/accommodation";
-//   static const String getAcomodationdetailes =
-//       "$domin/indhostels/auth/accommodation";
-//   static const String getUserlikedAcommodations =
-//       "$domin/indhostels/auth/accommodation/user-liked-accommodation";
-//   static const String addtowishlist = "$domin/indhostels/auth/user/wishlist";
-//   static const String deletetowishlist =
-//       "$domin/indhostels/auth/user/deletewishlist";
-//   static const String searchHotels =
-//       "$domin/indhostels/auth/accommodation/productfilter";
-//   static const String globalSearch =
-//       "$domin/indhostels/auth/accommodation/advanced-search";
-//   static const String recentsearches =
-//       "$domin/indhostels/auth/accommodation/searches";
-//   static const String recentviews =
-//       "$domin/indhostels/auth/accommodation/recentlyviews";
-// }
 class ApiConstants {
   ApiConstants._();
 
   /// ───────────────── ENVIRONMENT ─────────────────
 
-  /// true → production
-  /// false → local development
   static const bool isProduction = false;
 
   /// ───────────────── BASE DOMAINS ─────────────────
 
-  static const String _devDomain = "http://192.168.1.12:3000";
+  static const String _devDomain = "http://192.168.1.47:3000";
   static const String _prodDomain = "https://api.indhostel.com";
 
   static String get domain => isProduction ? _prodDomain : _devDomain;
@@ -94,7 +53,9 @@ class ApiConstants {
   static String get addToWishlist => "$baseUrl/auth/user/wishlist";
 
   static String get deleteFromWishlist => "$baseUrl/auth/user/deletewishlist";
-
+  static String get fetchWishlist => "$baseUrl/auth/user/getwishlist";
+  // 691429edaee09f117de500b2
+  // 69142c29537676fc304e4230
   /// ───────────────── SEARCH ─────────────────
 
   static String get searchHotels => "$baseUrl/auth/accommodation/productfilter";
@@ -110,6 +71,39 @@ class ApiConstants {
 
   static String reviews(String propertyId) =>
       // "$baseUrl/auth/accommodation/reviews/all/694250c577b9c513afb1bd85";
+      "$baseUrl/auth/accommodation/reviews/all/$propertyId";
 
-  "$baseUrl/auth/accommodation/reviews/all/$propertyId";
+  /// ───────────────── BOOKINGS ─────────────────
+
+  static String myBookings() => "$baseUrl/auth/user/booking/mybookings";
+
+  static String bookingDetails(String id) => "$baseUrl/auth/user/booking/$id";
+
+  /// ───────────────── BOOKINGS ─────────────────
+
+  static String createBooking(String propertyId, String roomId) =>
+      "$baseUrl/auth/user/booking/$propertyId/$roomId";
+  static String verifypayment() => "$baseUrl/auth/user/booking/verify-payment";
+  static String createReview(String propertyId) {
+    return "/indhostels/auth/accommodation/review/$propertyId";
+  }
+
+  static String downloadinvoice(String propertyId) {
+    return "/indhostels/auth/user/booking/generate-invoice/$propertyId";
+  }
+
+  static String getNotifications() {
+    return "/indhostels/auth/user/notification";
+  }
+
+  static String createissue() {
+    return "/indhostels/auth/helpandsupport/create-ticket-and-messages";
+  }
+
+  static String getticketmessges() {
+    return "/indhostels/auth/helpandsupport/get-tickets-and-messages";
+  }
+
+  static String getNotificationById(String id) =>
+      "/indhostels/auth/user/notification/$id";
 }

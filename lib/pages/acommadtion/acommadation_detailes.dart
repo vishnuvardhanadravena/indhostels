@@ -6,12 +6,10 @@ import 'package:indhostels/bloc/accommodation/accommodation_bloc.dart';
 import 'package:indhostels/bloc/review/review_bloc.dart';
 import 'package:indhostels/data/models/accomodation/accomodation_details_res.dart';
 import 'package:indhostels/data/models/accomodation/room_card_model.dart';
-import 'package:indhostels/pages/acommadtion/rooms.dart';
 import 'package:indhostels/pages/profile/profile.dart';
-import 'package:indhostels/pages/reviews/reviews_Screen.dart';
+import 'package:indhostels/pages/notifications/reviews_Screen.dart';
 import 'package:indhostels/routing/app_roter.dart';
 import 'package:indhostels/routing/route_constants.dart';
-import 'package:indhostels/utils/helpers/app_toast.dart';
 import 'package:indhostels/utils/shimmers/details_Screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -129,7 +127,7 @@ class _HotelDetailsScreenState extends State<AcommadationDetailesScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _MapSection(
+                        MapSection(
                           address: hotel?.location?.address ?? "",
                           mapUrl: hotel?.location?.locationurl ?? "",
                           r: r,
@@ -540,13 +538,13 @@ class _DescriptionSection extends StatelessWidget {
   }
 }
 
-class _MapSection extends StatelessWidget {
+class MapSection extends StatelessWidget {
   final String address;
   final String mapUrl;
   final R r;
   final double screenWidth;
 
-  const _MapSection({
+  const MapSection({
     required this.address,
     required this.mapUrl,
     required this.r,
@@ -554,6 +552,13 @@ class _MapSection extends StatelessWidget {
   });
 
   Future<void> openMap(String url) async {
+    debugPrint("MAP URL: $url");
+
+    if (url.isEmpty) {
+      debugPrint("Map url empty");
+      return;
+    }
+
     final uri = Uri.parse(url);
 
     if (await canLaunchUrl(uri)) {
@@ -573,19 +578,18 @@ class _MapSection extends StatelessWidget {
         _SectionHeader(
           title: 'Location',
           r: r,
-          actionLabel: 'Open Map',
-          onAction: () => openMap(mapUrl),
+          actionLabel: mapUrl.isEmpty ? "" : 'Open Map',
+          onAction: mapUrl.isEmpty ? () {} : () async => await openMap(mapUrl),
         ),
 
         SizedBox(height: r.fieldGap / 1.5),
 
         GestureDetector(
-          onTap: () async {
-            await launchUrl(
-              Uri.parse(mapUrl),
-              mode: LaunchMode.externalApplication,
-            );
-          },
+          onTap: mapUrl.isEmpty
+              ? () {}
+              : () async {
+                  await openMap(mapUrl);
+                },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(r.cardRadius),
             child: SizedBox(
@@ -603,6 +607,7 @@ class _MapSection extends StatelessWidget {
     );
   }
 }
+
 class _BottomBar extends StatelessWidget {
   final Acommodation? hotel;
   final R r;
@@ -663,10 +668,7 @@ class _BottomBar extends StatelessWidget {
                   RouteList.rooms,
                   extra: RoomsArgs(
                     rooms: rooms,
-                    pgName: hotel?.propertyName,
-                    location: hotel?.location?.address ?? "",
-                    checkInTime: 'Before 48 hrs',
-                    cancellationPolicy: 'Before 48 hrs',
+                  acommodation:hotel 
                   ),
                 );
               },

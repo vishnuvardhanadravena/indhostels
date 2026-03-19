@@ -43,8 +43,8 @@ class R {
   double get screenPadV => isTablet ? 24.0 : 16.0;
 
   // Spacing
-  double get sectionGap => isTablet ? 32.0 : 24.0;
-  double get fieldGap => isTablet ? 20.0 : 16.0;
+  double get sectionGap => isTablet ? 42.0 : 36.0;
+  double get fieldGap => isTablet ? 20.0 : 20.0;
   double get headerGap => isTablet ? 28.0 : 20.0;
 
   // App bar / titles
@@ -138,6 +138,20 @@ class R {
   double get reviewBadgePadH => isTablet ? 10.0 : 8.0;
   double get reviewBadgePadV => isTablet ? 5.0 : 4.0;
   double get reviewBadgeRadius => isTablet ? 20.0 : 14.0;
+  double get supportTabFont     => isTablet ? 15.0 : 13.0;
+double get supportTabPadH     => isTablet ? 22.0 : 16.0;
+double get supportTabPadV     => isTablet ? 13.0 : 10.0;
+double get supportTabRadius   => isTablet ? 30.0 : 24.0;
+double get supportFieldRadius => isTablet ? 16.0 : 12.0;
+double get supportFieldFont   => isTablet ? 15.0 : 14.0;
+double get supportLabelFont   => isTablet ? 15.0 : 14.0;
+double get supportMsgHeight   => isTablet ? 160.0 : 120.0;
+double get supportBtnHeight   => isTablet ? 62.0 : 52.0;
+double get supportBtnFont     => isTablet ? 18.0 : 16.0;
+double get supportBtnRadius   => isTablet ? 18.0 : 14.0;
+double get supportUploadFont  => isTablet ? 15.0 : 13.0;
+double get supportUploadIcon  => isTablet ? 22.0 : 18.0;
+double get supportUploadH     => isTablet ? 64.0 : 52.0;
 }
 
 class ProfileScreen extends StatefulWidget {
@@ -152,12 +166,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ProfileMenuItem(
       icon: Icons.edit_outlined,
       label: 'Edit Profile',
-      route: RouteList.edit_profile,
+      route: RouteList.profile,
     ),
     ProfileMenuItem(
       icon: Icons.lock_outline_rounded,
       label: 'Change Password',
-      route: RouteList.change_password,
+      route: RouteList.changePassword,
     ),
     ProfileMenuItem(
       icon: Icons.favorite_border_rounded,
