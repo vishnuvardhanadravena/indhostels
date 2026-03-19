@@ -17,6 +17,7 @@ class BookingsBloc extends Bloc<BookingsEvent, BookingsState> {
 
   BookingsBloc(this.repository) : super(const BookingsState()) {
     on<FetchBookings>(_fetchBookings);
+    on<FetchBookingsHistory>(_fetchBookingsHistory);
     on<FetchBookingDetailes>(_fetchBookingDetails);
     on<InvoiceDownloadRequested>(_onInvoiceDownloadRequested);
     on<InvoiceReset>((event, emit) {
@@ -68,6 +69,55 @@ class BookingsBloc extends Bloc<BookingsEvent, BookingsState> {
           bookingsLoading: false,
           bookingsMoreLoading: false,
           bookingsError: e.toString(),
+        ),
+      );
+    }
+  }
+
+  Future<void> _fetchBookingsHistory(
+    FetchBookingsHistory event,
+    Emitter<BookingsState> emit,
+  ) async {
+    if (state.historyhasReachedMax && event.page != 1) return;
+
+    if (event.page == 1) {
+      emit(
+        state.copyWith(
+          bookingsHistoryLoading: true,
+          bookingsHistoryError: null,
+        ),
+      );
+    } else {
+      emit(state.copyWith(bookingshistoryMoreLoading: true));
+    }
+
+    try {
+      final response = await repository.getBookingsHistory(
+        page: event.page,
+        limit: event.limit,
+      );
+
+      final bookings = response.data;
+
+      emit(
+        state.copyWith(
+          bookingsHistoryLoading: false,
+          bookingshistoryMoreLoading: false,
+          bookingshistory: event.page == 1
+              ? bookings
+              : [...state.bookings, ...bookings],
+          currentPage: event.page,
+          totalPages: response.totalPages,
+          totalOrders: response.totalOrders,
+          historyhasReachedMax: event.page >= response.totalPages,
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          bookingsHistoryLoading: false,
+          bookingshistoryMoreLoading: false,
+          bookingsHistoryError: e.toString(),
         ),
       );
     }
