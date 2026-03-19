@@ -22,6 +22,9 @@ class BookingsState extends Equatable {
   final int totalPages;
   final int currentPage;
   final int totalOrders;
+  final int historytotalPages;
+  final int historycurrentPage;
+  final int historytotalOrders;
 
   const BookingsState({
     this.bookingsLoading = false,
@@ -37,6 +40,9 @@ class BookingsState extends Equatable {
     this.totalPages = 1,
     this.currentPage = 1,
     this.totalOrders = 0,
+    this.historytotalPages = 1,
+    this.historycurrentPage = 1,
+    this.historytotalOrders = 0,
     this.bookingsDetailsLoading = false,
     this.bookingsDetailsError,
     this.bookingDetail,
@@ -60,6 +66,10 @@ class BookingsState extends Equatable {
     int? totalPages,
     int? currentPage,
     int? totalOrders,
+    int? historytotalPages,
+    int? historycurrentPage,
+    int? historytotalOrders,
+
     String? bookingsDetailsError,
     bool? bookingsDetailsLoading,
     BookingDetail? bookingDetail,
@@ -84,6 +94,9 @@ class BookingsState extends Equatable {
       totalPages: totalPages ?? this.totalPages,
       currentPage: currentPage ?? this.currentPage,
       totalOrders: totalOrders ?? this.totalOrders,
+      historytotalPages: historytotalPages ?? this.historytotalPages,
+      historycurrentPage: historycurrentPage ?? this.historycurrentPage,
+      historytotalOrders: historytotalOrders ?? this.historytotalOrders,
       bookingsDetailsError: bookingsDetailsError ?? this.bookingsDetailsError,
       bookingsDetailsLoading:
           bookingsDetailsLoading ?? this.bookingsDetailsLoading,
@@ -110,6 +123,9 @@ class BookingsState extends Equatable {
     totalPages,
     currentPage,
     totalOrders,
+    historytotalPages,
+    historycurrentPage,
+    historytotalOrders,
     bookingsDetailsLoading,
     bookingsDetailsError,
     bookingDetail,

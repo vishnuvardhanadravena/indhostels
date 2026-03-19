@@ -17,7 +17,8 @@ class BookingsScreen extends StatefulWidget {
 }
 
 class _BookingsScreenState extends State<BookingsScreen> {
-  final ScrollController _scrollController = ScrollController();
+  final ScrollController _bookedController = ScrollController();
+  final ScrollController _historyController = ScrollController();
   int _selectedTab = 0;
 
   @override
@@ -29,21 +30,34 @@ class _BookingsScreenState extends State<BookingsScreen> {
       const FetchBookingsHistory(page: 1, limit: 10),
     );
 
-    _scrollController.addListener(_onScroll);
+    _bookedController.addListener(_onBookedScroll);
+    _historyController.addListener(_onHistoryScroll);
   }
 
-  void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
+  // ✅ BOOKED SCROLL
+  void _onBookedScroll() {
+    if (_bookedController.position.pixels >=
+        _bookedController.position.maxScrollExtent - 200) {
       final bloc = context.read<BookingsBloc>();
       final state = bloc.state;
 
       if (!state.bookingsMoreLoading && !state.hasReachedMax) {
         bloc.add(FetchBookings(page: state.currentPage + 1, limit: 10));
       }
+    }
+  }
+
+  // ✅ HISTORY SCROLL
+  void _onHistoryScroll() {
+    if (_historyController.position.pixels >=
+        _historyController.position.maxScrollExtent - 200) {
+      final bloc = context.read<BookingsBloc>();
+      final state = bloc.state;
 
       if (!state.bookingshistoryMoreLoading && !state.historyhasReachedMax) {
-        bloc.add(FetchBookingsHistory(page: state.currentPage + 1, limit: 10));
+        bloc.add(
+          FetchBookingsHistory(page: state.historycurrentPage + 1, limit: 10),
+        );
       }
     }
   }
@@ -58,13 +72,22 @@ class _BookingsScreenState extends State<BookingsScreen> {
             setState(() {
               _selectedTab = index;
             });
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (index == 0 && _bookedController.hasClients) {
+                _bookedController.jumpTo(0);
+              } else if (index == 1 && _historyController.hasClients) {
+                _historyController.jumpTo(0);
+              }
+            });
           },
           bookings: state.bookings,
           bookingshistory: state.bookingshistory,
           isLoading: _selectedTab == 0
               ? state.bookingsLoading
               : state.bookingsHistoryLoading,
-          scrollController: _scrollController,
+          scrollController: _selectedTab == 0
+              ? _bookedController
+              : _historyController,
           isLoadingMore: _selectedTab == 0
               ? state.bookingsMoreLoading
               : state.bookingshistoryMoreLoading,
@@ -171,7 +194,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              '${widget.bookings.length} Total',
+              // '${widget.bookings.length} Total',
+              "total",
               style: const TextStyle(
                 color: Color(0xFF5B4BCC),
                 fontSize: 12,

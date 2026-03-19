@@ -105,10 +105,10 @@ class BookingsBloc extends Bloc<BookingsEvent, BookingsState> {
           bookingshistoryMoreLoading: false,
           bookingshistory: event.page == 1
               ? bookings
-              : [...state.bookings, ...bookings],
-          currentPage: event.page,
-          totalPages: response.totalPages,
-          totalOrders: response.totalOrders,
+              : [...state.bookingshistory, ...bookings],
+          historycurrentPage: event.page,
+          historytotalPages: response.totalPages,
+          historytotalOrders: response.totalOrders,
           historyhasReachedMax: event.page >= response.totalPages,
         ),
       );
