@@ -68,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       searchText = value;
       isSearching = value.isNotEmpty;
-      page = 1; // 🔥 RESET
+      page = 1;
     });
 
     if (value.isNotEmpty) {
@@ -99,11 +99,10 @@ class _HomeScreenState extends State<HomeScreen> {
           controller: _scrollController,
           padding: const EdgeInsets.symmetric(horizontal: 16),
 
-          /// 🔥 IMPORTANT
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
 
-          itemCount: hotels.length + 1, // loader
+          itemCount: hotels.length + 1,
 
           itemBuilder: (context, index) {
             if (index == hotels.length) {
@@ -323,7 +322,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: TextField(
-                                      onChanged: _onSearch,
+                                      controller: _searchController,
+                                      // onChanged: _onSearch,
                                       decoration: const InputDecoration(
                                         hintText:
                                             'Search hotels, PGs, hostels...',
@@ -338,17 +338,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ),
                                   ),
-                                  Container(
-                                    margin: const EdgeInsets.all(6),
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF7B5EA7),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Icon(
-                                      Icons.tune,
-                                      size: 16,
-                                      color: Colors.white,
+                                  InkWell(
+                                    onTap: () =>
+                                        _onSearch(_searchController.text),
+                                    child: Container(
+                                      margin: const EdgeInsets.all(6),
+                                      padding: const EdgeInsets.all(6),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF7B5EA7),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Icon(
+                                        Icons.search_rounded,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -356,7 +360,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
 
                             const SizedBox(height: 10),
-                            isSearching && searchText == ""
+                            !isSearching && searchText == ""
                                 ? SizedBox(
                                     height:
                                         MediaQuery.of(context).size.height *
