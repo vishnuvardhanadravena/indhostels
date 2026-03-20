@@ -1,7 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:indhostels/bloc/Serach/search_bloc.dart';
 import 'package:indhostels/bloc/auth/auth_event.dart';
 import 'package:indhostels/data/models/accomodation/accomodation_details_res.dart';
 import 'package:indhostels/data/models/accomodation/room_card_model.dart'
@@ -21,6 +23,7 @@ import 'package:indhostels/pages/category/category_search_screen.dart';
 import 'package:indhostels/pages/bookings/bookings.dart';
 import 'package:indhostels/pages/dashbord/dashbord.dart';
 import 'package:indhostels/pages/dashbord/home.dart';
+import 'package:indhostels/pages/locationSearch_screen.dart';
 import 'package:indhostels/pages/payment/payment_success_screen.dart';
 import 'package:indhostels/pages/payment/payment_summary.dart';
 import 'package:indhostels/pages/profile/edit_profile.dart';
@@ -32,6 +35,7 @@ import 'package:indhostels/pages/notifications/notifications.dart';
 import 'package:indhostels/pages/notifications/review_update_screen.dart';
 import 'package:indhostels/pages/notifications/reviews_Screen.dart';
 import 'package:indhostels/pages/support/SupportTicketsScreen.dart';
+import 'package:indhostels/pages/support/contact_us.dart';
 import 'package:indhostels/pages/support/support_Screen.dart';
 import 'package:indhostels/pages/wishlist/wishlistScreen.dart';
 import 'package:indhostels/spalshScreen.dart';
@@ -307,15 +311,35 @@ final GoRouter appRouter = GoRouter(
     ),
 
     GoRoute(
-      path: RouteList.tickets,
-      name: RouteList.tickets,
+      path: RouteList.help,
+      name: RouteList.help,
       builder: (context, state) => const HelpSupportScreen(),
     ),
     GoRoute(
-      path: RouteList.help,
-      name: RouteList.help,
+      path: RouteList.tickets,
+      name: RouteList.tickets,
       builder: (context, state) => const SupportTicketsScreen(),
     ),
+    GoRoute(
+      path: RouteList.serachLocation,
+      name: RouteList.serachLocation,
+      builder: (context, state) => LocationSearchScreen(),
+    ),
+    GoRoute(
+      path: RouteList.contactus,
+      name: RouteList.contactus,
+      builder: (context, state) => ContactUsScreen(),
+    ),
+    // GoRoute(
+    //   path: RouteList.contactus,
+    //   name: RouteList.contactus,
+    //   builder: (context, state) {
+    //     return BlocProvider.value(
+    //       value: context.read<SearchBloc>()..add(const LocationFetchAll()),
+    //       child: const LocationSearchScreen(),
+    //     );
+    //   },
+    // ),
   ],
 );
 

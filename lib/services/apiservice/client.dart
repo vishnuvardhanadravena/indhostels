@@ -31,20 +31,15 @@ class DioClient {
 
           if (token != null && token.isNotEmpty) {
             options.headers["Authorization"] =
-                "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MDlkZDhlMGQwMmY3NjY4NTFmMDY3NyIsInN0YXR1cyI6ImFjdGl2ZSIsImlhdCI6MTc3MzkxNDIwMywiZXhwIjoxNzc0MDAwNjAzfQ.vLwTV3lpTL0NoD_0JLj-stTHhDA9PM429ZrtXs3Am_Y";
-
-            // options.headers["Authorization"] = "Bearer $token";
+                // "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MDlkZDhlMGQwMmY3NjY4NTFmMDY3NyIsInN0YXR1cyI6ImFjdGl2ZSIsImlhdCI6MTc3Mzk4NDA1NiwiZXhwIjoxNzc0MDcwNDU2fQ.aP7fq6U4GwScdfnEixltnZ9k2iTrG20CRswaN5rdwlg";
+                options.headers["Authorization"] = "Bearer $token";
           }
-
           AppLogger.log("📤 ${options.method} ${options.path}");
-
           if (options.data != null) {
             AppLogger.json(options.data);
           }
-
           handler.next(options);
         },
-
         onResponse: (response, handler) async {
           if (response.statusCode == 401 &&
               response.data["message"] ==

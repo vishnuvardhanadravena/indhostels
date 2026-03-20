@@ -7,6 +7,7 @@ import 'package:indhostels/bloc/bookings/bookings_bloc.dart';
 import 'package:indhostels/data/models/bookings/booking_res.dart';
 import 'package:indhostels/routing/route_constants.dart';
 import 'package:indhostels/utils/shimmers/booking_card_shimmer.dart';
+import 'package:indhostels/utils/theame/app_themes.dart';
 import 'package:indhostels/utils/widgets/authwidgts.dart';
 
 class BookingsScreen extends StatefulWidget {
@@ -220,7 +221,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   );
 
   Widget _buildMobileList(bool isTab) => RefreshIndicator(
-    color: const Color(0xFF5B4BCC),
+    color: AppColors.primary,
     onRefresh: () async => widget.onRefresh?.call(),
     child: ListView.builder(
       controller: widget.scrollController,
@@ -248,7 +249,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   );
 
   Widget _buildTabGrid(bool isTab) => RefreshIndicator(
-    color: const Color(0xFF5B4BCC),
+    color: AppColors.primary,
     onRefresh: () async => widget.onRefresh?.call(),
     child: GridView.builder(
       controller: widget.scrollController,
@@ -543,7 +544,12 @@ class BookingCard extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF5B4BCC).withOpacity(0.1),
+                          color: const Color.fromARGB(
+                            233,
+                            26,
+                            34,
+                            126,
+                          ).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: const Text(
@@ -825,7 +831,7 @@ class AppButton extends StatelessWidget {
           ? ElevatedButton(
               onPressed: isLoading ? null : onPressed,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5B4BCC),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -837,13 +843,13 @@ class AppButton extends StatelessWidget {
           : OutlinedButton(
               onPressed: isLoading ? null : onPressed,
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF5B4BCC),
+                foregroundColor: AppColors.primary,
                 side: const BorderSide(color: Color(0xFF5B4BCC)),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: _buildChild(const Color(0xFF5B4BCC)),
+              child: _buildChild(AppColors.primary),
             ),
     );
   }
@@ -926,7 +932,7 @@ class SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: isTab ? 20 : 16, color: const Color(0xFF5B4BCC)),
+        Icon(icon, size: isTab ? 20 : 16, color: AppColors.primary),
         const SizedBox(width: 8),
         Text(
           title,

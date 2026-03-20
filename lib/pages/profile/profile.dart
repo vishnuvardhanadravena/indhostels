@@ -152,6 +152,24 @@ class R {
   double get supportUploadFont => isTablet ? 15.0 : 13.0;
   double get supportUploadIcon => isTablet ? 22.0 : 18.0;
   double get supportUploadH => isTablet ? 64.0 : 52.0;
+  double get searchBarHeight => isTablet ? 60.0 : 50.0;
+  double get searchBarRadius => isTablet ? 16.0 : 12.0;
+  double get searchHintFont => isTablet ? 16.0 : 14.0;
+  double get searchIconSize => isTablet ? 22.0 : 18.0;
+
+  double get currentLocTitleFont => isTablet ? 17.0 : 15.0;
+  double get currentLocSubFont => isTablet ? 13.0 : 12.0;
+  double get currentLocIconSize => isTablet ? 24.0 : 20.0;
+
+  double get sectionTitleFont => isTablet ? 19.0 : 16.0;
+  double get itemTitleFont => isTablet ? 16.0 : 14.5;
+  double get itemSubFont => isTablet ? 13.0 : 12.0;
+  double get itemIconSize => isTablet ? 22.0 : 18.0;
+  // double get itemPadH => isTablet ? 20.0 : 16.0;
+  // double get itemPadV => isTablet ? 16.0 : 13.0;
+  double get itemRadius => isTablet ? 16.0 : 12.0;
+  double get itemGap => isTablet ? 10.0 : 8.0;
+  double get dividerH => isTablet ? 1.0 : 0.8;
 }
 
 class ProfileScreen extends StatefulWidget {
@@ -191,7 +209,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ProfileMenuItem(
       icon: Icons.help_outline_rounded,
       label: 'Help & Support',
-      route: RouteList.help,
+      route: RouteList.tickets,
+    ),
+    ProfileMenuItem(
+      icon: Icons.help_outline_rounded,
+      label: 'contact us',
+      route: RouteList.contactus,
     ),
   ];
   File? _pickedImage;
@@ -207,9 +230,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!context.mounted) return;
-
               Navigator.of(context, rootNavigator: true).pop();
-
               context.go(RouteList.login);
             });
 
@@ -232,9 +253,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!context.mounted) return;
-
               Navigator.of(context, rootNavigator: true).pop();
-
               context.go(RouteList.login);
             });
 
@@ -254,43 +273,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return LayoutBuilder(
             builder: (context, constraints) {
               final r = R(constraints.maxWidth);
-              return Container(
-                width: double.infinity,
-                height: double.infinity,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Color(0xFFDDD6F0),
-                      Color(0xFFEEEBF7),
-                      Color(0xFFF5F3FB),
-                    ],
-                    stops: [0.0, 0.5, 1.0],
-                  ),
-                ),
-                child: SafeArea(
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: r.screenPadH,
-                        vertical: r.screenPadV,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _TopBar(r: r),
-                          SizedBox(height: r.headerGap),
-                          _ProfileHeader(r: r),
-                          SizedBox(height: r.sectionGap),
-                          _MenuCard(menuItems: _menuItems, r: r),
-                          SizedBox(height: r.sectionGap),
-                        ],
+              return Stack(
+                children: [
+                  // ── Gradient background (top 37% of screen) ──
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: MediaQuery.of(context).size.height * 0.37,
+                    child: const DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Color.fromARGB(255, 182, 154, 235),
+                            Color(0xFFE8E0F8),
+                            Colors.white,
+                          ],
+                          stops: [0.0, 0.5, 1.0],
+                        ),
                       ),
                     ),
                   ),
-                ),
+
+                  // ── Scrollable content on top ──
+                  SafeArea(
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: r.screenPadH,
+                          vertical: r.screenPadV,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _TopBar(r: r),
+                            SizedBox(height: r.headerGap),
+                            _ProfileHeader(r: r),
+                            SizedBox(height: r.sectionGap),
+                            _MenuCard(menuItems: _menuItems, r: r),
+                            SizedBox(height: r.sectionGap),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               );
             },
           );

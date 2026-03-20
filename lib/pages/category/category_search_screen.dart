@@ -319,11 +319,10 @@ class _HotelListingScreenState extends State<HotelListingScreen> {
   }
 
   Widget buildHotelItem(BuildContext context, Data hotel) {
-    final isTablet = MediaQuery.of(context).size.width > 600;
-
-    final card = GestureDetector(
-      onTap: () => _onHotelTap(hotel),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
       child: AppHotelCard(
+        onTap: () => _onHotelTap(hotel),
         imageUrl: hotel.imagesUrl?.isNotEmpty == true
             ? hotel.imagesUrl?.first
             : null,
@@ -338,16 +337,6 @@ class _HotelListingScreenState extends State<HotelListingScreen> {
             : "N/A",
         amenities: hotel.amenities,
         trailingWidget: WishlistButton(accommodationId: hotel.sId ?? ""),
-      ),
-    );
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
-      child: SizedBox(
-        height: isTablet
-            ? MediaQuery.of(context).size.height * 0.45
-            : MediaQuery.of(context).size.height * 0.32,
-        child: card,
       ),
     );
   }
@@ -488,7 +477,6 @@ void showSearchTopSheet(
                     DateTime.now().add(const Duration(days: 1));
 
                 final range = DateTimeRange(start: start, end: end);
-
                 final nights = range.end.difference(range.start).inDays;
 
                 return Container(
@@ -524,27 +512,25 @@ void showSearchTopSheet(
 
                       const Divider(),
 
-                      /// SAME SEARCH CARD
                       SearchCard(
-                        city: state.city ?? "hyderabad",
+                        city: (state.city != null && state.city!.isNotEmpty)
+                            ? state.city!
+                            : "hyderabad",
+
                         dateRange: range,
                         nights: nights,
                         formatDate: (d) => DateFormat('dd MMM, yy').format(d),
 
                         onCityTap: () async {
-                          final result = await showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            backgroundColor: Colors.transparent,
-                            builder: (_) => CityPickerSheet(
-                              selected: state.city ?? "",
-                              onSelect: (city) {
-                                context.read<SearchBloc>().add(
-                                  UpdateSearchParams(city: city),
-                                );
-                              },
-                            ),
+                          final result = await context.pushNamed<String>(
+                            RouteList.serachLocation,
                           );
+
+                          if (result != null && result.isNotEmpty) {
+                            context.read<SearchBloc>().add(
+                              UpdateSearchParams(city: result),
+                            );
+                          }
                         },
 
                         onDateTap: () async {
@@ -568,7 +554,11 @@ void showSearchTopSheet(
                         },
 
                         onSearch: () {
-                          final city = state.city ?? "hyderabad";
+                          final city =
+                              (state.city != null && state.city!.isNotEmpty)
+                              ? state.city!
+                              : "hyderabad";
+
                           final checkIn = range.start;
                           final checkOut = range.end;
 
@@ -576,7 +566,7 @@ void showSearchTopSheet(
                             SearchRequested(
                               page: 1,
                               limit: 10,
-                              stayType: ['hostels'],
+                              stayType: const ['hostels'],
 
                               checkInDate: DateFormat(
                                 'yyyy-MM-dd',
@@ -586,20 +576,23 @@ void showSearchTopSheet(
                               ).format(checkOut),
 
                               roomType:
-                                  activeFilter!.selectedRoomTypes.isNotEmpty
-                                  ? activeFilter.selectedRoomTypes.toList()
+                                  activeFilter?.selectedRoomTypes.isNotEmpty ==
+                                      true
+                                  ? activeFilter!.selectedRoomTypes.toList()
                                   : null,
 
                               amenities:
-                                  activeFilter.selectedAmenities.isNotEmpty
-                                  ? activeFilter.selectedAmenities.toList()
+                                  activeFilter?.selectedAmenities.isNotEmpty ==
+                                      true
+                                  ? activeFilter!.selectedAmenities.toList()
                                   : null,
 
-                              category: activeFilter.selectedCategory,
-                              location: activeFilter.selectedLocation ?? city,
+                              category: activeFilter?.selectedCategory,
 
-                              minPrice: activeFilter.priceRange.start,
-                              maxPrice: activeFilter.priceRange.end,
+                              location: activeFilter?.selectedLocation ?? city,
+
+                              minPrice: activeFilter?.priceRange.start,
+                              maxPrice: activeFilter?.priceRange.end,
                             ),
                           );
 
@@ -713,61 +706,3 @@ class HotelModel {
     isFavorite: isFavorite ?? this.isFavorite,
   );
 }
-
-final List<HotelModel> mockHotels = [
-  HotelModel(
-    id: '1',
-    name: 'Hotel Broholi Inn',
-    location: 'Near Google Office, Kondapur Hit..',
-    rating: 4.0,
-    pricePerNight: 1300,
-    amenities: ['AC', 'Food Included', 'Wifi', '+3'],
-    imageUrls: [
-      'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800',
-    ],
-  ),
-  HotelModel(
-    id: '2',
-    name: 'The Golkonda Retreat',
-    location: 'Near Golkonda Fort, Mehdipatnam..',
-    rating: 4.5,
-    pricePerNight: 2800,
-    amenities: ['AC', 'Pool', 'Wifi', 'Spa'],
-    imageUrls: [
-      'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
-    ],
-  ),
-  HotelModel(
-    id: '3',
-    name: 'Novotel Hyderabad',
-    location: 'HITECH City, Madhapur..',
-    rating: 4.2,
-    pricePerNight: 4500,
-    amenities: ['AC', 'Pool', 'Gym', 'Wifi'],
-    imageUrls: [
-      'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800',
-    ],
-  ),
-  HotelModel(
-    id: '4',
-    name: 'Taj Falaknuma Palace',
-    location: 'Engine Bowli, Falaknuma..',
-    rating: 4.9,
-    pricePerNight: 18000,
-    amenities: ['AC', 'Pool', 'Spa', 'Dining'],
-    imageUrls: [
-      'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800',
-    ],
-  ),
-  HotelModel(
-    id: '5',
-    name: 'Radisson Blu Plaza',
-    location: 'Banjara Hills, Road No. 1..',
-    rating: 4.3,
-    pricePerNight: 5200,
-    amenities: ['AC', 'Food Included', 'Gym', '+2'],
-    imageUrls: [
-      'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800',
-    ],
-  ),
-];

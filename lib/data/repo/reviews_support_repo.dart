@@ -9,6 +9,8 @@ class ReviewRepository {
 
   ReviewRepository(this.api);
 
+  // ── Reviews ───────────────────────────────────────────────────────────────
+
   Future<ReviewsRes> getReviews({
     required String propertyId,
     required int page,
@@ -44,6 +46,8 @@ class ReviewRepository {
     return response.data;
   }
 
+  // ── Support tickets ───────────────────────────────────────────────────────
+
   Future<SupportResponse> createTicket({
     required String category,
     required String bookingId,
@@ -60,12 +64,13 @@ class ReviewRepository {
         'attachment': await MultipartFile.fromFile(attachmentPath),
     });
 
-    final response = await api.post(ApiConstants.createissue(), data: formData);
+    final response = await api.post(ApiConstants.createIssue, data: formData);
     return SupportResponse.fromJson(response.data);
   }
 
   Future<List<SupportTicket>> getTickets() async {
-    final response = await api.get(ApiConstants.getticketmessges());
+    final response = await api.get(ApiConstants.getTicketMessages);
+
     if (response.statusCode == 200) {
       final data = response.data as Map<String, dynamic>;
       final List<dynamic> list = data['data'] as List<dynamic>? ?? [];
@@ -78,7 +83,54 @@ class ReviewRepository {
       (response.data as Map?)?['message'] ?? 'Failed to fetch tickets',
     );
   }
+
+
+  Future<Map<String, dynamic>> submitContactUs({
+    required String fullName,
+    required String email,
+    required String phone,
+    required String subject,
+    required String message,
+  }) async {
+    final response = await api.post(
+      ApiConstants.contactUsQuery,
+      data: {
+        'fullname': fullName,
+        'email': email,
+        'phone': phone,
+        'subject': subject,
+        'message': message,
+      },
+    );
+
+    final data = response.data as Map<String, dynamic>;
+
+    if (data['success'] != true) {
+      throw Exception(data['message'] ?? 'Failed to submit query');
+    }
+
+    return data;
+  }
+  Future<Map<String, dynamic>> replyToTicket({
+  required String ticketId,
+  required String message,
+}) async {
+  final response = await api.post(
+    '/indhostels/auth/helpandsupport/reply-to-message/$ticketId',
+    data: {
+      'message': message,
+      'sender': 'user',
+    },
+  );
+
+  final data = response.data as Map<String, dynamic>;
+  if (data['success'] != true) {
+    throw Exception(data['message'] ?? 'Failed to send message');
+  }
+  return data;
 }
+}
+
 
 class TicketMessage {
   final String sender;

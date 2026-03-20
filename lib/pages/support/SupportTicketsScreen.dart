@@ -1,8 +1,10 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:indhostels/bloc/support/support_bloc.dart';
 import 'package:indhostels/data/repo/reviews_support_repo.dart';
+import 'package:indhostels/routing/route_constants.dart';
+import 'package:indhostels/utils/shimmers/popular_hstl_shimmer.dart';
 import 'package:intl/intl.dart';
 
 const _kPrimary = Color(0xFF1A6FE8);
@@ -20,7 +22,6 @@ const _kResolvedText = Color(0xFF059669);
 const _kOpenBadge = Color(0xFFFFF3E0);
 const _kOpenText = Color(0xFFF59E0B);
 
-
 class SupportTicketsScreen extends StatelessWidget {
   const SupportTicketsScreen({super.key});
 
@@ -34,16 +35,20 @@ class SupportTicketsScreen extends StatelessWidget {
       body: BlocBuilder<SupportBloc, SupportState>(
         builder: (context, state) {
           if (state.isLoadingTickets) {
-            return const Center(
-              child: CircularProgressIndicator(color: _kPrimary),
+            return ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: 6, // number of skeleton items
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (_, __) => const TicketCardSkeleton(),
             );
           }
 
           if (state.ticketsError != null) {
             return _ErrorView(
               message: state.ticketsError!,
-              onRetry: () =>
-                  context.read<SupportBloc>().add(const FetchTicketsRequested()),
+              onRetry: () => context.read<SupportBloc>().add(
+                const FetchTicketsRequested(),
+              ),
             );
           }
 
@@ -57,9 +62,7 @@ class SupportTicketsScreen extends StatelessWidget {
                 categories: state.ticketCategories,
                 activeTab: state.activeTicketTab,
               ),
-              Expanded(
-                child: _TicketList(tickets: state.filteredTickets),
-              ),
+              Expanded(child: _TicketList(tickets: state.filteredTickets)),
             ],
           );
         },
@@ -72,6 +75,15 @@ class SupportTicketsScreen extends StatelessWidget {
       backgroundColor: _kSurface,
       elevation: 0,
       centerTitle: false,
+      actions: [
+        TextButton.icon(
+          onPressed: () {
+            context.push(RouteList.help);
+          },
+          icon: const Icon(Icons.add, color: _kTextDark),
+          label: const Text("Create", style: TextStyle(color: _kTextDark)),
+        ),
+      ],
       title: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -90,8 +102,11 @@ class SupportTicketsScreen extends StatelessWidget {
         ],
       ),
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new_rounded,
-            color: _kTextDark, size: 18),
+        icon: const Icon(
+          Icons.arrow_back_ios_new_rounded,
+          color: _kTextDark,
+          size: 18,
+        ),
         onPressed: () => Navigator.of(context).pop(),
       ),
       bottom: const PreferredSize(
@@ -101,7 +116,6 @@ class SupportTicketsScreen extends StatelessWidget {
     );
   }
 }
-
 
 class _CategoryTabs extends StatelessWidget {
   final List<String> categories;
@@ -120,14 +134,16 @@ class _CategoryTabs extends StatelessWidget {
           children: categories.map((cat) {
             final isActive = cat == activeTab;
             return GestureDetector(
-              onTap: () => context
-                  .read<SupportBloc>()
-                  .add(TicketCategoryTabChanged(cat)),
+              onTap: () => context.read<SupportBloc>().add(
+                TicketCategoryTabChanged(cat),
+              ),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 margin: const EdgeInsets.only(right: 8),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: isActive ? _kPrimary : _kBg,
                   borderRadius: BorderRadius.circular(20),
@@ -139,8 +155,7 @@ class _CategoryTabs extends StatelessWidget {
                   cat,
                   style: TextStyle(
                     fontSize: 13,
-                    fontWeight:
-                        isActive ? FontWeight.w600 : FontWeight.w400,
+                    fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                     color: isActive ? Colors.white : _kTextMid,
                   ),
                 ),
@@ -153,8 +168,6 @@ class _CategoryTabs extends StatelessWidget {
   }
 }
 
-//  Ticket List
-
 class _TicketList extends StatelessWidget {
   final List<SupportTicket> tickets;
   const _TicketList({required this.tickets});
@@ -165,12 +178,10 @@ class _TicketList extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       itemCount: tickets.length,
       separatorBuilder: (_, __) => const SizedBox(height: 10),
-      itemBuilder: (context, index) =>
-          _TicketCard(ticket: tickets[index]),
+      itemBuilder: (context, index) => _TicketCard(ticket: tickets[index]),
     );
   }
 }
-
 
 class _TicketCard extends StatelessWidget {
   final SupportTicket ticket;
@@ -178,13 +189,9 @@ class _TicketCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isResolved = ticket.isResolved;
-
     return GestureDetector(
       onTap: () => Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => TicketChatScreen(ticket: ticket),
-        ),
+        MaterialPageRoute(builder: (_) => TicketChatScreen(ticket: ticket)),
       ),
       child: Container(
         decoration: BoxDecoration(
@@ -203,7 +210,6 @@ class _TicketCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Category Icon
               Container(
                 width: 46,
                 height: 46,
@@ -217,10 +223,7 @@ class _TicketCard extends StatelessWidget {
                   size: 22,
                 ),
               ),
-
               const SizedBox(width: 12),
-
-              // Content
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,17 +251,16 @@ class _TicketCard extends StatelessWidget {
                       ticket.lastMessage,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: _kTextMid,
-                      ),
+                      style: const TextStyle(fontSize: 12, color: _kTextMid),
                     ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
                             color: _kPrimaryLight,
                             borderRadius: BorderRadius.circular(6),
@@ -281,8 +283,11 @@ class _TicketCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 4),
-                        const Icon(Icons.chevron_right_rounded,
-                            size: 16, color: _kTextLight),
+                        const Icon(
+                          Icons.chevron_right_rounded,
+                          size: 16,
+                          color: _kTextLight,
+                        ),
                       ],
                     ),
                   ],
@@ -318,10 +323,6 @@ class _TicketCard extends StatelessWidget {
     return DateFormat('dd MMM').format(date);
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  Status Badge
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _StatusBadge extends StatelessWidget {
   final String status;
@@ -362,10 +363,6 @@ class _StatusBadge extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  SCREEN : Chat View for a single ticket
-// ─────────────────────────────────────────────────────────────────────────────
-
 class TicketChatScreen extends StatelessWidget {
   final SupportTicket ticket;
   const TicketChatScreen({super.key, required this.ticket});
@@ -375,24 +372,31 @@ class TicketChatScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: _kBg,
       appBar: _buildAppBar(context),
-      body: Column(
-        children: [
-          // Ticket info strip
-          _TicketInfoStrip(ticket: ticket),
+      // BlocBuilder watches tickets so the chat rebuilds on every reply
+      body: BlocBuilder<SupportBloc, SupportState>(
+        buildWhen: (p, c) => p.tickets != c.tickets,
+        builder: (context, state) {
+          // Always use the live ticket from state
+          final liveTicket = state.tickets.firstWhere(
+            (t) => t.id == ticket.id,
+            orElse: () => ticket,
+          );
 
-          // Messages
-          Expanded(
-            child: ticket.messages.isEmpty
-                ? const _EmptyChatView()
-                : _MessageList(messages: ticket.messages),
-          ),
-
-          // Resolved footer or locked bar
-          if (ticket.isResolved)
-            const _ResolvedBar()
-          else
-            const _LockedInputBar(),
-        ],
+          return Column(
+            children: [
+              _TicketInfoStrip(ticket: liveTicket),
+              Expanded(
+                child: liveTicket.messages.isEmpty
+                    ? const _EmptyChatView()
+                    : _MessageList(messages: liveTicket.messages),
+              ),
+              if (liveTicket.isResolved)
+                const _ResolvedBar()
+              else
+                _ActiveInputBar(ticketId: liveTicket.id),
+            ],
+          );
+        },
       ),
     );
   }
@@ -402,8 +406,11 @@ class TicketChatScreen extends StatelessWidget {
       backgroundColor: _kSurface,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new_rounded,
-            color: _kTextDark, size: 18),
+        icon: const Icon(
+          Icons.arrow_back_ios_new_rounded,
+          color: _kTextDark,
+          size: 18,
+        ),
         onPressed: () => Navigator.of(context).pop(),
       ),
       title: Row(
@@ -415,8 +422,11 @@ class TicketChatScreen extends StatelessWidget {
               color: _kPrimaryLight,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.support_agent_rounded,
-                color: _kPrimary, size: 20),
+            child: const Icon(
+              Icons.support_agent_rounded,
+              color: _kPrimary,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -456,10 +466,6 @@ class TicketChatScreen extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Ticket Info Strip (shown below app bar in chat view)
-// ─────────────────────────────────────────────────────────────────────────────
-
 class _TicketInfoStrip extends StatelessWidget {
   final SupportTicket ticket;
   const _TicketInfoStrip({required this.ticket});
@@ -498,26 +504,60 @@ class _TicketInfoStrip extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Message List
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _MessageList extends StatelessWidget {
+class _MessageList extends StatefulWidget {
   final List<TicketMessage> messages;
   const _MessageList({required this.messages});
 
   @override
+  State<_MessageList> createState() => _MessageListState();
+}
+
+class _MessageListState extends State<_MessageList> {
+  final _scrollCtrl = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Scroll to bottom on first load
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+  }
+
+  @override
+  void didUpdateWidget(_MessageList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Scroll to bottom whenever a new message arrives
+    if (widget.messages.length != oldWidget.messages.length) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+    }
+  }
+
+  void _scrollToBottom() {
+    if (_scrollCtrl.hasClients) {
+      _scrollCtrl.animateTo(
+        _scrollCtrl.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      controller: _scrollCtrl,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      itemCount: messages.length,
+      itemCount: widget.messages.length,
       itemBuilder: (context, index) {
-        final msg = messages[index];
+        final msg = widget.messages[index];
         final isUser = msg.sender == 'user';
-
-        // Show sender label when sender changes
-        final showLabel = index == 0 ||
-            messages[index - 1].sender != msg.sender;
+        final showLabel =
+            index == 0 || widget.messages[index - 1].sender != msg.sender;
 
         return _MessageBubble(
           message: msg,
@@ -528,10 +568,6 @@ class _MessageList extends StatelessWidget {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  Single Message Bubble
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _MessageBubble extends StatelessWidget {
   final TicketMessage message;
@@ -549,8 +585,9 @@ class _MessageBubble extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Column(
-        crossAxisAlignment:
-            isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment: isUser
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
         children: [
           if (showLabel)
             Padding(
@@ -570,21 +607,21 @@ class _MessageBubble extends StatelessWidget {
               ),
             ),
           Row(
-            mainAxisAlignment:
-                isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+            mainAxisAlignment: isUser
+                ? MainAxisAlignment.end
+                : MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              if (!isUser) ...[
-                _AdminAvatar(),
-                const SizedBox(width: 6),
-              ],
+              if (!isUser) ...[_AdminAvatar(), const SizedBox(width: 6)],
               Flexible(
                 child: Container(
                   constraints: BoxConstraints(
                     maxWidth: MediaQuery.of(context).size.width * 0.72,
                   ),
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 10),
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: isUser ? _kUser : _kAdmin,
                     borderRadius: BorderRadius.only(
@@ -611,10 +648,7 @@ class _MessageBubble extends StatelessWidget {
                   ),
                 ),
               ),
-              if (isUser) ...[
-                const SizedBox(width: 6),
-                _UserAvatar(),
-              ],
+              if (isUser) ...[const SizedBox(width: 6), _UserAvatar()],
             ],
           ),
         ],
@@ -634,8 +668,11 @@ class _AdminAvatar extends StatelessWidget {
         shape: BoxShape.circle,
         border: Border.all(color: _kPrimary.withOpacity(0.2)),
       ),
-      child: const Icon(Icons.support_agent_rounded,
-          size: 15, color: _kPrimary),
+      child: const Icon(
+        Icons.support_agent_rounded,
+        size: 15,
+        color: _kPrimary,
+      ),
     );
   }
 }
@@ -655,10 +692,6 @@ class _UserAvatar extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Bottom bars
-// ─────────────────────────────────────────────────────────────────────────────
-
 class _ResolvedBar extends StatelessWidget {
   const _ResolvedBar();
 
@@ -677,8 +710,11 @@ class _ResolvedBar extends StatelessWidget {
               color: _kResolvedBadge,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.check_circle_outline_rounded,
-                color: _kResolvedText, size: 18),
+            child: const Icon(
+              Icons.check_circle_outline_rounded,
+              color: _kResolvedText,
+              size: 18,
+            ),
           ),
           const SizedBox(width: 10),
           const Text(
@@ -695,59 +731,131 @@ class _ResolvedBar extends StatelessWidget {
   }
 }
 
-/// Locked input bar shown for open tickets in read-only view mode.
-/// Replace this with a real TextField if you want to allow replies.
-class _LockedInputBar extends StatelessWidget {
-  const _LockedInputBar();
+class _ActiveInputBar extends StatefulWidget {
+  final String ticketId;
+  const _ActiveInputBar({required this.ticketId});
+
+  @override
+  State<_ActiveInputBar> createState() => _ActiveInputBarState();
+}
+
+class _ActiveInputBarState extends State<_ActiveInputBar> {
+  final _ctrl = TextEditingController();
+  bool _hasText = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl.addListener(() {
+      final has = _ctrl.text.trim().isNotEmpty;
+      if (has != _hasText) setState(() => _hasText = has);
+    });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _send(BuildContext context) {
+    final text = _ctrl.text.trim();
+    if (text.isEmpty) return;
+    context.read<SupportBloc>().add(
+      TicketReplyRequested(ticketId: widget.ticketId, message: text),
+    );
+    _ctrl.clear();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: _kSurface,
-        border: const Border(
-          top: BorderSide(color: Color(0xFFE5E7EB)),
+    return BlocListener<SupportBloc, SupportState>(
+      listenWhen: (p, c) => p.replyError != c.replyError,
+      listener: (context, state) {
+        if (state.replyError != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.replyError!),
+              backgroundColor: Colors.redAccent,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      },
+      child: Container(
+        decoration: const BoxDecoration(
+          color: _kSurface,
+          border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
         ),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              height: 44,
-              decoration: BoxDecoration(
-                color: _kBg,
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: const Color(0xFFE5E7EB)),
-              ),
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: const Text(
-                'Replies handled by support team…',
-                style: TextStyle(color: _kTextLight, fontSize: 13),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Row(
+          children: [
+            Expanded(
+              child: Container(
+                constraints: const BoxConstraints(maxHeight: 120),
+                decoration: BoxDecoration(
+                  color: _kBg,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 6,
+                ),
+                child: TextField(
+                  controller: _ctrl,
+                  maxLines: null,
+                  textCapitalization: TextCapitalization.sentences,
+                  style: const TextStyle(fontSize: 14, color: _kTextDark),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Type a message…',
+                    hintStyle: TextStyle(color: _kTextLight, fontSize: 13),
+                    isDense: true,
+                  ),
+                  onSubmitted: (_) => _send(context),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: _kPrimary,
-              shape: BoxShape.circle,
+            const SizedBox(width: 8),
+            BlocBuilder<SupportBloc, SupportState>(
+              buildWhen: (p, c) => p.isReplying != c.isReplying,
+              builder: (context, state) {
+                return GestureDetector(
+                  onTap: state.isReplying ? null : () => _send(context),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: (_hasText && !state.isReplying)
+                          ? _kPrimary
+                          : _kPrimary.withOpacity(0.4),
+                      shape: BoxShape.circle,
+                    ),
+                    child: state.isReplying
+                        ? const Padding(
+                            padding: EdgeInsets.all(12),
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Icon(
+                            Icons.send_rounded,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                  ),
+                );
+              },
             ),
-            child: const Icon(Icons.send_rounded,
-                color: Colors.white, size: 18),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  Empty / Error states
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _EmptyView extends StatelessWidget {
   const _EmptyView();
@@ -761,12 +869,11 @@ class _EmptyView extends StatelessWidget {
           Container(
             width: 80,
             height: 80,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: _kPrimaryLight,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.inbox_rounded,
-                color: _kPrimary, size: 38),
+            child: const Icon(Icons.inbox_rounded, color: _kPrimary, size: 38),
           ),
           const SizedBox(height: 16),
           const Text(
@@ -815,8 +922,11 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline_rounded,
-                color: Colors.redAccent, size: 48),
+            const Icon(
+              Icons.error_outline_rounded,
+              color: Colors.redAccent,
+              size: 48,
+            ),
             const SizedBox(height: 12),
             Text(
               message,

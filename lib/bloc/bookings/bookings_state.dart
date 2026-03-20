@@ -19,6 +19,11 @@ class BookingsState extends Equatable {
   final String? invoiceError;
   final List<int>? invoiceBytes;
 
+  // 🔥 NEW: Cancel Booking Fields
+  final bool cancelLoading;
+  final bool cancelSuccess;
+  final String? cancelError;
+
   final int totalPages;
   final int currentPage;
   final int totalOrders;
@@ -50,6 +55,11 @@ class BookingsState extends Equatable {
     this.invoiceSuccess = false,
     this.invoiceError,
     this.invoiceBytes,
+
+    // 🔥 NEW
+    this.cancelLoading = false,
+    this.cancelSuccess = false,
+    this.cancelError,
   });
 
   BookingsState copyWith({
@@ -69,7 +79,6 @@ class BookingsState extends Equatable {
     int? historytotalPages,
     int? historycurrentPage,
     int? historytotalOrders,
-
     String? bookingsDetailsError,
     bool? bookingsDetailsLoading,
     BookingDetail? bookingDetail,
@@ -77,6 +86,13 @@ class BookingsState extends Equatable {
     bool? invoiceSuccess,
     String? invoiceError,
     List<int>? invoiceBytes,
+
+    // 🔥 NEW
+    bool? cancelLoading,
+    bool? cancelSuccess,
+    String? cancelError,
+    bool clearCancelError = false,
+    bool resetCancelSuccess = false,
   }) {
     return BookingsState(
       bookingsLoading: bookingsLoading ?? this.bookingsLoading,
@@ -87,8 +103,11 @@ class BookingsState extends Equatable {
       bookingshistoryMoreLoading:
           bookingshistoryMoreLoading ?? this.bookingshistoryMoreLoading,
       historyhasReachedMax: historyhasReachedMax ?? this.historyhasReachedMax,
+
       bookingsError: bookingsError,
-      bookingsHistoryError: bookingsHistoryError,
+      bookingsHistoryError:
+          bookingsHistoryError ,
+
       bookings: bookings ?? this.bookings,
       bookingshistory: bookingshistory ?? this.bookingshistory,
       totalPages: totalPages ?? this.totalPages,
@@ -97,41 +116,56 @@ class BookingsState extends Equatable {
       historytotalPages: historytotalPages ?? this.historytotalPages,
       historycurrentPage: historycurrentPage ?? this.historycurrentPage,
       historytotalOrders: historytotalOrders ?? this.historytotalOrders,
-      bookingsDetailsError: bookingsDetailsError ?? this.bookingsDetailsError,
+      bookingsDetailsError:
+          bookingsDetailsError ?? this.bookingsDetailsError,
       bookingsDetailsLoading:
           bookingsDetailsLoading ?? this.bookingsDetailsLoading,
       bookingDetail: bookingDetail ?? this.bookingDetail,
       invoiceLoading: invoiceLoading ?? this.invoiceLoading,
       invoiceSuccess: invoiceSuccess ?? this.invoiceSuccess,
-      invoiceError: invoiceError,
-      invoiceBytes: invoiceBytes ?? this.invoiceBytes,
+
+      invoiceError: invoiceError ,
+
+      invoiceBytes: invoiceBytes,
+
+      cancelLoading: cancelLoading ?? this.cancelLoading,
+      cancelSuccess: resetCancelSuccess
+          ? false
+          : cancelSuccess ?? this.cancelSuccess,
+      cancelError:
+          clearCancelError ? null : cancelError ?? this.cancelError,
     );
   }
 
   @override
   List<Object?> get props => [
-    bookingsLoading,
-    bookingsHistoryLoading,
-    bookingsMoreLoading,
-    hasReachedMax,
-    bookingshistoryMoreLoading,
-    historyhasReachedMax,
-    bookingsError,
-    bookingsHistoryError,
-    bookings,
-    bookingshistory,
-    totalPages,
-    currentPage,
-    totalOrders,
-    historytotalPages,
-    historycurrentPage,
-    historytotalOrders,
-    bookingsDetailsLoading,
-    bookingsDetailsError,
-    bookingDetail,
-    invoiceLoading,
-    invoiceSuccess,
-    invoiceError,
-    invoiceBytes,
-  ];
+        bookingsLoading,
+        bookingsHistoryLoading,
+        bookingsMoreLoading,
+        hasReachedMax,
+        bookingshistoryMoreLoading,
+        historyhasReachedMax,
+        bookingsError,
+        bookingsHistoryError,
+        bookings,
+        bookingshistory,
+        totalPages,
+        currentPage,
+        totalOrders,
+        historytotalPages,
+        historycurrentPage,
+        historytotalOrders,
+        bookingsDetailsLoading,
+        bookingsDetailsError,
+        bookingDetail,
+        invoiceLoading,
+        invoiceSuccess,
+        invoiceError,
+        invoiceBytes,
+
+        // 🔥 NEW
+        cancelLoading,
+        cancelSuccess,
+        cancelError,
+      ];
 }

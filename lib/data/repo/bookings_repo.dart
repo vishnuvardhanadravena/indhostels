@@ -12,7 +12,7 @@ class BookingsRepository {
     required int limit,
   }) async {
     final response = await api.get(
-      ApiConstants.myBookings(),
+      ApiConstants.myBookings,
       query: {"page": page, "limit": limit, "status": true},
     );
 
@@ -24,7 +24,7 @@ class BookingsRepository {
     required int limit,
   }) async {
     final response = await api.get(
-      ApiConstants.myBookings(),
+      ApiConstants.myBookings,
       query: {"page": page, "limit": limit},
     );
 
@@ -57,7 +57,7 @@ class BookingsRepository {
   }
 
   Future<void> verifyPayment({required Map<String, dynamic> body}) async {
-    final res = await api.post(ApiConstants.verifypayment(), data: body);
+    final res = await api.post(ApiConstants.verifyPayment, data: body);
 
     if (res.data["success"] != true) {
       throw Exception(res.data["message"] ?? "Verification failed");
@@ -66,7 +66,7 @@ class BookingsRepository {
 
   Future<List<int>> downloadInvoice({required String id}) async {
     final res = await api.post(
-      ApiConstants.downloadinvoice(id),
+      ApiConstants.downloadInvoice(id),
       options: Options(responseType: ResponseType.bytes),
     );
     return res.data;

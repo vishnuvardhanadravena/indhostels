@@ -1,7 +1,28 @@
 part of 'search_bloc.dart';
 
+
+enum SuggestionType { city, area, stayType, roomType, amenity }
+
+class Suggestion extends Equatable {
+  final String label;
+  final SuggestionType type;
+  const Suggestion({required this.label, required this.type});
+
+  @override
+  List<Object?> get props => [label, type];
+}
+
+class PopularCity extends Equatable {
+  final String city;
+  final int hotelCount;
+  const PopularCity({required this.city, required this.hotelCount});
+
+  @override
+  List<Object?> get props => [city, hotelCount];
+}
+
+
 class SearchState extends Equatable {
-  /// SEARCH PARAMS
   final String? city;
   final DateTime? checkInDate;
   final DateTime? checkOutDate;
@@ -23,6 +44,15 @@ class SearchState extends Equatable {
   final Searches? recentSearch;
   final List<Accommodationdata>? recentlyViewed;
 
+  final bool locationLoading;
+  final String? locationError;
+
+  final List<Suggestion>? locationSuggestions;
+  final List<String> locationRecentSearches;
+  final List<PopularCity> popularCities;
+
+  final bool locationSearchActive;
+
   const SearchState({
     this.city,
     this.checkInDate,
@@ -41,6 +71,12 @@ class SearchState extends Equatable {
     this.globalResponse,
     this.recentSearch,
     this.recentlyViewed,
+    this.locationLoading = false,
+    this.locationError,
+    this.locationSuggestions,
+    this.locationRecentSearches = const [],
+    this.popularCities = const [],
+    this.locationSearchActive = false,
   });
 
   factory SearchState.initial() {
@@ -48,7 +84,7 @@ class SearchState extends Equatable {
     final today = DateTime(now.year, now.month, now.day);
 
     return SearchState(
-      city: "hyderabad",
+      city: 'hyderabad',
       checkInDate: today,
       checkOutDate: today.add(const Duration(days: 5)),
       guestCount: 1,
@@ -60,8 +96,8 @@ class SearchState extends Equatable {
     DateTime? checkInDate,
     DateTime? checkOutDate,
     int? guestCount,
-    bool? searchMoreLoading,
     bool? searchLoading,
+    bool? searchMoreLoading,
     bool? globalLoading,
     bool? recentLoading,
     bool? viewedLoading,
@@ -73,6 +109,12 @@ class SearchState extends Equatable {
     GlobalSearchResponse? globalResponse,
     Searches? recentSearch,
     List<Accommodationdata>? recentlyViewed,
+    bool? locationLoading,
+    String? locationError,
+    List<Suggestion>? locationSuggestions,
+    List<String>? locationRecentSearches,
+    List<PopularCity>? popularCities,
+    bool? locationSearchActive,
   }) {
     return SearchState(
       city: city ?? this.city,
@@ -92,27 +134,40 @@ class SearchState extends Equatable {
       globalResponse: globalResponse ?? this.globalResponse,
       recentSearch: recentSearch ?? this.recentSearch,
       recentlyViewed: recentlyViewed ?? this.recentlyViewed,
+      locationLoading: locationLoading ?? this.locationLoading,
+      locationError: locationError,
+      locationSuggestions: locationSuggestions ?? this.locationSuggestions,
+      locationRecentSearches:
+          locationRecentSearches ?? this.locationRecentSearches,
+      popularCities: popularCities ?? this.popularCities,
+      locationSearchActive: locationSearchActive ?? this.locationSearchActive,
     );
   }
 
   @override
   List<Object?> get props => [
-    city,
-    checkInDate,
-    checkOutDate,
-    guestCount,
-    searchLoading,
-    searchMoreLoading,
-    globalLoading,
-    recentLoading,
-    viewedLoading,
-    searchError,
-    globalError,
-    recentError,
-    viewedError,
-    searchResponse,
-    globalResponse,
-    recentSearch,
-    recentlyViewed,
-  ];
+        city,
+        checkInDate,
+        checkOutDate,
+        guestCount,
+        searchLoading,
+        searchMoreLoading,
+        globalLoading,
+        recentLoading,
+        viewedLoading,
+        searchError,
+        globalError,
+        recentError,
+        viewedError,
+        searchResponse,
+        globalResponse,
+        recentSearch,
+        recentlyViewed,
+        locationLoading,
+        locationError,
+        locationSuggestions,
+        locationRecentSearches,
+        popularCities,
+        locationSearchActive,
+      ];
 }

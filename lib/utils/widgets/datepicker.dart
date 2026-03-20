@@ -65,8 +65,7 @@ class _DatePickerSheetState extends State<_DatePickerSheet> {
     });
   }
 
-  int get _nights =>
-      _end != null ? _end!.difference(_start).inDays : 0;
+  int get _nights => _end != null ? _end!.difference(_start).inDays : 0;
 
   bool _isStart(DateTime d) => _isSameDay(d, _start);
   bool _isEnd(DateTime d) => _end != null && _isSameDay(d, _end!);
@@ -217,9 +216,9 @@ class _DatePickerSheetState extends State<_DatePickerSheet> {
                   child: ElevatedButton(
                     onPressed: _end != null
                         ? () => Navigator.pop(
-                              context,
-                              DateTimeRange(start: _start, end: _end!),
-                            )
+                            context,
+                            DateTimeRange(start: _start, end: _end!),
+                          )
                         : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _kPrimary,
@@ -274,8 +273,11 @@ class _MonthGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final totalDays = DateTime(month.year, month.month + 1, 0).day;
     // Monday = 1 → offset 0, Sunday = 7 → offset 6
-    final firstDayOfWeek =
-        DateTime(month.year, month.month, 1).weekday; // 1=Mon, 7=Sun
+    final firstDayOfWeek = DateTime(
+      month.year,
+      month.month,
+      1,
+    ).weekday; // 1=Mon, 7=Sun
     final offset = firstDayOfWeek - 1; // 0-based Mon start
     final totalCells = offset + totalDays;
 
@@ -317,7 +319,9 @@ class _MonthGrid extends StatelessWidget {
                 alignment: Alignment.center,
                 children: [
                   // Range highlight background (extends full cell width)
-                  if (range || (start && isEnd(day) == false) || (end && isStart(day) == false))
+                  if (range ||
+                      (start && isEnd(day) == false) ||
+                      (end && isStart(day) == false))
                     Positioned.fill(
                       child: _RangeBackground(
                         isStart: start,
@@ -348,10 +352,10 @@ class _MonthGrid extends StatelessWidget {
                         color: selected
                             ? Colors.white
                             : isPast
-                                ? Colors.grey.shade400
-                                : range
-                                    ? _kPrimary
-                                    : _kText,
+                            ? Colors.grey.shade400
+                            : range
+                            ? _kPrimary
+                            : _kText,
                       ),
                     ),
                   ),
@@ -392,10 +396,7 @@ class _RangeBackground extends StatelessWidget {
         vertical: 4,
         horizontal: (isStart || isEnd) ? 0 : 0,
       ),
-      decoration: BoxDecoration(
-        color: _kPrimaryLight,
-        borderRadius: radius,
-      ),
+      decoration: BoxDecoration(color: _kPrimaryLight, borderRadius: radius),
     );
   }
 }
@@ -477,7 +478,10 @@ class _PreviewAppState extends State<_PreviewApp> {
             children: [
               Text(
                 '${DateFormat('dd MMM yy').format(_range.start)}  →  ${DateFormat('dd MMM yy').format(_range.end)}',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 16),
               ElevatedButton(

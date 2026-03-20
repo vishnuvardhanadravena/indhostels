@@ -9,7 +9,7 @@ class WishlistButton extends StatelessWidget {
     required this.accommodationId,
     this.size = 24,
     this.activeColor = const Color(0xFFE53935),
-    this.inactiveColor = Colors.white,
+    this.inactiveColor = Colors.black,
     this.backgroundColor,
     this.padding,
   });

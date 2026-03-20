@@ -6,6 +6,7 @@ import 'package:indhostels/data/models/bookings/booking_details_res.dart';
 import 'package:indhostels/pages/acommadtion/acommadation_detailes.dart';
 import 'package:indhostels/pages/profile/profile.dart';
 import 'package:indhostels/utils/shimmers/booking_Detailes_Screen.dart';
+import 'package:indhostels/utils/theame/app_themes.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -959,7 +960,7 @@ class _BottomBar extends StatelessWidget {
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5B4BCC),
+                    backgroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -1010,7 +1011,7 @@ class _ErrorView extends StatelessWidget {
             ElevatedButton(
               onPressed: onRetry,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5B4BCC),
+                backgroundColor: AppColors.primary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),

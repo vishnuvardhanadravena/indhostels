@@ -78,6 +78,16 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+
+  void _onchanged (String value) {
+    setState(() {
+      searchText = value;
+      isSearching = value.isNotEmpty;
+      page = 1;
+    });
+
+    
+  }
   Widget _buildSearchResults() {
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
@@ -323,7 +333,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Expanded(
                                     child: TextField(
                                       controller: _searchController,
-                                      // onChanged: _onSearch,
+                                      onChanged: _onchanged,
                                       decoration: const InputDecoration(
                                         hintText:
                                             'Search hotels, PGs, hostels...',
@@ -492,8 +502,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           _SectionHeader(
-                                            title: 'Popular Hotels',
-                                            onViewAll: () {},
+                                            title: 'Popular Hostels',
+                                            onViewAll: () {
+                                              context.pushNamed(
+                                                RouteList.categoryScreen,
+                                                extra: {"title": 'Hostel'},
+                                              );
+                                            },
                                           ),
                                           SizedBox(
                                             height: listHeight,
@@ -540,7 +555,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         _SectionHeader(
-                                          title: 'Popular Hotels',
+                                          title: 'Popular Hostels',
                                           onViewAll: () {
                                             context.pushNamed(
                                               RouteList.categoryScreen,
@@ -628,16 +643,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                       previous.budgetHostelError !=
                                           current.budgetHostelError,
                                   builder: (context, state) {
-                                    if (state.budgetHostelLoading) {
-                                      return SizedBox(
-                                        height: listHeight,
-                                        child: ListView.builder(
-                                          itemCount: 6,
-                                          itemBuilder: (_, __) =>
-                                              const PGListTileSkeleton(),
-                                        ),
-                                      );
-                                    }
+                                      if (state.budgetHostelLoading) {
+                                        return SizedBox(
+                                          height: listHeight,
+                                          child: ListView.builder(
+                                            itemCount: 6,
+                                            itemBuilder: (_, __) =>
+                                                const PGListTileSkeleton(),
+                                          ),
+                                        );
+                                      }
 
                                     if (state.budgetHostelError != null) {
                                       return const Padding(

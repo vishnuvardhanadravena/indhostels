@@ -11,7 +11,6 @@ class SearchRequested extends SearchEvent {
   final int page;
   final int limit;
   final String? location;
-
   final String? checkInDate;
   final String? checkOutDate;
   final String? category;
@@ -72,8 +71,8 @@ class GlobalSearchRequested extends SearchEvent {
 class RecentSearchRequested extends SearchEvent {}
 
 class RecentViewsRequested extends SearchEvent {}
-class UpdateSearchParams extends SearchEvent {
 
+class UpdateSearchParams extends SearchEvent {
   final String? city;
   final DateTime? checkInDate;
   final DateTime? checkOutDate;
@@ -85,4 +84,31 @@ class UpdateSearchParams extends SearchEvent {
     this.checkOutDate,
     this.guestCount,
   });
+
+  @override
+  List<Object?> get props => [city, checkInDate, checkOutDate, guestCount];
+}
+
+class LocationFetchAll extends SearchEvent {
+  const LocationFetchAll();
+}
+
+class LocationSearchChanged extends SearchEvent {
+  final String query;
+  const LocationSearchChanged(this.query);
+
+  @override
+  List<Object?> get props => [query];
+}
+
+class LocationItemSelected extends SearchEvent {
+  final String value;
+  const LocationItemSelected(this.value);
+
+  @override
+  List<Object?> get props => [value];
+}
+
+class LocationSearchCleared extends SearchEvent {
+  const LocationSearchCleared();
 }

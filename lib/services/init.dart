@@ -68,6 +68,9 @@ Future<void> setup() async {
   sl.registerLazySingleton<NotificationRepository>(
     () => NotificationRepository(sl<ApiClient>()),
   );
+  // sl.registerLazySingleton<SearchRepository>(
+  //   () => SearchRepository(sl<ApiClient>()),
+  // );
 
   /// ───────────────── Blocs ────────────────────────
 

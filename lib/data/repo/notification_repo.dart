@@ -7,7 +7,7 @@ class NotificationRepository {
   NotificationRepository(this.api);
 
   Future<NotificationResponse> getNotifications() async {
-    final response = await api.get(ApiConstants.getNotifications());
+    final response = await api.get(ApiConstants.getNotifications);
     return NotificationResponse.fromJson(response.data);
   }
    Future<NotificationDetailResponse> getNotificationById(String id) async {

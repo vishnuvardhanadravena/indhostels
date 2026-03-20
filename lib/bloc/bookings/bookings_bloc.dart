@@ -183,6 +183,41 @@ class BookingsBloc extends Bloc<BookingsEvent, BookingsState> {
       );
     }
   }
+
+  // Future<void> _onCancelBookingRequested(
+  //   CancelBookingRequested event,
+  //   Emitter<BookingsState> emit,
+  // ) async {
+  //   emit(
+  //     state.copyWith(
+  //       cancelLoading: true,
+  //       cancelSuccess: false,
+  //       cancelError: null,
+  //     ),
+  //   );
+  //   try {
+  //     await repository.cancelBooking(id: event.bookingId);
+  //     final updatedBookings = state.bookings
+  //         .where((b) => b.id != event.bookingId)
+  //         .toList();
+  //     emit(
+  //       state.copyWith(
+  //         cancelLoading: false,
+  //         cancelSuccess: true,
+  //         bookings: updatedBookings,
+  //       ),
+  //     );
+  //   } on ApiException catch (e) {
+  //     emit(state.copyWith(cancelLoading: false, cancelError: e.message));
+  //   } catch (_) {
+  //     emit(
+  //       state.copyWith(
+  //         cancelLoading: false,
+  //         cancelError: "Failed to cancel booking",
+  //       ),
+  //     );
+  //   }
+  // }
 }
 
 Future<void> saveToDownloads(List<int> bytes) async {

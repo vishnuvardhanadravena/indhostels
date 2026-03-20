@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:indhostels/bloc/support/support_bloc.dart';
 import 'package:indhostels/pages/profile/profile.dart';
+import 'package:indhostels/utils/theame/app_themes.dart';
 
 class HelpSupportScreen extends StatefulWidget {
   const HelpSupportScreen({super.key});
@@ -17,7 +18,6 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
   final _subjectCtrl = TextEditingController();
   final _messageCtrl = TextEditingController();
 
-  static const _kPrimary = Color(0xFF4B3EFF);
   static const _kFieldBg = Color(0xFFF5F5F5);
 
   static const _categories = [
@@ -118,7 +118,6 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
     );
   }
 
-  // ── Tablet: centered max-width container ─────────────────────────────────
   Widget _buildTabletBody(R r) {
     return Center(
       child: ConstrainedBox(
@@ -128,7 +127,6 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
     );
   }
 
-  // ── Mobile: full width ────────────────────────────────────────────────────
   Widget _buildMobileBody(R r) => _buildScrollContent(r);
 
   Widget _buildScrollContent(R r) {
@@ -142,12 +140,16 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _CategoryTabs(r: r, categories: _categories, primary: _kPrimary),
+            _CategoryTabs(
+              r: r,
+              categories: _categories,
+              primary: AppColors.primary,
+            ),
             SizedBox(height: r.sectionGap),
             _FormCard(
               r: r,
               fieldBg: _kFieldBg,
-              primary: _kPrimary,
+              primary: AppColors.primary,
               bookingIdCtrl: _bookingIdCtrl,
               subjectCtrl: _subjectCtrl,
               messageCtrl: _messageCtrl,
@@ -161,7 +163,6 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
   }
 }
 
-// ── Category tabs ────────────────────────────────────────────────────────────
 class _CategoryTabs extends StatelessWidget {
   final R r;
   final List<String> categories;
@@ -221,7 +222,6 @@ class _CategoryTabs extends StatelessWidget {
   }
 }
 
-// ── Form card ────────────────────────────────────────────────────────────────
 class _FormCard extends StatelessWidget {
   final R r;
   final Color fieldBg;
@@ -325,7 +325,6 @@ class _FormCard extends StatelessWidget {
   }
 }
 
-// ── Field label ──────────────────────────────────────────────────────────────
 class _FieldLabel extends StatelessWidget {
   final String label;
   final R r;
@@ -352,7 +351,6 @@ class _FieldLabel extends StatelessWidget {
   }
 }
 
-// ── Text field ───────────────────────────────────────────────────────────────
 class _SupportTextField extends StatelessWidget {
   final TextEditingController controller;
   final String hint;
@@ -417,7 +415,6 @@ class _SupportTextField extends StatelessWidget {
   }
 }
 
-// ── Attachment picker ─────────────────────────────────────────────────────────
 class _AttachmentPicker extends StatelessWidget {
   final R r;
   final Color fieldBg;
@@ -506,7 +503,6 @@ class _AttachmentPicker extends StatelessWidget {
   }
 }
 
-// ── Send button ───────────────────────────────────────────────────────────────
 class _SendButton extends StatelessWidget {
   final R r;
   final Color primary;

@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
 
 class AppHotelCard extends StatelessWidget {
   final String? imageUrl;
@@ -10,6 +12,7 @@ class AppHotelCard extends StatelessWidget {
   final String? price;
   final List<String>? amenities;
   final Widget? trailingWidget;
+  final VoidCallback? onTap;
 
   const AppHotelCard({
     super.key,
@@ -20,70 +23,74 @@ class AppHotelCard extends StatelessWidget {
     this.price,
     this.amenities,
     this.trailingWidget,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final isTablet = MediaQuery.of(context).size.width > 600;
 
-    return Card(
-      elevation: 6,
-      shadowColor: Colors.black.withOpacity(0.15),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      clipBehavior: Clip.antiAlias,
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          /// IMAGE
-          if (imageUrl != null && imageUrl!.isNotEmpty)
-            Expanded(
-              flex: isTablet ? 5 : 6,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  CachedNetworkImage(
-                    imageUrl: imageUrl!,
-                    fit: BoxFit.cover,
+    final visibleAmenities = amenities?.take(isTablet ? 4 : 5).toList() ?? [];
 
-                    placeholder: (context, url) => Container(
-                      color: const Color(0xFFE8EAF0),
-                      child: const Center(
-                        child: CircularProgressIndicator(strokeWidth: 2),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Card(
+        elevation: 4,
+        shadowColor: Colors.black.withOpacity(0.12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        clipBehavior: Clip.antiAlias,
+        color: Colors.white,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            /// IMAGE
+            if (imageUrl != null && imageUrl!.isNotEmpty)
+              AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CachedNetworkImage(
+                      imageUrl: imageUrl!,
+                      fit: BoxFit.cover,
+                      placeholder: (_, __) => Container(
+                        color: const Color(0xFFE8EAF0),
+                        child: const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                      errorWidget: (_, __, ___) => const Center(
+                        child: Icon(
+                          Icons.broken_image_outlined,
+                          size: 40,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
 
-                    errorWidget: (context, url, error) => const Center(
-                      child: Icon(
-                        Icons.broken_image_outlined,
-                        size: 40,
-                        color: Colors.grey,
+                    /// rating
+                    if (rating != null)
+                      Positioned(
+                        bottom: 8,
+                        left: 8,
+                        child: RatingBadge(rating: rating!),
                       ),
-                    ),
-                  ),
 
-                  if (rating != null)
-                    Positioned(
-                      bottom: 8,
-                      left: 8,
-                      child: RatingBadge(rating: rating!),
-                    ),
-
-                  if (trailingWidget != null)
-                    Positioned(top: 8, right: 8, child: trailingWidget!),
-                ],
+                    /// trailing (wishlist etc.)
+                    if (trailingWidget != null)
+                      Positioned(top: 8, right: 8, child: trailingWidget!),
+                  ],
+                ),
               ),
-            ),
 
-          Expanded(
-            flex: isTablet ? 4 : 5,
-            child: Padding(
+            /// CONTENT
+            Padding(
               padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  /// TITLE
-                  if (title != null && title!.isNotEmpty)
+                  if (title?.isNotEmpty == true)
                     Text(
                       title!,
                       maxLines: 1,
@@ -95,7 +102,7 @@ class AppHotelCard extends StatelessWidget {
                       ),
                     ),
 
-                  if (location != null && location!.isNotEmpty) ...[
+                  if (location?.isNotEmpty == true) ...[
                     const SizedBox(height: 2),
                     Text(
                       location!,
@@ -108,7 +115,7 @@ class AppHotelCard extends StatelessWidget {
                     ),
                   ],
 
-                  if (price != null && price!.isNotEmpty) ...[
+                  if (price?.isNotEmpty == true) ...[
                     const SizedBox(height: 4),
                     Text.rich(
                       TextSpan(
@@ -133,22 +140,28 @@ class AppHotelCard extends StatelessWidget {
                     ),
                   ],
 
-                  if (amenities != null && amenities!.isNotEmpty) ...[
+                  /// AMENITIES
+                  if (visibleAmenities.isNotEmpty) ...[
                     const SizedBox(height: 6),
                     Wrap(
                       spacing: 4,
                       runSpacing: 4,
-                      children: (amenities ?? [])
-                          .take(isTablet ? 3 : 4)
-                          .map((a) => AmenityChip(label: a))
-                          .toList(),
+                      children: [
+                        ...visibleAmenities.map((a) => AmenityChip(label: a)),
+
+                        if ((amenities?.length ?? 0) > visibleAmenities.length)
+                          AmenityChip(
+                            label:
+                                "+${amenities!.length - visibleAmenities.length}",
+                          ),
+                      ],
                     ),
                   ],
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

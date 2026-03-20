@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:indhostels/data/models/accomodation/search_res.dart';
 import 'package:indhostels/data/models/search/globelsearch_res.dart';
+import 'package:indhostels/data/models/search/loction_serach_res.dart';
 import 'package:indhostels/data/models/search/recent_searchs_res.dart';
 import 'package:indhostels/data/models/search/recent_views_res.dart';
 import 'package:indhostels/services/apiservice/api_client.dart';
@@ -95,4 +96,15 @@ class SearchRepository {
 
   return RecentViewsRes.fromJson(response.data);
 }
+ Future<LocationResponse> getLocations() async {
+    final res = await api.get(ApiConstants.locations);
+
+    final data = res.data;
+
+    if (data['success'] != true) {
+      throw Exception(data['message'] ?? 'Failed to fetch locations');
+    }
+
+    return LocationResponse.fromJson(data);
+  }
 }

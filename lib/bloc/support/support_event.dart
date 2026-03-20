@@ -1,4 +1,3 @@
-// lib/bloc/support/support_event.dart
 part of 'support_bloc.dart';
 
 abstract class SupportEvent extends Equatable {
@@ -7,8 +6,6 @@ abstract class SupportEvent extends Equatable {
   @override
   List<Object?> get props => [];
 }
-
-// ── Existing Events ─────────────────────────────────────────────────────────
 
 class SupportCategoryChanged extends SupportEvent {
   final String category;
@@ -50,18 +47,53 @@ class SupportResetRequested extends SupportEvent {
   const SupportResetRequested();
 }
 
-// ── New Ticket Viewing Events ────────────────────────────────────────────────
-
-/// Triggers fetching all tickets from the API.
 class FetchTicketsRequested extends SupportEvent {
   const FetchTicketsRequested();
 }
 
-/// Switches the active category tab on the tickets screen.
 class TicketCategoryTabChanged extends SupportEvent {
   final String category;
   const TicketCategoryTabChanged(this.category);
 
   @override
   List<Object?> get props => [category];
+}
+
+// ── Contact Us ────────────────────────────────────────────────────────────────
+
+/// Submit the contact-us form
+class ContactUsSubmitRequested extends SupportEvent {
+  final String fullName;
+  final String email;
+  final String phone;
+  final String subject;
+  final String message;
+
+  const ContactUsSubmitRequested({
+    required this.fullName,
+    required this.email,
+    required this.phone,
+    required this.subject,
+    required this.message,
+  });
+
+  @override
+  List<Object?> get props => [fullName, email, phone, subject, message];
+}
+
+/// Reset contact-us form state (clears success / error)
+class ContactUsResetRequested extends SupportEvent {
+  const ContactUsResetRequested();
+}
+class TicketReplyRequested extends SupportEvent {
+  final String ticketId;
+  final String message;
+
+  const TicketReplyRequested({
+    required this.ticketId,
+    required this.message,
+  });
+
+  @override
+  List<Object?> get props => [ticketId, message];
 }

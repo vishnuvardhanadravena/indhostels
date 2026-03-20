@@ -44,6 +44,7 @@ class _WishlistscreenState extends State<Wishlistscreen> {
 
           final hostels = state.items;
 
+          /// 📱 MOBILE LIST (NO FIXED HEIGHT)
           if (!isTablet) {
             return ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
@@ -53,33 +54,29 @@ class _WishlistscreenState extends State<Wishlistscreen> {
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: GestureDetector(
+                  child: AppHotelCard(
                     onTap: () {
                       context.pushNamed(
                         RouteList.accommodationDetails,
                         extra: {"id": hotel.accommodationId},
                       );
                     },
-                    child: AspectRatio(
-                      aspectRatio: 1.3,
-                      child: AppHotelCard(
-                        trailingWidget: WishlistButton(
-                          accommodationId: hotel.accommodationId,
-                        ),
-                        amenities: hotel.details?.amenities ?? [],
-                        imageUrl: hotel.details?.imagesUrl.first,
-                        location: hotel.details?.location.area ?? '',
-                        price:
-                            '${hotel.details?.pricingIds.first.pricing.first.price ?? ''}',
-                        title: hotel.details?.propertyName ?? 'N/A',
-                      ),
+                    trailingWidget: WishlistButton(
+                      accommodationId: hotel.accommodationId,
                     ),
+                    amenities: hotel.details?.amenities ?? [],
+                    imageUrl: hotel.details?.imagesUrl.first,
+                    location: hotel.details?.location.area ?? '',
+                    price:
+                        '${hotel.details?.pricingIds.first.pricing.first.price ?? ''}',
+                    title: hotel.details?.propertyName ?? 'N/A',
                   ),
                 );
               },
             );
           }
 
+          /// 💻 TABLET GRID (SAFE HEIGHT)
           return GridView.builder(
             padding: const EdgeInsets.all(12),
             itemCount: hostels.length,
@@ -87,29 +84,27 @@ class _WishlistscreenState extends State<Wishlistscreen> {
               crossAxisCount: 2,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
-              childAspectRatio: 1,
+              mainAxisExtent: 320, // ✅ prevents overflow
             ),
             itemBuilder: (context, i) {
               final hotel = hostels[i];
 
-              return GestureDetector(
+              return AppHotelCard(
                 onTap: () {
                   context.pushNamed(
                     RouteList.accommodationDetails,
                     extra: {"id": hotel.accommodationId},
                   );
                 },
-                child: AppHotelCard(
-                  trailingWidget: WishlistButton(
-                    accommodationId: hotel.details?.id ?? "",
-                  ),
-                  amenities: hotel.details?.amenities ?? [],
-                  imageUrl: hotel.details?.imagesUrl.first,
-                  location: hotel.details?.location.area ?? '',
-                  price:
-                      '${hotel.details?.pricingIds.first.pricing.first.price ?? ''}',
-                  title: hotel.details?.propertyName ?? 'N/A',
+                trailingWidget: WishlistButton(
+                  accommodationId: hotel.details?.id ?? "",
                 ),
+                amenities: hotel.details?.amenities ?? [],
+                imageUrl: hotel.details?.imagesUrl.first,
+                location: hotel.details?.location.area ?? '',
+                price:
+                    '${hotel.details?.pricingIds.first.pricing.first.price ?? ''}',
+                title: hotel.details?.propertyName ?? 'N/A',
               );
             },
           );
@@ -118,6 +113,7 @@ class _WishlistscreenState extends State<Wishlistscreen> {
     );
   }
 
+  /// 📱 MOBILE SHIMMER (NO ASPECT RATIO)
   Widget _buildMobileShimmer() {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
@@ -125,15 +121,13 @@ class _WishlistscreenState extends State<Wishlistscreen> {
       itemBuilder: (_, __) {
         return const Padding(
           padding: EdgeInsets.only(bottom: 12),
-          child: AspectRatio(
-            aspectRatio: 1.3,
-            child: PopularHotelCardShimmer(),
-          ),
+          child: PopularHotelCardShimmer(),
         );
       },
     );
   }
 
+  /// 💻 TABLET SHIMMER
   Widget _buildTabletShimmer() {
     return GridView.builder(
       padding: const EdgeInsets.all(12),
@@ -142,7 +136,7 @@ class _WishlistscreenState extends State<Wishlistscreen> {
         crossAxisCount: 2,
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
-        childAspectRatio: 1,
+        mainAxisExtent: 320,
       ),
       itemBuilder: (_, __) {
         return const PopularHotelCardShimmer();

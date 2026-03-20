@@ -35,6 +35,7 @@ class RouteList {
 
   /// Profile
   static const String editProfile = '/update_profile';
+  static const String serachLocation = '/serach_location';
   static const String changePassword = '/change_password';
   static const String wishlist = '/wishlist';
   static const String notifications = '/notifications';
@@ -44,4 +45,5 @@ class RouteList {
   static const String bookingSummary = '/bookingSummary';
   static const String paymentsuccess = '/payment-success';
   static const String notificationDetail = '/notification-detail';
+    static const String contactus = '/contactus';
 }

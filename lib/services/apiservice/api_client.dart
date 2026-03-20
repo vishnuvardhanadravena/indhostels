@@ -21,24 +21,25 @@ class ApiClient {
     );
   }
 
-Future<Response> post(
-  String path, {
-  dynamic data,
-  Map<String, dynamic>? queryParameters,
-  Options? options, // ✅ ADD THIS
-}) {
-  return _request(
-    () => _dio.post(
-      path,
-      data: data,
-      queryParameters: queryParameters,
-      options: options, // ✅ PASS HERE
-    ),
-    method: "POST",
-    path: path,
-    body: data,
-  );
-}
+  Future<Response> post(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) {
+    return _request(
+      () => _dio.post(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      ),
+      method: "POST",
+      path: path,
+      body: data,
+    );
+  }
+
   Future<Response> put(String path, {dynamic data}) {
     return _request(
       () => _dio.put(path, data: data),
@@ -227,9 +228,9 @@ Future<Response> post(
 
     AppLogger.prettyJson(headers);
 
-    if (body != null) {
-      AppLogger.prettyJson(body);
-    }
+    // if (body != null) {
+    //   AppLogger.prettyJson(body);
+    // }
   }
 
   void _logResponse(String method, String path, Response response, int time) {
@@ -239,9 +240,9 @@ Future<Response> post(
     AppLogger.debug("Status: ${response.statusCode}");
     AppLogger.debug("Duration: ${time}ms");
 
-    if (response.data != null) {
-      AppLogger.prettyJson(response.data);
-    }
+    // if (response.data != null) {
+    //   AppLogger.prettyJson(response.data);
+    // }
   }
 
   void _logError(String method, String path, String message) {

@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:indhostels/bloc/Serach/search_bloc.dart';
 import 'package:indhostels/routing/route_constants.dart';
 import 'package:indhostels/utils/helpers/app_toast.dart';
+import 'package:indhostels/utils/shimmers/popular_hstl_shimmer.dart';
+import 'package:indhostels/utils/theame/app_themes.dart';
 
 class RecentSearchModel {
   final String title;
@@ -91,6 +93,13 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  void _onChanged(String value) {
+    if (value.isEmpty) {
+      setState(() {});
+      return;
+    }
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -116,11 +125,11 @@ class _SearchScreenState extends State<SearchScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: SearchBar(
+                    onChanged: _onChanged,
                     controller: _searchController,
-                    onChanged: _onSearch,
+                    onFilterTap: () => _onSearch(_searchController.text),
                   ),
                 ),
-
                 const SizedBox(height: 24),
 
                 Expanded(
@@ -139,6 +148,9 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildInitialUI(SearchState state) {
     final recentSearchModels = (state.recentSearch?.searchtext ?? [])
         .map((e) => RecentSearchModel(title: e, subtitle: ""))
+        .toList()
+        .reversed
+        .take(5)
         .toList();
     final recentlyViewedHotels = (state.recentlyViewed ?? []).map((hotel) {
       return HotelModel(
@@ -168,12 +180,23 @@ class _SearchScreenState extends State<SearchScreen> {
           ] else if (recentSearchModels.isNotEmpty) ...[
             SectionHeader(
               title: 'Recent Searches',
-              actionText: 'Clear All',
+              actionText: '',
               onActionTap: _clearAllRecentSearches,
             ),
             const SizedBox(height: 8),
 
-            RecentSearchList(searches: recentSearchModels),
+            RecentSearchList(
+              searches: recentSearchModels,
+              onTap: (value) {
+                _searchController.text = value;
+
+                _searchController.selection = TextSelection.fromPosition(
+                  TextPosition(offset: value.length),
+                );
+
+                _onSearch(value);
+              },
+            ),
 
             const SizedBox(height: 24),
           ],
@@ -203,7 +226,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildSearchResults(SearchState state) {
     if (state.globalLoading && (state.globalResponse?.data?.isEmpty ?? true)) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: _RecentlyViewedShimmer());
     }
 
     if (state.globalError != null) {
@@ -288,18 +311,16 @@ class _RecentlyViewedShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: List.generate(
-        3,
-        (index) => Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          height: 90,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade300,
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      ),
+    return ListView.builder(
+      itemCount: 10,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemBuilder: (context, index) {
+        return const Padding(
+          padding: EdgeInsets.only(bottom: 12),
+          child: PGListTileSkeleton(), 
+        );
+      },
     );
   }
 }
@@ -377,8 +398,13 @@ class SearchBar extends StatelessWidget {
           GestureDetector(
             onTap: onFilterTap,
             child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(5),
+              ),
+
               padding: const EdgeInsets.all(8),
-              child: Icon(Icons.tune, color: Colors.grey.shade600, size: 20),
+              child: Icon(Icons.search, color: Colors.white, size: 20),
             ),
           ),
           const SizedBox(width: 6),
@@ -388,7 +414,6 @@ class SearchBar extends StatelessWidget {
   }
 }
 
-/// Section header with an optional right-side action button.
 class SectionHeader extends StatelessWidget {
   final String title;
   final String? actionText;
@@ -431,23 +456,31 @@ class SectionHeader extends StatelessWidget {
   }
 }
 
-/// Renders a list of recent search items.
 class RecentSearchList extends StatelessWidget {
   final List<RecentSearchModel> searches;
+  final Function(String) onTap;
 
-  const RecentSearchList({super.key, required this.searches});
+  const RecentSearchList({
+    super.key,
+    required this.searches,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: searches
-          .map((search) => RecentSearchItem(model: search))
+          .map(
+            (search) => RecentSearchItem(
+              model: search,
+              onTap: () => onTap(search.title),
+            ),
+          )
           .toList(),
     );
   }
 }
 
-/// A single recent search row with a clock icon, title, and subtitle.
 class RecentSearchItem extends StatelessWidget {
   final RecentSearchModel model;
   final VoidCallback? onTap;

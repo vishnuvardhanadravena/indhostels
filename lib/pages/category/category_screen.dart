@@ -4,12 +4,14 @@ import 'package:go_router/go_router.dart';
 import 'package:indhostels/bloc/Serach/search_bloc.dart';
 import 'package:indhostels/bloc/accommodation/accommodation_bloc.dart';
 import 'package:indhostels/routing/route_constants.dart';
+import 'package:indhostels/utils/shimmers/popular_hstl_shimmer.dart';
+import 'package:indhostels/utils/theame/app_themes.dart';
 import 'package:indhostels/utils/widgets/app_hostel_card.dart';
 import 'package:indhostels/utils/widgets/wisth_listbutton.dart';
 import 'package:intl/intl.dart';
 
-const _kPrimary = Color(0xFF4F46E5);
-const _kPrimaryLight = Color(0xFFEEEDFB);
+// const AppColors.primary = Color(0xFF4F46E5);
+// const AppColors.primaryLight = Color(0xFFEEEDFB);
 const _kText = Color(0xFF1A1A2E);
 const _kSubText = Color(0xFF6B7280);
 const _kCardBg = Colors.white;
@@ -70,17 +72,14 @@ class _HotelsScreenState extends State<HotelsScreen> {
     BuildContext context,
     String selectedCity,
   ) async {
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => CityPickerSheet(
-        selected: selectedCity,
-        onSelect: (city) {
-          context.read<SearchBloc>().add(UpdateSearchParams(city: city));
-        },
-      ),
+    final result = await context.pushNamed<String>(
+      RouteList.serachLocation,
+      extra: selectedCity,
     );
+
+    if (result != null) {
+      context.read<SearchBloc>().add(UpdateSearchParams(city: result));
+    }
   }
 
   void _onSearch(BuildContext context, SearchState state) {
@@ -108,6 +107,13 @@ class _HotelsScreenState extends State<HotelsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final listHeight = screenWidth > 600
+        ? screenHeight * 0.3
+        : screenHeight * 0.4;
+    final cardWidth = screenWidth > 600 ? screenWidth * 0.2 : screenWidth * 0.6;
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
         final start = state.checkInDate ?? DateTime.now();
@@ -172,8 +178,24 @@ class _HotelsScreenState extends State<HotelsScreen> {
                       listener: (context, state) {},
                       builder: (context, state) {
                         if (state.lIkedAcommodationsLoading) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
+                          return SizedBox(
+                            height: listHeight,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: 3,
+                              itemBuilder: (_, __) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: 10,
+                                    right: 12,
+                                  ),
+                                  child: SizedBox(
+                                    width: cardWidth,
+                                    child: const PopularHotelCardShimmer(),
+                                  ),
+                                );
+                              },
+                            ),
                           );
                         }
 
@@ -215,7 +237,7 @@ class _HotelsScreenState extends State<HotelsScreen> {
                                     },
                                     child: AppHotelCard(
                                       trailingWidget: WishlistButton(
-                                        accommodationId: deal.sId??"",
+                                        accommodationId: deal.sId ?? "",
                                       ),
                                       amenities: const [],
                                       imageUrl:
@@ -557,9 +579,9 @@ class _DateRangePickerSheetState extends State<DateRangePickerSheet> {
                       const SizedBox(height: 4),
                       Text(
                         '$_nights Night${_nights == 1 ? '' : 's'}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: _kPrimary,
+                          color: AppColors.primary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -660,7 +682,7 @@ class _MonthGrid extends StatelessWidget {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: selected ? _kPrimary : Colors.transparent,
+                      color: selected ? AppColors.primary : Colors.transparent,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     alignment: Alignment.center,
@@ -676,7 +698,7 @@ class _MonthGrid extends StatelessWidget {
                             : isPast
                             ? Colors.grey.shade400
                             : range
-                            ? _kPrimary
+                            ? AppColors.primary
                             : _kText,
                       ),
                     ),
@@ -711,7 +733,10 @@ class _RangeBg extends StatelessWidget {
     }
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4),
-      decoration: BoxDecoration(color: _kPrimaryLight, borderRadius: br),
+      decoration: BoxDecoration(
+        color: AppColors.primaryLight,
+        borderRadius: br,
+      ),
     );
   }
 }
@@ -845,19 +870,23 @@ class _CityPickerSheetState extends State<CityPickerSheet> {
                   return ListTile(
                     leading: Icon(
                       Icons.location_city,
-                      color: isSelected ? _kPrimary : _kSubText,
+                      color: isSelected ? AppColors.primary : _kSubText,
                     ),
                     title: Text(
                       city,
                       style: TextStyle(
-                        color: isSelected ? _kPrimary : _kText,
+                        color: isSelected ? AppColors.primary : _kText,
                         fontWeight: isSelected
                             ? FontWeight.w700
                             : FontWeight.w400,
                       ),
                     ),
                     trailing: isSelected
-                        ? const Icon(Icons.check, color: _kPrimary, size: 18)
+                        ? const Icon(
+                            Icons.check,
+                            color: AppColors.primary,
+                            size: 18,
+                          )
                         : null,
                     onTap: () {
                       widget.onSelect(city);
@@ -891,8 +920,8 @@ class PrimaryButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: _kPrimary,
-        disabledBackgroundColor: _kPrimary.withOpacity(0.5),
+        backgroundColor: AppColors.primary,
+        disabledBackgroundColor: AppColors.primary.withOpacity(0.5),
         foregroundColor: Colors.white,
         minimumSize: const Size(double.infinity, 52),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -970,13 +999,13 @@ class _NearMeChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
         decoration: BoxDecoration(
-          border: Border.all(color: _kPrimary, width: 1.5),
+          border: Border.all(color: AppColors.primary, width: 1.5),
           borderRadius: BorderRadius.circular(20),
         ),
         child: const Text(
           'Near Me',
           style: TextStyle(
-            color: _kPrimary,
+            color: AppColors.primary,
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),

@@ -1,8 +1,7 @@
-// lib/bloc/support/support_state.dart
 part of 'support_bloc.dart';
 
 class SupportState extends Equatable {
-  // ── Existing Fields ────────────────────────────────────────────────────────
+  // ── Support ticket form ───────────────────────────────────────────────────
   final bool isSubmitting;
   final String? error;
   final bool isSuccess;
@@ -10,11 +9,19 @@ class SupportState extends Equatable {
   final String? attachmentPath;
   final String? attachmentName;
 
-  // ── New Ticket Viewing Fields ──────────────────────────────────────────────
   final List<SupportTicket> tickets;
   final bool isLoadingTickets;
   final String? ticketsError;
-  final String activeTicketTab; // currently selected category tab
+  final String activeTicketTab;
+
+  // ── Reply ─────────────────────────────────────────────────────────────────
+  final bool isReplying;
+  final String? replyError;
+
+  // ── Contact Us form ───────────────────────────────────────────────────────
+  final bool contactUsSubmitting;
+  final bool contactUsSuccess;
+  final String? contactUsError;
 
   const SupportState({
     this.isSubmitting = false,
@@ -23,20 +30,22 @@ class SupportState extends Equatable {
     this.selectedCategory = 'Booking Issue',
     this.attachmentPath,
     this.attachmentName,
-    // new
     this.tickets = const [],
     this.isLoadingTickets = false,
     this.ticketsError,
     this.activeTicketTab = 'All',
+    this.isReplying = false,
+    this.replyError,
+    this.contactUsSubmitting = false,
+    this.contactUsSuccess = false,
+    this.contactUsError,
   });
 
-  /// Returns distinct categories extracted from loaded tickets.
   List<String> get ticketCategories {
     final cats = tickets.map((t) => t.category).toSet().toList()..sort();
     return ['All', ...cats];
   }
 
-  /// Tickets filtered by [activeTicketTab].
   List<SupportTicket> get filteredTickets {
     if (activeTicketTab == 'All') return tickets;
     return tickets.where((t) => t.category == activeTicketTab).toList();
@@ -49,12 +58,18 @@ class SupportState extends Equatable {
     String? selectedCategory,
     String? attachmentPath,
     String? attachmentName,
-    // new
     List<SupportTicket>? tickets,
     bool? isLoadingTickets,
     String? ticketsError,
     String? activeTicketTab,
     bool clearTicketsError = false,
+    bool? isReplying,
+    String? replyError,
+    bool clearReplyError = false,
+    bool? contactUsSubmitting,
+    bool? contactUsSuccess,
+    String? contactUsError,
+    bool clearContactUsError = false,
   }) {
     return SupportState(
       isSubmitting: isSubmitting ?? this.isSubmitting,
@@ -65,8 +80,15 @@ class SupportState extends Equatable {
       attachmentName: attachmentName ?? this.attachmentName,
       tickets: tickets ?? this.tickets,
       isLoadingTickets: isLoadingTickets ?? this.isLoadingTickets,
-      ticketsError: clearTicketsError ? null : (ticketsError ?? this.ticketsError),
+      ticketsError:
+          clearTicketsError ? null : (ticketsError ?? this.ticketsError),
       activeTicketTab: activeTicketTab ?? this.activeTicketTab,
+      isReplying: isReplying ?? this.isReplying,
+      replyError: clearReplyError ? null : (replyError ?? this.replyError),
+      contactUsSubmitting: contactUsSubmitting ?? this.contactUsSubmitting,
+      contactUsSuccess: contactUsSuccess ?? this.contactUsSuccess,
+      contactUsError:
+          clearContactUsError ? null : (contactUsError ?? this.contactUsError),
     );
   }
 
@@ -82,5 +104,10 @@ class SupportState extends Equatable {
         isLoadingTickets,
         ticketsError,
         activeTicketTab,
+        isReplying,
+        replyError,
+        contactUsSubmitting,
+        contactUsSuccess,
+        contactUsError,
       ];
 }

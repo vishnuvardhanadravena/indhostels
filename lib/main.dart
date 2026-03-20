@@ -16,31 +16,24 @@ import 'package:indhostels/services/init.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
-Future<void> getUserAddress() async {
+Future<UserLocation?> getUserAddress() async {
   try {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      print("Location services are disabled.");
-      return;
-    }
+    if (!serviceEnabled) return null;
 
     LocationPermission permission = await Geolocator.checkPermission();
 
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        print("Location permission denied.");
-        return;
-      }
+      if (permission == LocationPermission.denied) return null;
     }
 
     if (permission == LocationPermission.deniedForever) {
-      print("Location permission permanently denied. Open settings.");
       await Geolocator.openAppSettings();
-      return;
+      return null;
     }
 
-    // Get coordinates
+    /// 🔥 Get location
     Position position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
@@ -48,50 +41,50 @@ Future<void> getUserAddress() async {
     double lat = position.latitude;
     double lng = position.longitude;
 
-    print("Lat: $lat, Lng: $lng");
-
-    // Convert to address
+    /// 🔥 Convert to address
     List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
 
-    if (placemarks.isEmpty) {
-      print("No address found.");
-      return;
-    }
+    if (placemarks.isEmpty) return null;
 
-    Placemark place = placemarks.first;
+    final place = placemarks.first;
 
-    print("--- Full Address Info ---");
-    print("Name: ${place.name}"); // e.g. "Apple Park"
-    print("Street: ${place.street}"); // e.g. "1 Apple Park Way"
-    print("Sublocality: ${place.subLocality}"); // Sub-area / neighborhood
-    print("Locality/City: ${place.locality}"); // City
-    print("District: ${place.subAdministrativeArea}"); // District / County
-    print("State: ${place.administrativeArea}"); // State / Province
-    print("Postal Code: ${place.postalCode}"); // ZIP / PIN code
-    print("Country: ${place.country}"); // e.g. "India"
-    print("Country Code: ${place.isoCountryCode}"); // e.g. "IN", "US"
-    print("Thoroughfare: ${place.thoroughfare}"); // Road / Street name
-    print("Sub-Thoroughfare: ${place.subThoroughfare}");
-    placemarks.asMap().forEach((index, place) {
-      print("--- Placemark ${index + 1} ---");
-      print("Name: ${place.name ?? 'N/A'}");
-      print("Street: ${place.street ?? 'N/A'}");
-      print("Sublocality: ${place.subLocality ?? 'N/A'}");
-      print("Locality/City: ${place.locality ?? 'N/A'}");
-      print("District: ${place.subAdministrativeArea ?? 'N/A'}");
-      print("State: ${place.administrativeArea ?? 'N/A'}");
-      print("Postal Code: ${place.postalCode ?? 'N/A'}");
-      print("Country: ${place.country ?? 'N/A'}");
-      print("Country Code: ${place.isoCountryCode ?? 'N/A'}");
-      print("Thoroughfare: ${place.thoroughfare ?? 'N/A'}");
-      print("Sub-Thoroughfare: ${place.subThoroughfare ?? 'N/A'}");
-      print("");
-    });
+    /// 🔥 Create formatted address
+    final fullAddress =
+        "${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.country}";
+
+    return UserLocation(
+      latitude: lat,
+      longitude: lng,
+      address: fullAddress,
+      city: place.locality ?? "",
+      state: place.administrativeArea ?? "",
+      country: place.country ?? "",
+      postalCode: place.postalCode ?? "",
+    );
   } catch (e) {
     print("Error: $e");
+    return null;
   }
 }
+class UserLocation {
+  final double latitude;
+  final double longitude;
+  final String address;
+  final String city;
+  final String state;
+  final String country;
+  final String postalCode;
 
+  UserLocation({
+    required this.latitude,
+    required this.longitude,
+    required this.address,
+    required this.city,
+    required this.state,
+    required this.country,
+    required this.postalCode,
+  });
+}
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
