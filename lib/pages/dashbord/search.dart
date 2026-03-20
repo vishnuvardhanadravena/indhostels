@@ -58,10 +58,11 @@ class _SearchScreenState extends State<SearchScreen> {
 
     _scrollController.addListener(() {
       final bloc = context.read<SearchBloc>();
+      final state = bloc.state;
 
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
-        if (bloc.globalHasMore && !bloc.globalIsFetching) {
+        if (!state.searchMoreLoading && bloc.globalHasMore) {
           page++;
 
           bloc.add(
@@ -201,7 +202,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildSearchResults(SearchState state) {
-    if (state.globalLoading) {
+    if (state.globalLoading && (state.globalResponse?.data?.isEmpty ?? true)) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -218,8 +219,14 @@ class _SearchScreenState extends State<SearchScreen> {
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: hotels.length,
+      itemCount: hotels.length + (state.searchMoreLoading ? 1 : 0),
       itemBuilder: (context, index) {
+        if (index >= hotels.length) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
         final hotel = hotels[index];
 
         return Padding(

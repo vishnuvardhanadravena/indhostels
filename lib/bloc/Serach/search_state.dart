@@ -1,7 +1,6 @@
 part of 'search_bloc.dart';
 
 class SearchState extends Equatable {
-
   /// SEARCH PARAMS
   final String? city;
   final DateTime? checkInDate;
@@ -9,6 +8,7 @@ class SearchState extends Equatable {
   final int guestCount;
 
   final bool searchLoading;
+  final bool searchMoreLoading;
   final bool globalLoading;
   final bool recentLoading;
   final bool viewedLoading;
@@ -29,6 +29,7 @@ class SearchState extends Equatable {
     this.checkOutDate,
     this.guestCount = 1,
     this.searchLoading = false,
+    this.searchMoreLoading = false,
     this.globalLoading = false,
     this.recentLoading = false,
     this.viewedLoading = false,
@@ -59,6 +60,7 @@ class SearchState extends Equatable {
     DateTime? checkInDate,
     DateTime? checkOutDate,
     int? guestCount,
+    bool? searchMoreLoading,
     bool? searchLoading,
     bool? globalLoading,
     bool? recentLoading,
@@ -78,6 +80,7 @@ class SearchState extends Equatable {
       checkOutDate: checkOutDate ?? this.checkOutDate,
       guestCount: guestCount ?? this.guestCount,
       searchLoading: searchLoading ?? this.searchLoading,
+      searchMoreLoading: searchMoreLoading ?? this.searchMoreLoading,
       globalLoading: globalLoading ?? this.globalLoading,
       recentLoading: recentLoading ?? this.recentLoading,
       viewedLoading: viewedLoading ?? this.viewedLoading,
@@ -94,21 +97,22 @@ class SearchState extends Equatable {
 
   @override
   List<Object?> get props => [
-        city,
-        checkInDate,
-        checkOutDate,
-        guestCount,
-        searchLoading,
-        globalLoading,
-        recentLoading,
-        viewedLoading,
-        searchError,
-        globalError,
-        recentError,
-        viewedError,
-        searchResponse,
-        globalResponse,
-        recentSearch,
-        recentlyViewed,
-      ];
+    city,
+    checkInDate,
+    checkOutDate,
+    guestCount,
+    searchLoading,
+    searchMoreLoading,
+    globalLoading,
+    recentLoading,
+    viewedLoading,
+    searchError,
+    globalError,
+    recentError,
+    viewedError,
+    searchResponse,
+    globalResponse,
+    recentSearch,
+    recentlyViewed,
+  ];
 }
