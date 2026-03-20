@@ -179,20 +179,14 @@ class _HotelsScreenState extends State<HotelsScreen> {
                       builder: (context, state) {
                         if (state.lIkedAcommodationsLoading) {
                           return SizedBox(
-                            height: listHeight,
+                            height: 260,
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               itemCount: 3,
                               itemBuilder: (_, __) {
                                 return Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 10,
-                                    right: 12,
-                                  ),
-                                  child: SizedBox(
-                                    width: cardWidth,
-                                    child: const PopularHotelCardShimmer(),
-                                  ),
+                                  padding: const EdgeInsets.only(right: 12),
+                                  child: const PopularHotelCardShimmer(),
                                 );
                               },
                             ),

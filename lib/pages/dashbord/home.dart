@@ -78,16 +78,14 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-
-  void _onchanged (String value) {
+  void _onchanged(String value) {
     setState(() {
       searchText = value;
       isSearching = value.isNotEmpty;
       page = 1;
     });
-
-    
   }
+
   Widget _buildSearchResults() {
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
@@ -333,7 +331,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Expanded(
                                     child: TextField(
                                       controller: _searchController,
-                                      onChanged: _onchanged,
+                                      onChanged: (value) {
+                                        if (value == "") {
+                                          setState(() {
+                                            searchText = "";
+                                            isSearching = false;
+                                          });
+                                        }
+                                      },
                                       decoration: const InputDecoration(
                                         hintText:
                                             'Search hotels, PGs, hostels...',
@@ -643,16 +648,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                       previous.budgetHostelError !=
                                           current.budgetHostelError,
                                   builder: (context, state) {
-                                      if (state.budgetHostelLoading) {
-                                        return SizedBox(
-                                          height: listHeight,
-                                          child: ListView.builder(
-                                            itemCount: 6,
-                                            itemBuilder: (_, __) =>
-                                                const PGListTileSkeleton(),
-                                          ),
-                                        );
-                                      }
+                                    if (state.budgetHostelLoading) {
+                                      return SizedBox(
+                                        height: listHeight,
+                                        child: ListView.builder(
+                                          itemCount: 6,
+                                          itemBuilder: (_, __) =>
+                                              const PGListTileSkeleton(),
+                                        ),
+                                      );
+                                    }
 
                                     if (state.budgetHostelError != null) {
                                       return const Padding(

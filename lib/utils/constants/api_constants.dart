@@ -25,14 +25,14 @@ class ApiConstants {
   static String accommodation(String path) =>
       "$baseUrl/auth/accommodation/$path";
 
-  static String booking(String path) =>
-      "$baseUrl/auth/user/booking/$path";
+  static String booking(String path) => "$baseUrl/auth/user/booking/$path";
 
-  static String help(String path) =>
-      "$baseUrl/auth/helpandsupport/$path";
+  static String help(String path) => "$baseUrl/auth/helpandsupport/$path";
 
   static String notification(String path) =>
       "$baseUrl/auth/user/notification/$path";
+  static String cancelBooking(String bookingId) =>
+      "$baseUrl/auth/user/booking/cancel/$bookingId";
 
   /// ───────────────── AUTH ─────────────────
 
@@ -52,35 +52,27 @@ class ApiConstants {
 
   /// ───────────────── ACCOMMODATION ─────────────────
 
-  static String get getTopHostels =>
-      accommodation("topaccommodations");
+  static String get getTopHostels => accommodation("topaccommodations");
 
-  static String get getBudgetHostels =>
-      accommodation("");
+  static String get getBudgetHostels => accommodation("");
 
-  static String get getAccommodationDetails =>
-      accommodation("");
+  static String get getAccommodationDetails => accommodation("");
 
   static String get getUserLikedAccommodation =>
       accommodation("user-liked-accommodation");
 
   /// 🔥 FILTER LOCATIONS (YOUR NEW API)
-  static String get locations =>
-      accommodation("filternames");
+  static String get locations => accommodation("filternames");
 
   /// ───────────────── SEARCH ─────────────────
 
-  static String get searchHotels =>
-      accommodation("productfilter");
+  static String get searchHotels => accommodation("productfilter");
 
-  static String get globalSearch =>
-      accommodation("advanced-search");
+  static String get globalSearch => accommodation("advanced-search");
 
-  static String get recentSearches =>
-      accommodation("searches");
+  static String get recentSearches => accommodation("searches");
 
-  static String get recentViews =>
-      accommodation("recentlyviews");
+  static String get recentViews => accommodation("recentlyviews");
 
   /// ───────────────── REVIEWS ─────────────────
 
@@ -92,47 +84,37 @@ class ApiConstants {
 
   /// ───────────────── BOOKINGS ─────────────────
 
-  static String get myBookings =>
-      booking("mybookings");
+  static String get myBookings => booking("mybookings");
 
-  static String bookingDetails(String id) =>
-      booking(id);
+  static String bookingDetails(String id) => booking(id);
 
   static String createBooking(String propertyId, String roomId) =>
       booking("$propertyId/$roomId");
 
-  static String get verifyPayment =>
-      booking("verify-payment");
+  static String get verifyPayment => booking("verify-payment");
 
   static String downloadInvoice(String bookingId) =>
       booking("generate-invoice/$bookingId");
 
   /// ───────────────── WISHLIST ─────────────────
 
-  static String get addToWishlist =>
-      auth("wishlist");
+  static String get addToWishlist => auth("wishlist");
 
-  static String get deleteFromWishlist =>
-      auth("deletewishlist");
+  static String get deleteFromWishlist => auth("deletewishlist");
 
-  static String get fetchWishlist =>
-      auth("getwishlist");
+  static String get fetchWishlist => auth("getwishlist");
 
   /// ───────────────── NOTIFICATIONS ─────────────────
 
-  static String get getNotifications =>
-      notification("");
+  static String get getNotifications => notification("");
 
-  static String getNotificationById(String id) =>
-      notification(id);
-
+  static String getNotificationById(String id) => notification(id);
+  // static String cancelBooking(String id) =>
+  //     cancelbooking(id);
   /// ───────────────── HELP & SUPPORT ─────────────────
 
-  static String get createIssue =>
-      help("create-ticket-and-messages");
+  static String get createIssue => help("create-ticket-and-messages");
 
-  static String get getTicketMessages =>
-      help("get-tickets-and-messages");
-        static String get contactUsQuery =>
-      auth("query");
+  static String get getTicketMessages => help("get-tickets-and-messages");
+  static String get contactUsQuery => auth("query");
 }

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:indhostels/data/models/bookings/booking_details_res.dart';
 import 'package:indhostels/data/models/bookings/booking_res.dart';
+import 'package:indhostels/exceptions/api_exceptions.dart';
 import 'package:indhostels/services/apiservice/api_client.dart';
 import 'package:indhostels/utils/constants/api_constants.dart';
 
@@ -70,5 +71,29 @@ class BookingsRepository {
       options: Options(responseType: ResponseType.bytes),
     );
     return res.data;
+  }
+
+  Future<CancelBookingResponse> cancelBooking({required String id}) async {
+    final res = await api.put(ApiConstants.cancelBooking(id));
+
+    final data = res.data as Map<String, dynamic>;
+
+    final response = CancelBookingResponse.fromJson(data);
+
+    return response;
+  }
+}
+
+class CancelBookingResponse {
+  final bool success;
+  final String message;
+
+  CancelBookingResponse({required this.success, required this.message});
+
+  factory CancelBookingResponse.fromJson(Map<String, dynamic> json) {
+    return CancelBookingResponse(
+      success: json["success"] ?? false,
+      message: json["message"] ?? "",
+    );
   }
 }

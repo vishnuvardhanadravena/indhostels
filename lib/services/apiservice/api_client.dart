@@ -228,9 +228,9 @@ class ApiClient {
 
     AppLogger.prettyJson(headers);
 
-    // if (body != null) {
-    //   AppLogger.prettyJson(body);
-    // }
+    if (body != null) {
+      AppLogger.prettyJson(body);
+    }
   }
 
   void _logResponse(String method, String path, Response response, int time) {
@@ -240,9 +240,9 @@ class ApiClient {
     AppLogger.debug("Status: ${response.statusCode}");
     AppLogger.debug("Duration: ${time}ms");
 
-    // if (response.data != null) {
-    //   AppLogger.prettyJson(response.data);
-    // }
+    if (response.data != null) {
+      AppLogger.prettyJson(response.data);
+    }
   }
 
   void _logError(String method, String path, String message) {

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:indhostels/bloc/bookings/bookings_bloc.dart';
 import 'package:indhostels/data/models/bookings/booking_res.dart';
 import 'package:indhostels/routing/route_constants.dart';
+import 'package:indhostels/utils/helpers/app_toast.dart';
 import 'package:indhostels/utils/shimmers/booking_card_shimmer.dart';
 import 'package:indhostels/utils/theame/app_themes.dart';
 import 'package:indhostels/utils/widgets/authwidgts.dart';
@@ -344,51 +345,100 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   void _showCancelDialog(BookingModel booking) {
     showDialog(
       context: context,
-      barrierDismissible: true,
+      barrierDismissible: false,
       builder: (dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: const Text(
-            'Cancel Booking?',
-            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
-          ),
-          content: Text(
-            'Cancel booking at ${booking.propertyName}?\n\n'
-            'Policy: ${booking.accommodation.cancellationPolicy}',
-            style: const TextStyle(fontSize: 13, color: Color(0xFF555555)),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-              },
-              child: const Text(
-                'Keep',
-                style: TextStyle(color: Color(0xFF5B4BCC)),
+        return BlocConsumer<BookingsBloc, BookingsState>(
+          listener: (context, state) {
+            if (state.cancelSuccess) {
+              Navigator.of(dialogContext).pop();
+              AppToast.success('Booking cancelled successfully');
+              context.read<BookingsBloc>().add(
+                const FetchBookings(page: 1, limit: 10),
+              );
+            }
+
+            if (state.cancelError != null) {
+              Navigator.of(dialogContext).pop();
+
+              showDialog(
+                context: dialogContext,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text("Cancellation Failed"),
+                    content: Text(
+                      state.cancelError ??
+                          "Unable to cancel. Please contact inHostels support.",
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text("OK"),
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
+          },
+          builder: (context, state) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Booking cancelled')),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE53935),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+              title: const Text(
+                'Cancel Booking?',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+              ),
+              content: Text(
+                'Cancel booking at ${booking.propertyName}?\n\n'
+                'Policy: ${booking.accommodation.cancellationPolicy}',
+                style: const TextStyle(fontSize: 13, color: Color(0xFF555555)),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: state.cancelLoading
+                      ? null
+                      : () {
+                          Navigator.of(dialogContext).pop();
+                        },
+                  child: const Text(
+                    'Keep',
+                    style: TextStyle(color: Color(0xFF5B4BCC)),
+                  ),
                 ),
-              ),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
+                ElevatedButton(
+                  onPressed: state.cancelLoading
+                      ? null
+                      : () {
+                          context.read<BookingsBloc>().add(
+                            CancelBookingRequested(bookingId: booking.id),
+                          );
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFE53935),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: state.cancelLoading
+                      ? const SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'Cancel',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                ),
+              ],
+            );
+          },
         );
       },
     );
