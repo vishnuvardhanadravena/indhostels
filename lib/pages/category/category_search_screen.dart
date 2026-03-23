@@ -237,9 +237,18 @@ class _HotelListingScreenState extends State<HotelListingScreen> {
     }
 
     if (hotels.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 40),
-        child: Center(child: Text("No properties found")),
+      return SizedBox(
+        height: MediaQuery.of(context).size.height * 0.6,
+        child: const Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.search_off, size: 40, color: Colors.grey),
+              SizedBox(height: 10),
+              Text("No properties found", style: TextStyle(color: Colors.grey)),
+            ],
+          ),
+        ),
       );
     }
 
@@ -488,7 +497,6 @@ void showSearchTopSheet(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      /// HEADER
                       Row(
                         children: [
                           IconButton(
@@ -539,8 +547,10 @@ void showSearchTopSheet(
                                 context: context,
                                 isScrollControlled: true,
                                 backgroundColor: Colors.transparent,
-                                builder: (_) =>
-                                    DateRangePickerSheet(initialRange: range),
+                                builder: (_) => DateRangePickerSheet(
+                                  initialRange: range,
+                                  type: state.stayType,
+                                ),
                               );
 
                           if (result != null) {

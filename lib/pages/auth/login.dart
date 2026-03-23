@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:indhostels/bloc/auth/auth_bloc.dart';
 import 'package:indhostels/bloc/auth/auth_event.dart';
 import 'package:indhostels/bloc/auth/auth_state.dart';
-import 'package:indhostels/pages/auth/signup.dart';
 import 'package:indhostels/routing/route_constants.dart';
 import 'package:indhostels/utils/helpers/app_toast.dart';
 import 'package:indhostels/utils/widgets/authwidgts.dart';
@@ -113,9 +112,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
-            child: _selectedTab == 0
-                ? _passwordLoginContent(isLoading, height)
-                : _otpLoginContent(isLoading, height),
+            child: _passwordLoginContent(isLoading, height, _selectedTab),
+            // : _otpLoginContent(isLoading, height),
           ),
 
           SizedBox(height: sectionSpacing),
@@ -124,8 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
             normalText: "Don't have an account? ",
             linkText: 'Sign Up',
             onLinkTap: () {
-               context.push(RouteList.signup);
-             
+              context.push(RouteList.signup);
             },
           ),
         ],
@@ -148,7 +145,11 @@ class _LoginScreenState extends State<LoginScreen> {
           );
           context.pushNamed(
             RouteList.otp,
-            extra: {"phone": state.phone.trim(), "type": LoginType.login},
+            extra: {
+              "phone": state.phone.trim(),
+              "type": LoginType.login,
+              "otp": state.otp,
+            },
           );
         }
 
@@ -202,7 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _passwordLoginContent(bool isLoading, double height) {
+  Widget _passwordLoginContent(bool isLoading, double height, int Slectedtab) {
     final fieldSpacing = height * 0.02;
 
     return Column(
@@ -219,19 +220,18 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
 
         SizedBox(height: fieldSpacing),
+        if (_selectedTab == 0)
+          CustomTextField(
+            label: 'Password',
+            hintText: 'Enter your password',
+            controller: _passwordController,
+            isPassword: true,
+            errorText: _errors['password'],
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _onPasswordLogin(),
+          ),
 
-        CustomTextField(
-          label: 'Password',
-          hintText: 'Enter your password',
-          controller: _passwordController,
-          isPassword: true,
-          errorText: _errors['password'],
-          textInputAction: TextInputAction.done,
-          onSubmitted: (_) => _onPasswordLogin(),
-        ),
-
-        SizedBox(height: height * 0.02),
-
+        SizedBox(height: height * 0.01),
         Row(
           children: [
             SizedBox(
@@ -268,47 +268,47 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ],
         ),
-
-        SizedBox(height: height * 0.035),
-
+        SizedBox(height: height * 0.01),
         SizedBox(
           width: double.infinity,
           child: PrimaryButton(
-            text: 'Sign In',
+            text: _selectedTab == 0 ? 'Sign In' : 'Get OTP',
             isLoading: isLoading,
-            onPressed: isLoading ? null : _onPasswordLogin,
+            onPressed: isLoading
+                ? null
+                : (_selectedTab == 0 ? _onPasswordLogin : _onGetOtp),
           ),
         ),
       ],
     );
   }
 
-  Widget _otpLoginContent(bool isLoading, double height) {
-    // final fieldSpacing = height * 0.02;
+  // Widget _otpLoginContent(bool isLoading, double height) {
+  //   // final fieldSpacing = height * 0.02;
 
-    return Column(
-      key: const ValueKey('otp'),
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        PhoneInputField(
-          label: 'Phone Number',
-          controller: _phoneController,
-          errorText: _errors['phone'],
-        ),
+  //   return Column(
+  //     key: const ValueKey('otp'),
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       PhoneInputField(
+  //         label: 'Phone Number',
+  //         controller: _phoneController,
+  //         errorText: _errors['phone'],
+  //       ),
 
-        SizedBox(height: height * 0.035),
+  //       SizedBox(height: height * 0.035),
 
-        SizedBox(
-          width: double.infinity,
-          child: PrimaryButton(
-            text: 'Get OTP',
-            isLoading: isLoading,
-            onPressed: isLoading ? null : _onGetOtp,
-          ),
-        ),
-      ],
-    );
-  }
+  //       SizedBox(
+  //         width: double.infinity,
+  //         child: PrimaryButton(
+  //           text: 'Get OTP',
+  //           isLoading: isLoading,
+  //           onPressed: isLoading ? null : _onGetOtp,
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   @override
   void dispose() {

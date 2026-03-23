@@ -45,17 +45,36 @@ class DioClient {
               response.data["message"] ==
                   "session expired. Please login again.") {
             await storage.delete("token");
+
             final context = rootNavigatorKey.currentContext;
+
             if (context != null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Session expired. Please login again."),
+              final endpoint = response.requestOptions.path;
+              final method = response.requestOptions.method;
+
+              showDialog(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: const Text("Session Expired"),
+                  content: Text(
+                    "API: $method $endpoint\n\nSession expired. Please login again.",
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        context.go(RouteList.login);
+                      },
+                      child: const Text("OK"),
+                    ),
+                  ],
                 ),
               );
-              context.go(RouteList.login);
             }
+
             return;
           }
+
           handler.next(response);
         },
         onError: (error, handler) {
@@ -66,6 +85,24 @@ class DioClient {
     );
   }
 }
+//  onResponse: (response, handler) async {
+//           if (response.statusCode == 401 &&
+//               response.data["message"] ==
+//                   "session expired. Please login again.") {
+//             await storage.delete("token");
+//             final context = rootNavigatorKey.currentContext;
+//             if (context != null) {
+//               ScaffoldMessenger.of(context).showSnackBar(
+//                 const SnackBar(
+//                   content: Text("Session expired. Please login again."),
+//                 ),
+//               );
+//               context.go(RouteList.login);
+//             }
+//             return;
+//           }
+//           handler.next(response);
+//         },
 
 class AppLogger {
   static bool enableLogs = true;

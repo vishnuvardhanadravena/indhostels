@@ -27,19 +27,28 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(AuthLoading());
-
+    final response;
     try {
-      final response = await repository.login(
-        LoginRequestModel(phone: event.phone, password: event.password),
-      );
       if (event.type == LoginType.otp) {
+        final response = await repository.loginwithotp(
+          LoginRequestModel(phone: event.phone, password: event.password),
+        );
+
+        final otp = response['otp'];
+
         AppToast.success(
           "OTP sent to ${event.phone}",
           position: ToastPosition.bottom,
         );
-        emit(OtpSentSuccess(event.phone));
+
+        emit(OtpSentSuccess(event.phone, otp));
         return;
+      } else {
+        response = await repository.login(
+          LoginRequestModel(phone: event.phone, password: event.password),
+        );
       }
+
       final token = response.token;
       if (token.isNotEmpty) {
         await sl<AppSecureStorage>().writeString("token", token);
@@ -77,7 +86,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           "OTP sent to ${event.phone}",
           position: ToastPosition.bottom,
         );
-        emit(OtpSentSuccess(event.phone));
+        emit(SignUpSuccess(response));
         return;
       } else {
         emit(SignUpError(response.message ?? "Signup failed"));

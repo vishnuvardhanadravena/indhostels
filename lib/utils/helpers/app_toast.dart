@@ -59,8 +59,7 @@ class AppToast {
       case ToastPosition.middle:
         return ToastGravity.CENTER;
       case ToastPosition.bottom:
-      default:
-        return ToastGravity.BOTTOM;
+      return ToastGravity.BOTTOM;
     }
   }
 }

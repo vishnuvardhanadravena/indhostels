@@ -9,7 +9,6 @@ import 'package:indhostels/services/apiservice/circut_breaker.dart';
 class ApiClient {
   final Dio _dio;
   final CircuitBreaker _circuitBreaker = CircuitBreaker();
-  final Debouncer _debouncer = Debouncer();
   ApiClient(this._dio);
 
   Future<Response> get(String path, {Map<String, dynamic>? query}) {

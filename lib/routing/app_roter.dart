@@ -1,15 +1,12 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:indhostels/bloc/Serach/search_bloc.dart';
 import 'package:indhostels/bloc/auth/auth_event.dart';
 import 'package:indhostels/data/models/accomodation/accomodation_details_res.dart';
 import 'package:indhostels/data/models/accomodation/room_card_model.dart'
     as roommodel;
 import 'package:indhostels/data/models/bookings/booking_res.dart';
-import 'package:indhostels/data/models/notification/notification_res.dart';
 import 'package:indhostels/pages/acommadtion/acommadation_detailes.dart';
 import 'package:indhostels/pages/acommadtion/roomDetails_Screen.dart';
 import 'package:indhostels/pages/acommadtion/rooms.dart';
@@ -17,6 +14,7 @@ import 'package:indhostels/pages/auth/change_password.dart';
 import 'package:indhostels/pages/auth/forgotpass.dart';
 import 'package:indhostels/pages/auth/login.dart';
 import 'package:indhostels/pages/auth/otpverifyScreen.dart';
+import 'package:indhostels/pages/auth/signup.dart';
 import 'package:indhostels/pages/bookings/booking_details.dart';
 import 'package:indhostels/pages/category/category_screen.dart';
 import 'package:indhostels/pages/category/category_search_screen.dart';
@@ -50,6 +48,10 @@ final GoRouter appRouter = GoRouter(
       path: RouteList.splash,
       builder: (context, state) => const SplashScreen(),
     ),
+    GoRoute(
+      path: RouteList.signup,
+      builder: (context, state) => const SignUpScreen(),
+    ),
 
     GoRoute(
       path: RouteList.onboarding,
@@ -58,6 +60,7 @@ final GoRouter appRouter = GoRouter(
 
     GoRoute(
       path: RouteList.login,
+      name: RouteList.login,
       builder: (context, state) => const LoginScreen(),
     ),
 
@@ -97,8 +100,9 @@ final GoRouter appRouter = GoRouter(
 
         final phone = data["phone"] as String;
         final type = data["type"] as LoginType;
+        final otp = data["otp"] as int;
 
-        return Otpverifyscreen(phone: phone, type: type);
+        return Otpverifyscreen(phone: phone, type: type, otp: otp);
       },
     ),
     GoRoute(
@@ -116,15 +120,12 @@ final GoRouter appRouter = GoRouter(
       name: RouteList.editProfile,
       builder: (context, state) => const EditProfileScreen(),
     ),
-
     GoRoute(
       path: RouteList.categoryScreen,
       name: RouteList.categoryScreen,
       builder: (context, state) {
         final data = state.extra as Map<String, dynamic>;
-
         final title = data["title"] as String;
-
         return HotelsScreen(title: title);
       },
     ),
@@ -149,15 +150,10 @@ final GoRouter appRouter = GoRouter(
       name: RouteList.rooms,
       builder: (context, state) {
         final args = state.extra as RoomsArgs?;
-
         if (args == null) {
           return const Scaffold(body: Center(child: Text("Invalid room data")));
         }
-
-        return RoomsScreen(
-          // rooms: args.rooms,
-          acommodation: args.acommodation,
-        );
+        return RoomsScreen(acommodation: args.acommodation);
       },
     ),
 
@@ -172,7 +168,6 @@ final GoRouter appRouter = GoRouter(
         return RoomDetailScreen(
           room: args.room,
           acommodation: args.acommodation,
-
           // pgName: args.pgName,
           // location: args.location,
           // checkInTime: args.checkInTime,
@@ -220,22 +215,9 @@ final GoRouter appRouter = GoRouter(
       name: RouteList.bookingSummary,
       builder: (ctx, state) {
         final data = state.extra as Map<String, dynamic>;
-
         final room = data["room"] as roommodel.RoomModel;
-        // final stayType = data["stayType"] as String;
-        // final pricePerNight = data["pricePerNight"] as double;
-        // final cancellationPolicy = data["cancellationPolicy"] as String;
-        // final checkInTime = data["checkInTime"] as String;
         final accommodation = data["accommodation"] as Acommodation;
-
-        return BookingSummaryScreen(
-          room: room,
-          // stayType: stayType,
-          // pricePerNight: pricePerNight,
-          // cancellationPolicy: cancellationPolicy,
-          // checkInTime: checkInTime,
-          accommodation: accommodation,
-        );
+        return BookingSummaryScreen(room: room, accommodation: accommodation);
       },
     ),
     GoRoute(
@@ -330,16 +312,6 @@ final GoRouter appRouter = GoRouter(
       name: RouteList.contactus,
       builder: (context, state) => ContactUsScreen(),
     ),
-    // GoRoute(
-    //   path: RouteList.contactus,
-    //   name: RouteList.contactus,
-    //   builder: (context, state) {
-    //     return BlocProvider.value(
-    //       value: context.read<SearchBloc>()..add(const LocationFetchAll()),
-    //       child: const LocationSearchScreen(),
-    //     );
-    //   },
-    // ),
   ],
 );
 

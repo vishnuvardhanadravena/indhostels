@@ -12,6 +12,7 @@ import 'package:indhostels/bloc/support/support_bloc.dart';
 import 'package:indhostels/bloc/wishlist/wishlist_bloc.dart';
 import 'package:indhostels/routing/app_roter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:indhostels/services/apiservice/api_client.dart';
 import 'package:indhostels/services/init.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -33,7 +34,6 @@ Future<UserLocation?> getUserAddress() async {
       return null;
     }
 
-    /// 🔥 Get location
     Position position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
@@ -41,14 +41,12 @@ Future<UserLocation?> getUserAddress() async {
     double lat = position.latitude;
     double lng = position.longitude;
 
-    /// 🔥 Convert to address
     List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
 
     if (placemarks.isEmpty) return null;
 
     final place = placemarks.first;
 
-    /// 🔥 Create formatted address
     final fullAddress =
         "${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.country}";
 
@@ -66,6 +64,7 @@ Future<UserLocation?> getUserAddress() async {
     return null;
   }
 }
+
 class UserLocation {
   final double latitude;
   final double longitude;
@@ -85,15 +84,19 @@ class UserLocation {
     required this.postalCode,
   });
 }
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  // await SystemChrome.setPreferredOrientations([
+  //   DeviceOrientation.portraitDown,
+  //   DeviceOrientation.portraitUp,
+  // ]);
   await setup();
+  AppLogger.enableLogs = true;
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider<ProfileBloc>(create: (_) => sl<ProfileBloc>()),
-
         BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
         BlocProvider<AccommodationBloc>(create: (_) => sl<AccommodationBloc>()),
         BlocProvider<WishlistBloc>(
@@ -113,7 +116,6 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(

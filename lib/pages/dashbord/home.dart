@@ -25,10 +25,11 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isSearching = false;
   String searchText = "";
   final ScrollController _scrollController = ScrollController();
-
+  String selectedCity = "Hyderabad";
   int page = 1;
   final int limit = 10;
   bool isFetchingMore = false;
+  final FocusNode _focusNode = FocusNode();
 
   final List<_CategoryTab> _categories = const [
     // _CategoryTab(label: 'Hotel', icon: Icons.hotel),
@@ -41,6 +42,13 @@ class _HomeScreenState extends State<HomeScreen> {
     loadData();
 
     _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 
   void _onScroll() {
@@ -59,7 +67,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void loadData() {
     final bloc = context.read<AccommodationBloc>();
-
     bloc.add(TopHStlRequested());
     bloc.add(const BudgetHStlRequested(type: "budget", page: 1, limit: 10));
   }
@@ -78,48 +85,78 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _onchanged(String value) {
-    setState(() {
-      searchText = value;
-      isSearching = value.isNotEmpty;
-      page = 1;
-    });
-  }
+  // void _onchanged(String value) {
+  //   setState(() {
+  //     searchText = value;
+  //     isSearching = value.isNotEmpty;
+  //     page = 1;
+  //   });
+  // }
 
   Widget _buildSearchResults() {
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
         if (state.globalLoading && page == 1) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: RecentlyViewedShimmer());
         }
 
         if (state.globalError != null) {
-          return Center(child: Text(state.globalError!));
+          return SizedBox(
+            height: MediaQuery.of(context).size.height * 0.6,
+            child: Center(child: Text(state.globalError!)),
+          );
         }
 
         final hotels = state.globalResponse?.data ?? [];
-
         if (hotels.isEmpty) {
-          return const Center(child: Text("No results found"));
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.hotel_outlined,
+                    size: 56,
+                    color: const Color(0xFFD0C8FF),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No Accommodations Available',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF888888),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'No hotels match your search.\nTry a different search.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: const Color(0xFFAAAAAA),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          );
         }
-
         return ListView.builder(
           controller: _scrollController,
           padding: const EdgeInsets.symmetric(horizontal: 16),
 
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-
-          itemCount: hotels.length + 1,
+          itemCount: hotels.length + (isFetchingMore ? 1 : 0),
 
           itemBuilder: (context, index) {
             if (index == hotels.length) {
-              return state.globalLoading
-                  ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                  : const SizedBox();
+              return const Padding(
+                padding: EdgeInsets.all(16),
+                child: Center(child: CircularProgressIndicator()),
+              );
             }
 
             final hotel = hotels[index];
@@ -154,6 +191,57 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           },
         );
+        // return ListView.builder(
+        //   controller: _scrollController,
+        //   padding: const EdgeInsets.symmetric(horizontal: 16),
+
+        //   shrinkWrap: true,
+        //   physics: const NeverScrollableScrollPhysics(),
+
+        //   itemCount: hotels.length + 1,
+
+        //   itemBuilder: (context, index) {
+        //     if (index == hotels.length) {
+        //       return state.globalLoading
+        //           ? Padding(
+        //               padding: EdgeInsets.all(16),
+        //               child: Center(child: RecentlyViewedShimmer()),
+        //             )
+        //           : const SizedBox();
+        //     }
+
+        //     final hotel = hotels[index];
+
+        //     return Padding(
+        //       padding: const EdgeInsets.only(bottom: 12),
+        //       child: InkWell(
+        //         onTap: () {
+        //           context.pushNamed(
+        //             RouteList.accommodationDetails,
+        //             extra: {"id": hotel.sId},
+        //           );
+        //         },
+        //         child: HotelCard(
+        //           model: HotelModel(
+        //             id: hotel.sId ?? "",
+        //             name: hotel.propertyName ?? "",
+        //             location: hotel.location?.area ?? "",
+        //             rating: hotel.averageRating ?? 0,
+        //             pricePerNight:
+        //                 (hotel.pricingData != null &&
+        //                     hotel.pricingData!.isNotEmpty &&
+        //                     hotel.pricingData!.first.pricing != null &&
+        //                     hotel.pricingData!.first.pricing!.isNotEmpty)
+        //                 ? (hotel.pricingData!.first.pricing!.first.price ?? 0)
+        //                       .toDouble()
+        //                 : 0,
+        //             imageUrl: hotel.imagesUrl?.first ?? "",
+        //           ),
+        //         ),
+        //       ),
+        //     );
+        //   },
+        // );
       },
     );
   }
@@ -166,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     final listHeight = screenWidth > 600
-        ? screenHeight * 0.4
+        ? screenHeight * 0.5
         : screenHeight * 0.4;
 
     final cardWidth = screenWidth > 600
@@ -223,25 +311,44 @@ class _HomeScreenState extends State<HomeScreen> {
                                     color: Colors.white.withOpacity(0.6),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(
-                                        Icons.location_on,
+                                      const Icon(
+                                        Icons.person,
                                         size: 14,
                                         color: Color(0xFF7B5EA7),
                                       ),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        'Hyderabad',
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(0xFF333333),
-                                        ),
-                                      ),
-                                      SizedBox(width: 4),
-                                      Icon(
+                                      const SizedBox(width: 4),
+                                      Text(UserSession().user?.fullname ?? ""),
+                                      // GestureDetector(
+                                      //   onTap: () async {
+                                      //     final result = await context
+                                      //         .pushNamed<String>(
+                                      //           RouteList.serachLocation,
+                                      //         );
+
+                                      //     if (result != null &&
+                                      //         result.isNotEmpty) {
+                                      //       context.read<SearchBloc>().add(
+                                      //         UpdateSearchParams(city: result),
+                                      //       );
+                                      //       setState(() {
+                                      //         selectedCity = result;
+                                      //       });
+                                      //     }
+                                      //   },
+                                      //   child: Text(
+                                      //     selectedCity,
+                                      //     style: const TextStyle(
+                                      //       fontSize: 13,
+                                      //       fontWeight: FontWeight.w600,
+                                      //       color: Color(0xFF333333),
+                                      //     ),
+                                      //   ),
+                                      // ),
+                                      const SizedBox(width: 4),
+                                      const Icon(
                                         Icons.keyboard_arrow_down,
                                         size: 16,
                                         color: Color(0xFF7B5EA7),
@@ -330,13 +437,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: TextField(
+                                      focusNode: _focusNode,
                                       controller: _searchController,
                                       onChanged: (value) {
-                                        if (value == "") {
+                                        if (value.isEmpty) {
+                                          _focusNode.unfocus();
+
                                           setState(() {
                                             searchText = "";
                                             isSearching = false;
                                           });
+                                        } else {
+                                          // setState(() {
+                                          //   searchText = value;
+                                          //   isSearching = true;
+                                          // });
                                         }
                                       },
                                       decoration: const InputDecoration(
@@ -489,6 +604,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       !isSearching && searchText == ""
                           ? Column(
                               children: [
+                                _SectionHeader(
+                                  title: 'Popular Hostels',
+                                  onViewAll: () {
+                                    context.pushNamed(
+                                      RouteList.categoryScreen,
+                                      extra: {"title": 'Hostel'},
+                                    );
+                                  },
+                                ),
                                 BlocBuilder<
                                   AccommodationBloc,
                                   AccommodationState
@@ -502,48 +626,41 @@ class _HomeScreenState extends State<HomeScreen> {
                                           current.topHostelError,
                                   builder: (context, state) {
                                     if (state.topHostelLoading) {
-                                      return Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          _SectionHeader(
-                                            title: 'Popular Hostels',
-                                            onViewAll: () {
-                                              context.pushNamed(
-                                                RouteList.categoryScreen,
-                                                extra: {"title": 'Hostel'},
-                                              );
-                                            },
-                                          ),
-                                          SizedBox(
-                                            height: listHeight,
-                                            child: ListView.builder(
-                                              scrollDirection: Axis.horizontal,
-                                              itemCount: 3,
-                                              itemBuilder: (_, __) {
-                                                return Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                        left: 10,
-                                                        right: 12,
-                                                      ),
-                                                  child: SizedBox(
-                                                    width: cardWidth,
-                                                    child:
-                                                        const PopularHotelCardShimmer(),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ],
+                                      return SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: Row(
+                                          children: List.generate(3, (i) {
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                left: 10,
+                                                right: 12,
+                                              ),
+                                              child: SizedBox(
+                                                width:
+                                                    MediaQuery.of(
+                                                          context,
+                                                        ).size.width >
+                                                        600
+                                                    ? 280
+                                                    : MediaQuery.of(
+                                                            context,
+                                                          ).size.width *
+                                                          0.75,
+                                                child:
+                                                    const PopularHotelCardShimmer(),
+                                              ),
+                                            );
+                                          }),
+                                        ),
                                       );
                                     }
 
                                     if (state.topHostelError != null) {
-                                      return const Padding(
-                                        padding: EdgeInsets.all(16),
-                                        child: Center(
+                                      return SizedBox(
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                            0.4,
+                                        child: const Center(
                                           child: Text("Unable to load data"),
                                         ),
                                       );
@@ -552,46 +669,46 @@ class _HomeScreenState extends State<HomeScreen> {
                                     final hostels = state.topHostels ?? [];
 
                                     if (hostels.isEmpty) {
-                                      return const SizedBox();
+                                      return const SizedBox(
+                                        child: Text("empty"),
+                                      );
                                     }
 
                                     return Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        _SectionHeader(
-                                          title: 'Popular Hostels',
-                                          onViewAll: () {
-                                            context.pushNamed(
-                                              RouteList.categoryScreen,
-                                              extra: {"title": 'Hostel'},
-                                            );
-                                          },
-                                        ),
-                                        SizedBox(
-                                          height: listHeight,
-                                          child: ListView.builder(
-                                            scrollDirection: Axis.horizontal,
-                                            itemCount: hostels.length,
-                                            itemBuilder: (_, i) {
+                                        SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: Row(
+                                            children: List.generate(hostels.length, (
+                                              i,
+                                            ) {
                                               final hotel = hostels[i];
-
-                                              return GestureDetector(
-                                                onTap: () {
-                                                  context.pushNamed(
-                                                    RouteList
-                                                        .accommodationDetails,
-                                                    extra: {"id": hotel.id},
-                                                  );
-                                                },
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                        left: 10,
-                                                        right: 12,
-                                                      ),
+                                              return Padding(
+                                                padding: const EdgeInsets.only(
+                                                  left: 10,
+                                                  // right: -2,
+                                                ),
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    context.pushNamed(
+                                                      RouteList
+                                                          .accommodationDetails,
+                                                      extra: {"id": hotel.id},
+                                                    );
+                                                  },
                                                   child: SizedBox(
-                                                    width: cardWidth,
+                                                    width:
+                                                        MediaQuery.of(
+                                                              context,
+                                                            ).size.width >
+                                                            600
+                                                        ? 280
+                                                        : MediaQuery.of(
+                                                                context,
+                                                              ).size.width *
+                                                              0.75,
                                                     child: AppHotelCard(
                                                       trailingWidget:
                                                           WishlistButton(
@@ -620,7 +737,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   ),
                                                 ),
                                               );
-                                            },
+                                            }),
                                           ),
                                         ),
                                       ],
@@ -660,9 +777,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                     }
 
                                     if (state.budgetHostelError != null) {
-                                      return const Padding(
-                                        padding: EdgeInsets.all(16),
-                                        child: Center(
+                                      return SizedBox(
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                            0.5,
+                                        child: const Center(
                                           child: Text(
                                             "Something went wrong please try again later",
                                           ),
@@ -793,7 +912,6 @@ class _PGListTile extends StatelessWidget {
 
       child: Row(
         children: [
-          /// IMAGE
           ClipRRect(
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(14),
@@ -805,8 +923,6 @@ class _PGListTile extends StatelessWidget {
               child: CachedNetworkImage(
                 imageUrl: imageUrl,
                 fit: BoxFit.cover,
-
-                /// LOADING
                 placeholder: (context, url) => Container(
                   color: Colors.grey.shade200,
                   child: const Center(
@@ -818,7 +934,6 @@ class _PGListTile extends StatelessWidget {
                   ),
                 ),
 
-                /// ERROR
                 errorWidget: (context, url, error) => Container(
                   color: Colors.grey.shade200,
                   child: const Icon(
@@ -831,7 +946,6 @@ class _PGListTile extends StatelessWidget {
             ),
           ),
 
-          /// INFO
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -839,7 +953,6 @@ class _PGListTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  /// TITLE + RATING
                   Row(
                     children: [
                       Expanded(
@@ -856,14 +969,13 @@ class _PGListTile extends StatelessWidget {
                       ),
                       RatingBadge(
                         rating: hotel.averageRating ?? 0,
-                        compact: true,
+                        // compact: true,
                       ),
                     ],
                   ),
 
                   const SizedBox(height: 4),
 
-                  /// LOCATION
                   Text(
                     hotel.location?.area ?? '',
                     maxLines: 1,

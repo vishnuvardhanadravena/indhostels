@@ -52,6 +52,7 @@ class SearchState extends Equatable {
   final List<PopularCity> popularCities;
 
   final bool locationSearchActive;
+  final String stayType;
 
   const SearchState({
     this.city,
@@ -77,6 +78,7 @@ class SearchState extends Equatable {
     this.locationRecentSearches = const [],
     this.popularCities = const [],
     this.locationSearchActive = false,
+    this.stayType = "hotel",
   });
 
   factory SearchState.initial() {
@@ -115,6 +117,8 @@ class SearchState extends Equatable {
     List<String>? locationRecentSearches,
     List<PopularCity>? popularCities,
     bool? locationSearchActive,
+    String? stayType,
+    
   }) {
     return SearchState(
       city: city ?? this.city,
@@ -141,6 +145,7 @@ class SearchState extends Equatable {
           locationRecentSearches ?? this.locationRecentSearches,
       popularCities: popularCities ?? this.popularCities,
       locationSearchActive: locationSearchActive ?? this.locationSearchActive,
+      stayType: stayType ?? this.stayType,
     );
   }
 
@@ -169,5 +174,6 @@ class SearchState extends Equatable {
         locationRecentSearches,
         popularCities,
         locationSearchActive,
+        stayType,
       ];
 }

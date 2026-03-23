@@ -45,5 +45,5 @@ class RouteList {
   static const String bookingSummary = '/bookingSummary';
   static const String paymentsuccess = '/payment-success';
   static const String notificationDetail = '/notification-detail';
-    static const String contactus = '/contactus';
+  static const String contactus = '/contactus';
 }

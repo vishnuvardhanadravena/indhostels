@@ -77,16 +77,19 @@ class UpdateSearchParams extends SearchEvent {
   final DateTime? checkInDate;
   final DateTime? checkOutDate;
   final int? guestCount;
+  final String? staytype;
 
   const UpdateSearchParams({
     this.city,
     this.checkInDate,
     this.checkOutDate,
     this.guestCount,
+    this.staytype,
+
   });
 
   @override
-  List<Object?> get props => [city, checkInDate, checkOutDate, guestCount];
+  List<Object?> get props => [city, checkInDate, checkOutDate, guestCount,staytype];
 }
 
 class LocationFetchAll extends SearchEvent {

@@ -48,13 +48,13 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         if (updatedUser != null) {
           UserSession().setUser(updatedUser);
         }
-
+        await ProfileLoadEvent();
         emit(ProfileImgLoaded(updatedUser));
       } else {
-        emit(ProfileError(response["message"] ?? "Upload failed"));
+        emit(ProfileImgError(response["message"] ?? "Upload failed"));
       }
     } catch (e) {
-      emit(ProfileError("Failed to upload profile image"));
+      emit(ProfileImgError("Failed to upload profile image"));
     }
   }
 
@@ -87,12 +87,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         id: UserSession().user?.id ?? "",
         profileUrl: UserSession().user?.profileUrl ?? "",
       );
-
-      /// check API success
       if (response["success"] == true) {
-        /// update session
         UserSession().setUser(profile);
-
         emit(ProfileUpdateSuccess(response["message"]));
       } else {
         emit(ProfileError(response["message"] ?? "Profile update failed"));
@@ -107,7 +103,7 @@ class UserSession {
   static final UserSession _instance = UserSession._internal();
   factory UserSession() => _instance;
   UserSession._internal();
-  UserProfile? user;  
+  UserProfile? user;
   bool get isLoggedIn => user != null;
   Future<void> setUser(UserProfile profile) async {
     user = profile;

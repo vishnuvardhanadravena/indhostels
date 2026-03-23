@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:indhostels/bloc/review/review_bloc.dart';
-import 'package:indhostels/data/models/accomodation/accomodation_details_res.dart';
 import 'package:indhostels/data/models/bookings/booking_res.dart';
 import 'package:indhostels/utils/helpers/app_toast.dart';
 import 'package:indhostels/utils/widgets/authwidgts.dart';

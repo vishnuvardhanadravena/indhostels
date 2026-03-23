@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:indhostels/bloc/Serach/search_bloc.dart';
 import 'package:indhostels/data/models/accomodation/accomodation_details_res.dart';
-import 'package:indhostels/data/models/search/globelsearch_res.dart';
 import 'package:indhostels/pages/category/category_screen.dart';
 import 'package:indhostels/routing/route_constants.dart';
 import 'package:intl/intl.dart';
@@ -98,7 +97,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
         taxEnabled: taxEnabled,
         taxAmount: taxAmount,
 
-        maxAdults: widget.room.bedsAvailable ?? 1, // 🔥 IMPORTANT
+        maxAdults: widget.room.bedsAvailable,
       ),
     );
   }
@@ -112,23 +111,44 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
   }
 
   Future<void> _openDatePicker(BuildContext ctx, PaymentState ps) async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    final checkIn = ps.checkInDate ?? today;
+
+    final checkOut = ps.stayType.toLowerCase().contains("Hostel".toLowerCase())
+        ? DateTime(checkIn.year, checkIn.month + 1, checkIn.day)
+        : (ps.checkOutDate ?? today.add(const Duration(days: 1)));
+
     final initial = DateTimeRange(
-      start: ps.checkInDate ?? DateTime.now(),
-      end: ps.checkOutDate ?? DateTime.now().add(const Duration(days: 1)),
+      start: checkIn,
+      end: checkOut,
     );
 
     final result = await showModalBottomSheet<DateTimeRange>(
       context: ctx,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => DateRangePickerSheet(initialRange: initial),
+      builder: (_) =>
+          DateRangePickerSheet(initialRange: initial, type: ps.stayType),
     );
 
     if (result != null && ctx.mounted) {
-      ctx.read<PaymentBloc>().add(PaymentDateRangeUpdated(result));
+      final newCheckIn = result.start;
+
+      final newCheckOut =
+          ps.stayType.toLowerCase().contains("Hostel".toLowerCase())
+          ? DateTime(newCheckIn.year, newCheckIn.month + 1, newCheckIn.day)
+          : result.end;
+
+      ctx.read<PaymentBloc>().add(
+        PaymentDateRangeUpdated(
+          DateTimeRange(start: newCheckIn, end: newCheckOut),
+        ),
+      );
 
       ctx.read<SearchBloc>().add(
-        UpdateSearchParams(checkInDate: result.start, checkOutDate: result.end),
+        UpdateSearchParams(checkInDate: newCheckIn, checkOutDate: newCheckOut),
       );
     }
   }

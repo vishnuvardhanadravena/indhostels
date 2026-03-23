@@ -6,6 +6,7 @@ import 'package:indhostels/routing/route_constants.dart';
 import 'package:indhostels/utils/helpers/app_toast.dart';
 import 'package:indhostels/utils/shimmers/popular_hstl_shimmer.dart';
 import 'package:indhostels/utils/theame/app_themes.dart';
+import 'package:indhostels/utils/widgets/empty_state.dart';
 
 class RecentSearchModel {
   final String title;
@@ -130,7 +131,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     onFilterTap: () => _onSearch(_searchController.text),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
                 Expanded(
                   child: _searchController.text.isEmpty
@@ -205,7 +206,7 @@ class _SearchScreenState extends State<SearchScreen> {
           const SizedBox(height: 12),
 
           if (state.viewedLoading)
-            const _RecentlyViewedShimmer()
+            const RecentlyViewedShimmer()
           else if (state.viewedError != null)
             Center(child: Text(state.viewedError ?? "Something went worng"))
           else if (recentlyViewedHotels.isNotEmpty)
@@ -226,7 +227,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildSearchResults(SearchState state) {
     if (state.globalLoading && (state.globalResponse?.data?.isEmpty ?? true)) {
-      return const Center(child: _RecentlyViewedShimmer());
+      return const Center(child: RecentlyViewedShimmer());
     }
 
     if (state.globalError != null) {
@@ -236,7 +237,13 @@ class _SearchScreenState extends State<SearchScreen> {
     final hotels = state.globalResponse?.data ?? [];
 
     if (hotels.isEmpty) {
-      return const Center(child: Text("No rooms found"));
+      return EmptyStateWidget(
+        icon: Icons.hotel_outlined,
+        title: "No rooms found",
+        subtitle: "Try changing your search or filters",
+        isTablet: MediaQuery.of(context).size.width > 600,
+        showAction: false,
+      );
     }
 
     return ListView.builder(
@@ -306,8 +313,8 @@ class _RecentSearchShimmer extends StatelessWidget {
   }
 }
 
-class _RecentlyViewedShimmer extends StatelessWidget {
-  const _RecentlyViewedShimmer();
+class RecentlyViewedShimmer extends StatelessWidget {
+  const RecentlyViewedShimmer();
 
   @override
   Widget build(BuildContext context) {
@@ -318,7 +325,7 @@ class _RecentlyViewedShimmer extends StatelessWidget {
       itemBuilder: (context, index) {
         return const Padding(
           padding: EdgeInsets.only(bottom: 12),
-          child: PGListTileSkeleton(), 
+          child: PGListTileSkeleton(),
         );
       },
     );
@@ -345,8 +352,7 @@ class PageTitle extends StatelessWidget {
   }
 }
 
-/// Search input bar with a leading search icon and trailing filter icon.
-class SearchBar extends StatelessWidget {
+class SearchBar extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;
   final VoidCallback? onFilterTap;
@@ -359,6 +365,32 @@ class SearchBar extends StatelessWidget {
     this.onFilterTap,
     this.onChanged,
   });
+
+  @override
+  State<SearchBar> createState() => _SearchBarState();
+}
+
+class _SearchBarState extends State<SearchBar> {
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _handleChange(String value) {
+    if (value.isEmpty && _focusNode.hasFocus) {
+      _focusNode.unfocus();
+    }
+
+    widget.onChanged?.call(value);
+  }
+
+  void _handleSearchTap() {
+    _focusNode.unfocus();
+    widget.onFilterTap?.call();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -379,34 +411,41 @@ class SearchBar extends StatelessWidget {
       child: Row(
         children: [
           const SizedBox(width: 14),
+
           Icon(Icons.search, color: Colors.grey.shade500, size: 20),
+
           const SizedBox(width: 10),
+
           Expanded(
             child: TextField(
-              controller: controller,
-              onChanged: onChanged,
+              controller: widget.controller,
+              focusNode: _focusNode,
+              onChanged: _handleChange,
               decoration: InputDecoration(
-                hintText: hintText,
+                hintText: widget.hintText,
                 hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
                 border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
                 isDense: true,
                 contentPadding: EdgeInsets.zero,
               ),
               style: const TextStyle(fontSize: 14),
             ),
           ),
+
           GestureDetector(
-            onTap: onFilterTap,
+            onTap: _handleSearchTap,
             child: Container(
               decoration: BoxDecoration(
                 color: AppColors.primary,
                 borderRadius: BorderRadius.circular(5),
               ),
-
               padding: const EdgeInsets.all(8),
-              child: Icon(Icons.search, color: Colors.white, size: 20),
+              child: const Icon(Icons.search, color: Colors.white, size: 20),
             ),
           ),
+
           const SizedBox(width: 6),
         ],
       ),

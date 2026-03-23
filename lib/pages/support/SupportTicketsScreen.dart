@@ -9,7 +9,6 @@ import 'package:intl/intl.dart';
 
 const _kPrimary = Color(0xFF1A6FE8);
 const _kPrimaryLight = Color(0xFFE8F0FD);
-const _kAccent = Color(0xFF00C6AE);
 const _kBg = Color(0xFFF5F7FA);
 const _kSurface = Colors.white;
 const _kTextDark = Color(0xFF1C2331);
@@ -37,9 +36,9 @@ class SupportTicketsScreen extends StatelessWidget {
           if (state.isLoadingTickets) {
             return ListView.separated(
               padding: const EdgeInsets.all(16),
-              itemCount: 6, // number of skeleton items
-              separatorBuilder: (_, __) => const SizedBox(height: 10),
-              itemBuilder: (_, __) => const TicketCardSkeleton(),
+              itemCount: 6,
+              separatorBuilder: (_, i) => const SizedBox(height: 10),
+              itemBuilder: (_, i) => const TicketCardSkeleton(),
             );
           }
 
@@ -177,7 +176,7 @@ class _TicketList extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: tickets.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      separatorBuilder: (_, i) => const SizedBox(height: 10),
       itemBuilder: (context, index) => _TicketCard(ticket: tickets[index]),
     );
   }

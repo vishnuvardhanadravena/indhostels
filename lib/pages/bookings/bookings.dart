@@ -166,7 +166,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
             _buildEmpty(isTab)
           else
             Expanded(
-              child: isTab ? _buildTabGrid(isTab) : _buildMobileList(isTab),
+              child: isTab ? _buildMobileList(isTab) : _buildMobileList(isTab),
             ),
         ],
       ),

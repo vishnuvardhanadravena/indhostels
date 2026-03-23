@@ -103,7 +103,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   RouteList.otp,
   extra: {
     "phone": _phoneController.text.trim(),
-    "type": LoginType.signup, // or login
+    "type": LoginType.signup, 
+    "otp":state.message.otp??0
   },
 );
         }

@@ -44,8 +44,8 @@ class RoomsScreen extends StatelessWidget {
           body: rooms.isEmpty
               ? EmptyRoomsWidget(r: r, onRetry: onRetry)
               : _RoomsList(
-                taxamount: acommodation?.taxAmount??0,
-                taxenable: acommodation?.tax??false,
+                  taxamount: acommodation?.taxAmount ?? 0,
+                  taxenable: acommodation?.tax ?? false,
                   rooms: rooms,
                   r: r,
                   onRoomTap:
@@ -88,7 +88,7 @@ class _RoomsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (r.isTablet) {
-      return _tabletGrid();
+      return _tabletGrid(context);
     }
     return _mobileList();
   }
@@ -102,8 +102,8 @@ class _RoomsList extends StatelessWidget {
       itemCount: rooms.length,
       separatorBuilder: (_, __) => SizedBox(height: r.fieldGap),
       itemBuilder: (context, index) => RoomCard(
-        taxamount:taxamount ,
-        taxenable:taxenable ,
+        taxamount: taxamount,
+        taxenable: taxenable,
         room: rooms[index],
         r: r,
         onTap: () => onRoomTap?.call(rooms[index]),
@@ -111,25 +111,29 @@ class _RoomsList extends StatelessWidget {
     );
   }
 
-  Widget _tabletGrid() {
-    return GridView.builder(
+  Widget _tabletGrid(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
+    return SingleChildScrollView(
       padding: EdgeInsets.symmetric(
         horizontal: r.screenPadH,
         vertical: r.screenPadV,
       ),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: r.fieldGap,
-        mainAxisSpacing: r.fieldGap,
-        childAspectRatio: 0.72,
-      ),
-      itemCount: rooms.length,
-      itemBuilder: (context, index) => RoomCard(
-        taxamount:taxamount ,
-        taxenable:taxenable ,
-        room: rooms[index],
-        r: r,
-        onTap: () => onRoomTap?.call(rooms[index]),
+      child: Wrap(
+        spacing: r.fieldGap,
+        runSpacing: r.fieldGap,
+        children: rooms.map((room) {
+          return SizedBox(
+            width: (width - (r.screenPadH * 2) - r.fieldGap) / 2,
+            child: RoomCard(
+              taxamount: taxamount,
+              taxenable: taxenable,
+              room: room,
+              r: r,
+              onTap: () => onRoomTap?.call(room),
+            ),
+          );
+        }).toList(),
       ),
     );
   }

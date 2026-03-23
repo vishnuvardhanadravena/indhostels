@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:indhostels/data/models/bookings/booking_details_res.dart';
 import 'package:indhostels/data/models/bookings/booking_res.dart';
-import 'package:indhostels/exceptions/api_exceptions.dart';
 import 'package:indhostels/services/apiservice/api_client.dart';
 import 'package:indhostels/utils/constants/api_constants.dart';
 

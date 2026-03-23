@@ -264,13 +264,18 @@ class RoomCard extends StatelessWidget {
     super.key,
     required this.room,
     required this.r,
-    this.onTap,
     required this.taxamount,
     required this.taxenable,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final visibleBadges = [
+      '${room.bedsAvailable} beds',
+      'Max ${room.noOfGuests}',
+    ].take(2).toList(); // ✅ LIMIT ITEMS
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -280,34 +285,41 @@ class RoomCard extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.07),
-              blurRadius: 16,
+              blurRadius: 12,
               offset: const Offset(0, 4),
             ),
           ],
         ),
+
         child: Column(
+          mainAxisSize: MainAxisSize.min, // ✅ KEY FIX
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            /// IMAGE
             RoomImageWidget(imageUrl: room.primaryImage, r: r, rating: 4.0),
 
+            /// CONTENT
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: r.cardPadH,
                 vertical: r.cardPadV,
               ),
               child: Column(
+                mainAxisSize: MainAxisSize.min, // ✅ KEY FIX
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  /// TITLE
                   Text(
                     room.roomTypeLabel,
                     style: TextStyle(
                       fontSize: r.roomTitleFont,
                       fontWeight: FontWeight.w700,
-                      color: Colors.black87,
                     ),
                   ),
+
                   SizedBox(height: r.fieldGap * 0.3),
 
+                  /// DESCRIPTION
                   Text(
                     room.roomDescription,
                     maxLines: 2,
@@ -315,31 +327,23 @@ class RoomCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: r.roomDescFont,
                       color: Colors.grey.shade600,
-                      height: 1.4,
                     ),
                   ),
+
                   SizedBox(height: r.fieldGap * 0.6),
 
+                  /// BADGES (LIMITED)
                   Wrap(
                     spacing: 8,
                     runSpacing: 6,
-                    children: [
-                      RoomBadge(
-                        label: '${room.bedsAvailable} beds available',
-                        r: r,
-                        backgroundColor: const Color(0xFFE3F2FD),
-                        textColor: const Color(0xFF1565C0),
-                      ),
-                      RoomBadge(
-                        label: 'Max ${room.noOfGuests} guests per room',
-                        r: r,
-                        backgroundColor: const Color(0xFFF3E5F5),
-                        textColor: const Color(0xFF6A1B9A),
-                      ),
-                    ],
+                    children: visibleBadges
+                        .map((e) => RoomBadge(label: e, r: r))
+                        .toList(),
                   ),
+
                   SizedBox(height: r.fieldGap * 0.7),
 
+                  /// PRICE
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
@@ -349,32 +353,34 @@ class RoomCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: r.roomPriceFont,
                           fontWeight: FontWeight.w800,
-                          color: Colors.black87,
                         ),
                       ),
-                      const SizedBox(width: 3),
+                      const SizedBox(width: 4),
                       Text(
                         room.priceSuffix,
                         style: TextStyle(
                           fontSize: r.roomPriceSufFont,
-                          color: Colors.grey.shade500,
+                          color: Colors.grey,
                         ),
                       ),
                     ],
                   ),
+
                   SizedBox(height: r.fieldGap * 0.4),
 
+                  /// AMENITIES
                   AmenitiesRow(amenities: room.parsedAmenities, r: r),
-                  SizedBox(height: r.fieldGap * 0.25),
-                  if (taxenable)
+
+                  if (taxenable) ...[
+                    SizedBox(height: r.fieldGap * 0.3),
                     Text(
-                      "+ ${taxamount.toString()}-tax",
+                      "+ ₹$taxamount tax",
                       style: TextStyle(
                         fontSize: r.taxFont,
                         color: const Color(0xFF43A047),
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
+                  ],
                 ],
               ),
             ),

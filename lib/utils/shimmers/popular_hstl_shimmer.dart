@@ -1,17 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
-// ─── Shimmer Skeleton for _PopularHotelard ───────────────────────────────────
-
 class PopularHotelCardShimmer extends StatelessWidget {
-  const PopularHotelCardShimmer({super.key});
+  final bool showImage;
+  final bool showBadge;
+  final bool showFavIcon;
+  final bool showTitle;
+  final bool showSubtitle;
+  final bool showPrice;
+  final bool showAmenities;
+
+  const PopularHotelCardShimmer({
+    super.key,
+    this.showImage = true,
+    this.showBadge = true,
+    this.showFavIcon = true,
+    this.showTitle = true,
+    this.showSubtitle = true,
+    this.showPrice = true,
+    this.showAmenities = true,
+  });
 
   @override
   Widget build(BuildContext context) {
     final isTablet = MediaQuery.of(context).size.width > 600;
 
     return SizedBox(
-      height: isTablet ? 300 : 260, 
+      height: isTablet ? 300 : 260,
       child: Card(
         elevation: 6,
         shadowColor: Colors.black.withOpacity(0.15),
@@ -21,83 +36,90 @@ class PopularHotelCardShimmer extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-           
-            SizedBox(
-              height: isTablet ? 160 : 140,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  const _ShimmerBox(
-                    width: double.infinity,
-                    height: double.infinity,
-                    borderRadius: BorderRadius.zero,
-                  ),
-
-                  Positioned(
-                    bottom: 8,
-                    left: 8,
-                    child: _ShimmerBox(
-                      width: 52,
-                      height: 22,
-                      borderRadius: BorderRadius.circular(20),
+            /// 🔥 IMAGE SECTION
+            if (showImage)
+              SizedBox(
+                height: isTablet ? 160 : 140,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    const _ShimmerBox(
+                      width: double.infinity,
+                      height: double.infinity,
+                      borderRadius: BorderRadius.zero,
                     ),
-                  ),
 
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: _ShimmerBox(
-                      width: 28,
-                      height: 28,
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                  ),
-                ],
+                    if (showBadge)
+                      Positioned(
+                        bottom: 8,
+                        left: 8,
+                        child: _ShimmerBox(
+                          width: 52,
+                          height: 22,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+
+                    if (showFavIcon)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: _ShimmerBox(
+                          width: 28,
+                          height: 28,
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
 
-            /// CONTENT AREA (no Expanded)
+            /// 🔥 CONTENT
             Padding(
               padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _ShimmerBox(
-                    width: double.infinity,
-                    height: 13,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
+                  if (showTitle)
+                    _ShimmerBox(
+                      width: double.infinity,
+                      height: 13,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
 
-                  const SizedBox(height: 6),
+                  if (showTitle) const SizedBox(height: 6),
 
-                  _ShimmerBox(
-                    width: 100,
-                    height: 11,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
+                  if (showSubtitle)
+                    _ShimmerBox(
+                      width: 100,
+                      height: 11,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
 
-                  const SizedBox(height: 8),
+                  if (showSubtitle) const SizedBox(height: 8),
 
-                  _ShimmerBox(
-                    width: 90,
-                    height: 14,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
+                  if (showPrice)
+                    _ShimmerBox(
+                      width: 90,
+                      height: 14,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
 
-                  const SizedBox(height: 10),
+                  if (showPrice) const SizedBox(height: 10),
 
-                  Wrap(
-                    spacing: 4,
-                    runSpacing: 4,
-                    children: List.generate(
-                      isTablet ? 3 : 4,
-                      (i) => _ShimmerBox(
-                        width: 52,
-                        height: 20,
-                        borderRadius: BorderRadius.circular(20),
+                  if (showAmenities)
+                    Wrap(
+                      spacing: 4,
+                      runSpacing: 4,
+                      children: List.generate(
+                        isTablet ? 3 : 4,
+                        (i) => _ShimmerBox(
+                          width: 52,
+                          height: 20,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),

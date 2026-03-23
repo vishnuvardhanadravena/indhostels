@@ -442,7 +442,6 @@ class _FormCard extends StatelessWidget {
 
             SizedBox(height: r.sectionGap * 0.7),
 
-            // Send Message button
             Center(
               child: SizedBox(
                 width: twoColumnFields ? 260 : double.infinity,

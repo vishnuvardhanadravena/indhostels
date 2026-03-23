@@ -38,6 +38,9 @@ class _HotelsScreenState extends State<HotelsScreen> {
           ? "pgs"
           : "hotel";
 
+      context.read<SearchBloc>().add(
+        UpdateSearchParams(staytype: widget.title),
+      );
       context.read<AccommodationBloc>().add(
         LikedAcommodationRequested(type: type),
       );
@@ -53,12 +56,13 @@ class _HotelsScreenState extends State<HotelsScreen> {
   Future<void> _openDatePicker(
     BuildContext context,
     DateTimeRange range,
+    String type,
   ) async {
     final result = await showModalBottomSheet<DateTimeRange>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => DateRangePickerSheet(initialRange: range),
+      builder: (_) => DateRangePickerSheet(initialRange: range, type: type),
     );
 
     if (result != null) {
@@ -87,7 +91,15 @@ class _HotelsScreenState extends State<HotelsScreen> {
     final today = DateTime(now.year, now.month, now.day);
 
     final checkIn = state.checkInDate ?? today;
-    final checkOut = state.checkOutDate ?? today.add(const Duration(days: 5));
+
+    DateTime checkOut;
+
+    if (widget.title == "Hostel") {
+      checkOut = DateTime(checkIn.year, checkIn.month + 1, checkIn.day);
+    } else {
+      checkOut = state.checkOutDate ?? today.add(const Duration(days: 5));
+    }
+
     final city = state.city ?? "Hyderabad";
 
     context.read<SearchBloc>().add(
@@ -116,14 +128,15 @@ class _HotelsScreenState extends State<HotelsScreen> {
     final cardWidth = screenWidth > 600 ? screenWidth * 0.2 : screenWidth * 0.6;
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
-        final start = state.checkInDate ?? DateTime.now();
+        final now = DateTime.now();
+        final today = DateTime(now.year, now.month, now.day);
+        final start = state.checkInDate ?? today;
         final end =
-            state.checkOutDate ?? DateTime.now().add(const Duration(days: 1));
-
+            state.stayType.toLowerCase().contains("Hostel".toLowerCase())
+            ? DateTime(start.year, start.month + 1, start.day)
+            : (state.checkOutDate ?? today.add(const Duration(days: 1)));
         final range = DateTimeRange(start: start, end: end);
-
         final nights = range.end.difference(range.start).inDays;
-
         return Scaffold(
           backgroundColor: _kBg,
           appBar: AppBar(
@@ -165,7 +178,8 @@ class _HotelsScreenState extends State<HotelsScreen> {
                           formatDate: _formatDate,
                           onCityTap: () =>
                               _openCityPicker(context, state.city ?? ""),
-                          onDateTap: () => _openDatePicker(context, range),
+                          onDateTap: () =>
+                              _openDatePicker(context, range, widget.title),
                           onSearch: () => _onSearch(context, state),
                           isSearching: state.searchLoading,
                         ),
@@ -179,14 +193,21 @@ class _HotelsScreenState extends State<HotelsScreen> {
                       builder: (context, state) {
                         if (state.lIkedAcommodationsLoading) {
                           return SizedBox(
-                            height: 260,
+                            height: MediaQuery.of(context).size.height * 0.3,
+                            width: MediaQuery.of(context).size.width,
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               itemCount: 3,
                               itemBuilder: (_, __) {
                                 return Padding(
                                   padding: const EdgeInsets.only(right: 12),
-                                  child: const PopularHotelCardShimmer(),
+                                  child: SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.5,
+                                    child: PopularHotelCardShimmer(
+                                      showAmenities: false,
+                                    ),
+                                  ),
                                 );
                               },
                             ),
@@ -209,7 +230,7 @@ class _HotelsScreenState extends State<HotelsScreen> {
                         }
 
                         return SizedBox(
-                          height: 260,
+                          height: MediaQuery.of(context).size.height * 0.29,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: deals.length,
@@ -218,9 +239,9 @@ class _HotelsScreenState extends State<HotelsScreen> {
                               return Padding(
                                 padding: const EdgeInsets.only(right: 12),
                                 child: ConstrainedBox(
-                                  constraints: const BoxConstraints(
-                                    minWidth: 180,
-                                    maxWidth: 240,
+                                  constraints: BoxConstraints(
+                                    minWidth: screenWidth * 0.45,
+                                    maxWidth: screenWidth * 0.65,
                                   ),
                                   child: InkWell(
                                     onTap: () {
@@ -235,19 +256,36 @@ class _HotelsScreenState extends State<HotelsScreen> {
                                       ),
                                       amenities: const [],
                                       imageUrl:
-                                          deal.imagesUrl?.isNotEmpty == true
+                                          (deal.imagesUrl != null &&
+                                              deal.imagesUrl!.isNotEmpty)
                                           ? deal.imagesUrl!.first
                                           : null,
                                       location: deal.location?.area ?? '',
                                       price:
-                                          deal
-                                              .pricingData
-                                              ?.first
-                                              .pricing
-                                              ?.first
-                                              .price
-                                              ?.toString() ??
-                                          '',
+                                          (deal.pricingData != null &&
+                                              deal.pricingData!.isNotEmpty &&
+                                              deal.pricingData!.first.pricing !=
+                                                  null &&
+                                              deal
+                                                  .pricingData!
+                                                  .first
+                                                  .pricing!
+                                                  .isNotEmpty &&
+                                              deal
+                                                      .pricingData!
+                                                      .first
+                                                      .pricing!
+                                                      .first
+                                                      .price !=
+                                                  null)
+                                          ? deal
+                                                .pricingData!
+                                                .first
+                                                .pricing!
+                                                .first
+                                                .price
+                                                .toString()
+                                          : "0",
                                       rating: deal.averageRating ?? 0,
                                       title: deal.propertyName ?? '',
                                     ),
@@ -391,7 +429,12 @@ class SearchCard extends StatelessWidget {
 
 class DateRangePickerSheet extends StatefulWidget {
   final DateTimeRange initialRange;
-  const DateRangePickerSheet({super.key, required this.initialRange});
+  final String type;
+  const DateRangePickerSheet({
+    super.key,
+    required this.initialRange,
+    required this.type,
+  });
 
   @override
   State<DateRangePickerSheet> createState() => _DateRangePickerSheetState();
@@ -415,6 +458,13 @@ class _DateRangePickerSheetState extends State<DateRangePickerSheet> {
 
   void _onDayTap(DateTime day) {
     setState(() {
+      if (widget.type.toLowerCase().contains("Hostel".toLowerCase())) {
+        _start = day;
+
+        _end = DateTime(day.year, day.month + 1, day.day);
+        return;
+      }
+
       if (_end != null || day.isBefore(_start)) {
         _start = day;
         _end = null;

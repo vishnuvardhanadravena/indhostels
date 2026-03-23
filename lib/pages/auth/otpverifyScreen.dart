@@ -119,13 +119,21 @@ class _OtpInputWidgetState extends State<OtpInputWidget> {
     );
   }
 }
+
 class Otpverifyscreen extends StatefulWidget {
   final String phone;
+  final int otp;
   final LoginType type;
-  const Otpverifyscreen({super.key, required this.phone, required this.type});
+  const Otpverifyscreen({
+    super.key,
+    required this.phone,
+    required this.type,
+    required this.otp,
+  });
   @override
   State<Otpverifyscreen> createState() => _OtpverifyscreenState();
 }
+
 class _OtpverifyscreenState extends State<Otpverifyscreen> {
   String _otp = '';
   void _onContinue() {
@@ -140,6 +148,7 @@ class _OtpverifyscreenState extends State<Otpverifyscreen> {
       VerifyOtpRequested(phone: widget.phone, otp: _otp, type: widget.type),
     );
   }
+
   void _onResend() {
     context.read<AuthBloc>().add(
       LoginRequested(phone: widget.phone, type: LoginType.otp),
@@ -149,6 +158,7 @@ class _OtpverifyscreenState extends State<Otpverifyscreen> {
       position: ToastPosition.bottom,
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
@@ -185,7 +195,6 @@ class _OtpverifyscreenState extends State<Otpverifyscreen> {
 
                 final boxSize = isTablet ? 68.0 : ((width - 48) / 4) * 0.74;
 
-                /// ===== MAIN CONTENT =====
                 final content = SizedBox(
                   width: contentWidth,
                   child: SingleChildScrollView(
@@ -198,7 +207,7 @@ class _OtpverifyscreenState extends State<Otpverifyscreen> {
                         AuthHeader(
                           title: 'Enter OTP',
                           subtitle:
-                              'We have just sent you a 4-digit code via your phone number',
+                              'We have just sent you a 4-digit code via your phone number(${widget.otp})',
                           showBackButton: true,
                         ),
 

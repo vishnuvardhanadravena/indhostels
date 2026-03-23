@@ -15,7 +15,8 @@ final class LoginSuccess extends AuthState {
 
 final class OtpSentSuccess extends AuthState {
   final String phone;
-  OtpSentSuccess(this.phone);
+  final int otp;
+  OtpSentSuccess(this.phone, this.otp);
 }
 
 final class AuthError extends AuthState {

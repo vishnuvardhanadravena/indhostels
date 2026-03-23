@@ -53,6 +53,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         checkInDate: event.checkInDate ?? state.checkInDate,
         checkOutDate: event.checkOutDate ?? state.checkOutDate,
         guestCount: event.guestCount ?? state.guestCount,
+        stayType: event.staytype ?? state.stayType,
       ),
     );
   }

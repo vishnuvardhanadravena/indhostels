@@ -12,7 +12,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   final RazorpayService razorpayService;
 
   static const int _minAdults = 1;
-  static const int _maxAdults = 10;
   static const int _minChildren = 0;
   static const int _maxChildren = 10;
   static const double _cleaningFee = 200;

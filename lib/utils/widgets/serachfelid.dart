@@ -132,58 +132,54 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+      padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          // ── Search field ──────────────────────────────────────
-          Expanded(
-            child: Container(
-              height: 44,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: TextField(
-                controller: _ctrl,
-                onChanged: widget.onSearch,
-                style: const TextStyle(fontSize: 13, color: Color(0xFF1A1A1A)),
-                decoration: const InputDecoration(
-                  hintText: 'Search here...',
-                  hintStyle: TextStyle(fontSize: 13, color: Color(0xFFAAAAAA)),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.zero,
-                  prefixIcon: Icon(
-                    Icons.search_rounded,
-                    size: 18,
-                    color: Color(0xFFAAAAAA),
-                  ),
-                  prefixIconConstraints: BoxConstraints(
-                    minWidth: 40,
-                    minHeight: 44,
-                  ),
-                ),
-              ),
-            ),
-          ),
-
+          // Expanded(
+          //   child: Container(
+          //     height: 44,
+          //     decoration: BoxDecoration(
+          //       color: Colors.white,
+          //       borderRadius: BorderRadius.circular(12),
+          //       boxShadow: [
+          //         BoxShadow(
+          //           color: Colors.black.withOpacity(0.05),
+          //           blurRadius: 8,
+          //           offset: const Offset(0, 2),
+          //         ),
+          //       ],
+          //     ),
+          //     child: TextField(
+          //       controller: _ctrl,
+          //       onChanged: widget.onSearch,
+          //       style: const TextStyle(fontSize: 13, color: Color(0xFF1A1A1A)),
+          //       decoration: const InputDecoration(
+          //         hintText: 'Search here...',
+          //         hintStyle: TextStyle(fontSize: 13, color: Color(0xFFAAAAAA)),
+          //         border: InputBorder.none,
+          //         contentPadding: EdgeInsets.zero,
+          //         prefixIcon: Icon(
+          //           Icons.search_rounded,
+          //           size: 18,
+          //           color: Color(0xFFAAAAAA),
+          //         ),
+          //         prefixIconConstraints: BoxConstraints(
+          //           minWidth: 40,
+          //           minHeight: 44,
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
           const SizedBox(width: 10),
 
-          // ── Filter button + badge ─────────────────────────────
           GestureDetector(
             onTap: _openFilterSheet,
             child: Stack(
               clipBehavior: Clip.none,
               children: [
                 Container(
-                  width: 44,
-                  height: 44,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -195,12 +191,21 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
                       ),
                     ],
                   ),
-                  child: Icon(
-                    Icons.tune_rounded,
-                    size: 20,
-                    color: widget.filters == null
-                        ? Colors.grey.shade300
-                        : _purple,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.tune_rounded,
+                          size: 20,
+                          color: widget.filters == null
+                              ? Colors.grey.shade300
+                              : _purple,
+                        ),
+                        const SizedBox(width: 10),
+                        Text("Filters"),
+                      ],
+                    ),
                   ),
                 ),
                 if (_activeFilterCount > 0)
@@ -372,7 +377,7 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
     }
   }
 
-  void _clearAll() {
+  Future<void> _clearAll() async {
     setState(() {
       _initPriceRange();
       _selectedRoomTypes.clear();
@@ -380,7 +385,8 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
       _selectedCategory = null;
       _selectedLocation = null;
     });
-    _triggerUpdate();
+    await _triggerUpdate();
+    Navigator.pop(context, _current);
   }
 
   void _apply() => Navigator.pop(context, _current);

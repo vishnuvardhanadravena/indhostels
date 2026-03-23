@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:indhostels/pages/bookings/booking_details.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:flutter/material.dart';
 
 class ShimmerBox extends StatelessWidget {
   final double height;

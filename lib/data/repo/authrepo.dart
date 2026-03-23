@@ -18,6 +18,22 @@ class AuthRepository {
 
     return LoginResponseModel.fromJson(response.data);
   }
+  Future<Map<String, dynamic>> loginwithotp(LoginRequestModel request) async {
+  try {
+    final response = await api.post(
+      ApiConstants.signin,
+      data: request.toJson(),
+    );
+
+    if (response.statusCode == 200) {
+      return response.data;
+    } else {
+      throw Exception("Failed to login");
+    }
+  } catch (e) {
+    throw Exception("Error: $e");
+  }
+}
 
   Future<SignupResponceModel> signup(SignUpRequestModel request) async {
     final response = await api.post(

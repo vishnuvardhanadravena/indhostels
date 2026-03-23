@@ -1,8 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
 
 class AppHotelCard extends StatelessWidget {
   final String? imageUrl;
@@ -28,9 +26,14 @@ class AppHotelCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isTablet = MediaQuery.of(context).size.width > 600;
+    final size = MediaQuery.of(context).size;
 
-    final visibleAmenities = amenities?.take(isTablet ? 4 : 5).toList() ?? [];
+    final isTablet = size.width > 600;
+    final isLandscape = size.width > size.height;
+
+    final aspectRatio = isTablet ? (isLandscape ? 4 / 3 : 16 / 10) : 16 / 9;
+
+    final visibleAmenities = amenities?.take(isTablet ? 3 : 4).toList() ?? [];
 
     return InkWell(
       onTap: onTap,
@@ -41,13 +44,14 @@ class AppHotelCard extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         clipBehavior: Clip.antiAlias,
         color: Colors.white,
+
         child: Column(
+          mainAxisSize: MainAxisSize.min, // ✅ KEY FIX
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// IMAGE
             if (imageUrl != null && imageUrl!.isNotEmpty)
               AspectRatio(
-                aspectRatio: 16 / 9,
+                aspectRatio: aspectRatio,
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
@@ -69,7 +73,6 @@ class AppHotelCard extends StatelessWidget {
                       ),
                     ),
 
-                    /// rating
                     if (rating != null)
                       Positioned(
                         bottom: 8,
@@ -77,17 +80,16 @@ class AppHotelCard extends StatelessWidget {
                         child: RatingBadge(rating: rating!),
                       ),
 
-                    /// trailing (wishlist etc.)
                     if (trailingWidget != null)
                       Positioned(top: 8, right: 8, child: trailingWidget!),
                   ],
                 ),
               ),
 
-            /// CONTENT
             Padding(
               padding: const EdgeInsets.all(10),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (title?.isNotEmpty == true)
@@ -95,37 +97,37 @@ class AppHotelCard extends StatelessWidget {
                       title!,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                        color: Color(0xFF222222),
+                        fontSize: isTablet ? 15 : 13,
+                        color: const Color(0xFF222222),
                       ),
                     ),
 
                   if (location?.isNotEmpty == true) ...[
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     Text(
                       location!,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF888888),
+                      style: TextStyle(
+                        fontSize: isTablet ? 12 : 11,
+                        color: const Color(0xFF888888),
                       ),
                     ),
                   ],
 
                   if (price?.isNotEmpty == true) ...[
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Text.rich(
                       TextSpan(
                         children: [
                           TextSpan(
                             text: '₹$price',
-                            style: const TextStyle(
-                              fontSize: 14,
+                            style: TextStyle(
+                              fontSize: isTablet ? 15 : 14,
                               fontWeight: FontWeight.w800,
-                              color: Color(0xFF222222),
+                              color: const Color(0xFF222222),
                             ),
                           ),
                           const TextSpan(
@@ -140,7 +142,6 @@ class AppHotelCard extends StatelessWidget {
                     ),
                   ],
 
-                  /// AMENITIES
                   if (visibleAmenities.isNotEmpty) ...[
                     const SizedBox(height: 6),
                     Wrap(
@@ -169,38 +170,24 @@ class AppHotelCard extends StatelessWidget {
 
 class RatingBadge extends StatelessWidget {
   final double rating;
-  final bool compact;
-  const RatingBadge({required this.rating, this.compact = false});
+  const RatingBadge({required this.rating});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: compact ? 6 : 8,
-        vertical: compact ? 3 : 4,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: compact ? Colors.transparent : Colors.white.withOpacity(0.9),
+        color: Colors.white.withOpacity(0.9),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.star_rounded,
-            size: compact ? 14 : 13,
-            color: const Color(0xFFF5A623),
-          ),
+          const Icon(Icons.star, size: 12, color: Color(0xFFF5A623)),
           const SizedBox(width: 2),
           Text(
             rating.toStringAsFixed(1),
-            style: TextStyle(
-              fontSize: compact ? 13 : 12,
-              fontWeight: FontWeight.w700,
-              color: compact
-                  ? const Color(0xFFF5A623)
-                  : const Color(0xFF333333),
-            ),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
           ),
         ],
       ),

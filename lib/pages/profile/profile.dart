@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:indhostels/bloc/auth/auth_bloc.dart';
@@ -31,7 +30,6 @@ class ProfileMenuItem {
   });
 }
 
-// ─── r_class.dart ────────────────────────────────────────────────────────────
 
 class R {
   final bool isTablet;
@@ -79,7 +77,6 @@ class R {
   double get labelFontSize => isTablet ? 17.0 : 15.0;
   double get chevronSize => isTablet ? 26.0 : 22.0;
 
-  // Logout button
   double get logoutH => isTablet ? 62.0 : 52.0;
   double get logoutRadius => isTablet ? 18.0 : 14.0;
   double get logoutFont => isTablet ? 18.0 : 16.0;
@@ -87,7 +84,6 @@ class R {
   double get logoutPadH => isTablet ? 20.0 : 16.0;
   double get logoutPadB => isTablet ? 20.0 : 16.0;
 
-  // ── Rooms-screen specific extras ──────────────────────────────────────────
   double get roomImageHeight => isTablet ? 260.0 : 190.0;
   double get roomTitleFont => isTablet ? 20.0 : 16.0;
   double get roomDescFont => isTablet ? 14.0 : 12.0;
@@ -184,7 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ProfileMenuItem(
       icon: Icons.edit_outlined,
       label: 'Edit Profile',
-      route: RouteList.profile,
+      route: RouteList.editProfile,
     ),
     ProfileMenuItem(
       icon: Icons.lock_outline_rounded,
@@ -217,9 +213,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       route: RouteList.contactus,
     ),
   ];
-  File? _pickedImage;
   @override
   Widget build(BuildContext context) {
+    final isProfileLoading =
+        context.watch<ProfileBloc>().state is ProfileImgLoading;
     return Scaffold(
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) async {
@@ -275,7 +272,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               final r = R(constraints.maxWidth);
               return Stack(
                 children: [
-                  // ── Gradient background (top 37% of screen) ──
                   Positioned(
                     top: 0,
                     left: 0,
@@ -297,7 +293,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
 
-                  // ── Scrollable content on top ──
                   SafeArea(
                     child: SingleChildScrollView(
                       child: Padding(
@@ -319,6 +314,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ),
+                  if (isProfileLoading)
+                    Positioned.fill(
+                      child: Container(
+                        color: Colors.black.withOpacity(0.4),
+                        child: const Center(child: CircularProgressIndicator()),
+                      ),
+                    ),
                 ],
               );
             },
@@ -368,11 +370,14 @@ class _ProfileHeaderState extends State<_ProfileHeader> {
       listener: (context, state) {
         if (state is ProfileImgLoading) {}
         if (state is ProfileImgError) {
+          setState(() {
+            _pickedImage = null;
+          });
           AppToast.error(state.message);
         }
         if (state is ProfileImgLoaded) {
           AppToast.success("Profle image updated");
-          context.read<ProfileBloc>().add(ProfileLoadEvent());
+          // context.read<ProfileBloc>().add(ProfileLoadEvent());
         }
         if (state is ProfileLoaded) {
           setState(() {});
