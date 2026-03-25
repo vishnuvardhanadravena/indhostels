@@ -249,38 +249,33 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     ),
   );
 
-  Widget _buildTabGrid(bool isTab) => RefreshIndicator(
-    color: AppColors.primary,
-    onRefresh: () async => widget.onRefresh?.call(),
-    child: GridView.builder(
-      controller: widget.scrollController,
-
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 20,
-        mainAxisSpacing: 4,
-        childAspectRatio: 1.2,
-      ),
-
-      itemCount: _current.length + (widget.isLoadingMore ? 1 : 0),
-
-      itemBuilder: (_, i) {
-        if (i >= _current.length) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        return BookingCard(
-          booking: _current[i],
-          isTab: isTab,
-          isHistory: widget.selectedTab == 1,
-          onPrimaryAction: () => _handlePrimary(_current[i]),
-          onSecondaryAction: () => _handleSecondary(_current[i]),
-        );
-      },
-    ),
-  );
+  // Widget _buildTabGrid(bool isTab) => RefreshIndicator(
+  //   color: AppColors.primary,
+  //   onRefresh: () async => widget.onRefresh?.call(),
+  //   child: GridView.builder(
+  //     controller: widget.scrollController,
+  //     padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+  //     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+  //       crossAxisCount: 2,
+  //       crossAxisSpacing: 20,
+  //       mainAxisSpacing: 4,
+  //       childAspectRatio: 1.2,
+  //     ),
+  //     itemCount: _current.length + (widget.isLoadingMore ? 1 : 0),
+  //     itemBuilder: (_, i) {
+  //       if (i >= _current.length) {
+  //         return const Center(child: CircularProgressIndicator());
+  //       }
+  //       return BookingCard(
+  //         booking: _current[i],
+  //         isTab: isTab,
+  //         isHistory: widget.selectedTab == 1,
+  //         onPrimaryAction: () => _handlePrimary(_current[i]),
+  //         onSecondaryAction: () => _handleSecondary(_current[i]),
+  //       );
+  //     },
+  //   ),
+  // );
 
   Widget _buildEmpty(bool isTab) => Expanded(
     child: Center(
@@ -294,9 +289,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
             size: isTab ? 72 : 56,
             color: const Color(0xFFD0C8FF),
           ),
-
           const SizedBox(height: 16),
-
           Text(
             widget.selectedTab == 0 ? 'No active bookings' : 'No past bookings',
             style: TextStyle(
@@ -305,9 +298,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               color: const Color(0xFF888888),
             ),
           ),
-
           const SizedBox(height: 8),
-
           Text(
             'Your bookings will appear here',
             style: TextStyle(
@@ -343,42 +334,40 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   }
 
   void _showCancelDialog(BookingModel booking) {
+    final outerContext = context; // ✅ Capture before dialog opens
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
         return BlocConsumer<BookingsBloc, BookingsState>(
-          listener: (context, state) {
+          listener: (_, state) {
+            final errorMessage = state.cancelError;
             if (state.cancelSuccess) {
-              Navigator.of(dialogContext).pop();
+              if (Navigator.of(dialogContext).canPop()) {
+                Navigator.of(dialogContext).pop();
+              }
               AppToast.success('Booking cancelled successfully');
-              context.read<BookingsBloc>().add(
+              outerContext.read<BookingsBloc>().add(
                 const FetchBookings(page: 1, limit: 10),
               );
             }
-
-            if (state.cancelError != null) {
-              Navigator.of(dialogContext).pop();
-
+            if (errorMessage != null) {
+              if (Navigator.of(dialogContext).canPop()) {
+                Navigator.of(dialogContext).pop();
+              }
               showDialog(
-                context: dialogContext,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text("Cancellation Failed"),
-                    content: Text(
-                      state.cancelError ??
-                          "Unable to cancel. Please contact inHostels support.",
+                context: outerContext,
+                builder: (ctx) => AlertDialog(
+                  title: const Text("Cancellation Failed"),
+                  content: Text(errorMessage),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(ctx).pop(),
+                      child: const Text("OK"),
                     ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text("OK"),
-                      ),
-                    ],
-                  );
-                },
+                  ],
+                ),
               );
             }
           },

@@ -35,3 +35,5 @@ class RemoveFromWishlistEvent extends WishlistEvent {
   @override
   List<Object?> get props => [accommodationId];
 }
+
+class ResetWishlistEvent extends WishlistEvent {}

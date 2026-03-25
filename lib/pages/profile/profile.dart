@@ -3,12 +3,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:indhostels/bloc/Serach/search_bloc.dart';
 import 'package:indhostels/bloc/auth/auth_bloc.dart';
 import 'package:indhostels/bloc/auth/auth_event.dart';
 import 'package:indhostels/bloc/auth/auth_state.dart';
 import 'package:indhostels/bloc/profile/profile_bloc.dart';
 import 'package:indhostels/bloc/profile/profile_event.dart';
 import 'package:indhostels/bloc/profile/profile_state.dart';
+import 'package:indhostels/bloc/wishlist/wishlist_bloc.dart';
 import 'package:indhostels/routing/route_constants.dart';
 import 'package:indhostels/services/database/app_secure_storage.dart';
 import 'package:indhostels/services/init.dart';
@@ -29,7 +31,6 @@ class ProfileMenuItem {
     required this.route,
   });
 }
-
 
 class R {
   final bool isTablet;
@@ -224,6 +225,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             await sl<AppSecureStorage>().writeString("token", "");
             await sl<AppSecureStorage>().writeBool("login", false);
             await UserSession().clear();
+            context.read<WishlistBloc>().add(ResetWishlistEvent());
+            context.read<SearchBloc>().add(ResetSearchEvent());
 
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!context.mounted) return;

@@ -14,38 +14,28 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
   late AnimationController _bounceController;
   late AnimationController _fadeController;
   late AnimationController _slideController;
-
   late Animation<double> _bounceAnimation;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-
   @override
   void initState() {
     super.initState();
-
-    // Bounce animation for the image
     _bounceController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-
     _bounceAnimation = CurvedAnimation(
       parent: _bounceController,
       curve: Curves.elasticOut,
     );
-
-    // Fade animation for text
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-
     _fadeAnimation = CurvedAnimation(
       parent: _fadeController,
       curve: Curves.easeIn,
     );
-
-    // Slide up animation for the button
     _slideController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -55,15 +45,12 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
       begin: const Offset(0, 1),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOut));
-
-    // Start animations sequentially
     _bounceController.forward().then((_) {
       _fadeController.forward().then((_) {
         _slideController.forward();
       });
     });
   }
-
   @override
   void dispose() {
     _bounceController.dispose();
@@ -71,7 +58,6 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
     _slideController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,16 +69,11 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(flex: 2),
-
-              // Animated Payment Illustration
               ScaleTransition(
                 scale: _bounceAnimation,
                 child: SizedBox(height: 220, child: _PaymentIllustration()),
               ),
-
               const SizedBox(height: 40),
-
-              // Title & Description
               FadeTransition(
                 opacity: _fadeAnimation,
                 child: Column(
@@ -119,10 +100,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                   ],
                 ),
               ),
-
               const Spacer(flex: 2),
-
-              // Back to Home Button
               SlideTransition(
                 position: _slideAnimation,
                 child: Padding(
@@ -161,15 +139,12 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
     );
   }
 }
-
-/// Custom painted payment illustration matching the screenshot
 class _PaymentIllustration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.center,
       children: [
-        // Background glow
         Container(
           width: 160,
           height: 160,
@@ -179,7 +154,6 @@ class _PaymentIllustration extends StatelessWidget {
           ),
         ),
 
-        // Phone card
         Positioned(
           top: 20,
           child: Container(
@@ -199,7 +173,6 @@ class _PaymentIllustration extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Blue card on phone
                 Container(
                   width: 64,
                   height: 40,
@@ -241,29 +214,21 @@ class _PaymentIllustration extends StatelessWidget {
             ),
           ),
         ),
-
-        // Floating coin - top left
         Positioned(
           top: 10,
           left: 18,
           child: _FloatingCoin(size: 28, color: const Color(0xFFFFC107)),
         ),
-
-        // Floating coin - right
         Positioned(
           top: 30,
           right: 16,
           child: _FloatingCoin(size: 22, color: const Color(0xFFFFD700)),
         ),
-
-        // Floating coin - bottom left
         Positioned(
           bottom: 40,
           left: 22,
           child: _FloatingCoin(size: 18, color: const Color(0xFFFFC107)),
         ),
-
-        // Arrow icon - top right
         Positioned(
           top: 8,
           right: 38,
@@ -277,8 +242,6 @@ class _PaymentIllustration extends StatelessWidget {
             child: const Icon(Icons.send, color: Colors.white, size: 12),
           ),
         ),
-
-        // Lock icon - top
         Positioned(
           top: 0,
           right: 60,
@@ -295,8 +258,6 @@ class _PaymentIllustration extends StatelessWidget {
             child: const Icon(Icons.lock, color: Color(0xFF4B3FF0), size: 14),
           ),
         ),
-
-        // Hand finger pointing (represented as a touch icon)
         Positioned(
           bottom: 10,
           child: Icon(

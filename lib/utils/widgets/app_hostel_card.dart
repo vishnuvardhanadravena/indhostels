@@ -11,6 +11,7 @@ class AppHotelCard extends StatelessWidget {
   final List<String>? amenities;
   final Widget? trailingWidget;
   final VoidCallback? onTap;
+  final String? pricetype;
 
   const AppHotelCard({
     super.key,
@@ -22,6 +23,7 @@ class AppHotelCard extends StatelessWidget {
     this.amenities,
     this.trailingWidget,
     this.onTap,
+    this.pricetype,
   });
 
   @override
@@ -130,13 +132,14 @@ class AppHotelCard extends StatelessWidget {
                               color: const Color(0xFF222222),
                             ),
                           ),
-                          const TextSpan(
-                            text: ' / night',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Color(0xFF888888),
+                          if (pricetype != null && pricetype != null)
+                            TextSpan(
+                              text: "/${pricetype}",
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFF888888),
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ),

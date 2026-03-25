@@ -11,6 +11,7 @@ import 'package:indhostels/pages/notifications/reviews_Screen.dart';
 import 'package:indhostels/routing/app_roter.dart';
 import 'package:indhostels/routing/route_constants.dart';
 import 'package:indhostels/utils/shimmers/details_Screen.dart';
+import 'package:indhostels/utils/widgets/loading_dots.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AcommadationDetailesScreen extends StatefulWidget {
@@ -22,7 +23,6 @@ class AcommadationDetailesScreen extends StatefulWidget {
 }
 
 class _HotelDetailsScreenState extends State<AcommadationDetailesScreen> {
-  bool _isFavorite = false;
   bool _isDescriptionExpanded = false;
   @override
   void initState() {
@@ -190,7 +190,15 @@ class _HotelDetailsScreenState extends State<AcommadationDetailesScreen> {
           return SizedBox();
         },
       ),
-      bottomNavigationBar: _BottomBar(hotel: hotel, r: r),
+      bottomNavigationBar: BlocBuilder<AccommodationBloc, AccommodationState>(
+        builder: (context, state) {
+          return _BottomBar(
+            hotel: state.acommodationdetailes,
+            r: r,
+            state: state,
+          );
+        },
+      ),
     );
   }
 }
@@ -307,67 +315,65 @@ class _HeroImageState extends State<_HeroImage> {
   }
 }
 
-class _TopBar extends StatelessWidget {
-  final R r;
-  final bool isFavorite;
-  final VoidCallback onBack;
-  final VoidCallback onFavorite;
+// class _TopBar extends StatelessWidget {
+//   final R r;
+//   final bool isFavorite;
+//   final VoidCallback onBack;
+//   final VoidCallback onFavorite;
 
-  const _TopBar({
-    required this.r,
-    required this.isFavorite,
-    required this.onBack,
-    required this.onFavorite,
-  });
+//   const _TopBar({
+//     required this.r,
+//     required this.isFavorite,
+//     required this.onBack,
+//     required this.onFavorite,
+//   });
 
-  @override
-  Widget build(BuildContext context) {
-    final topPad = MediaQuery.of(context).padding.top;
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      child: Padding(
-        padding: EdgeInsets.only(
-          top: topPad + 8,
-          bottom: 8,
-          left: r.screenPadH - 8,
-          right: r.screenPadH - 8,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _CircleBtn(
-              icon: Icons.arrow_back_ios_new_rounded,
-              iconSize: r.backIconSize,
-              onTap: onBack,
-            ),
-            Text(
-              'Details',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: r.titleFontSize - 4,
-                fontWeight: FontWeight.w600,
-                shadows: const [Shadow(blurRadius: 6, color: Colors.black45)],
-              ),
-            ),
-            _CircleBtn(
-              icon: isFavorite
-                  ? Icons.favorite_rounded
-                  : Icons.favorite_border_rounded,
-              iconSize: r.backIconSize,
-              iconColor: isFavorite ? Colors.redAccent : Colors.black87,
-              bgColor: Colors.white,
-              onTap: onFavorite,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Hotel header ──────────────────────────────
+//   @override
+//   Widget build(BuildContext context) {
+//     final topPad = MediaQuery.of(context).padding.top;
+//     return Positioned(
+//       top: 0,
+//       left: 0,
+//       right: 0,
+//       child: Padding(
+//         padding: EdgeInsets.only(
+//           top: topPad + 8,
+//           bottom: 8,
+//           left: r.screenPadH - 8,
+//           right: r.screenPadH - 8,
+//         ),
+//         child: Row(
+//           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//           children: [
+//             _CircleBtn(
+//               icon: Icons.arrow_back_ios_new_rounded,
+//               iconSize: r.backIconSize,
+//               onTap: onBack,
+//             ),
+//             Text(
+//               'Details',
+//               style: TextStyle(
+//                 color: Colors.white,
+//                 fontSize: r.titleFontSize - 4,
+//                 fontWeight: FontWeight.w600,
+//                 shadows: const [Shadow(blurRadius: 6, color: Colors.black45)],
+//               ),
+//             ),
+//             _CircleBtn(
+//               icon: isFavorite
+//                   ? Icons.favorite_rounded
+//                   : Icons.favorite_border_rounded,
+//               iconSize: r.backIconSize,
+//               iconColor: isFavorite ? Colors.redAccent : Colors.black87,
+//               bgColor: Colors.white,
+//               onTap: onFavorite,
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 class _HotelHeader extends StatelessWidget {
   final Acommodation? hotel;
@@ -545,6 +551,7 @@ class MapSection extends StatelessWidget {
   final double screenWidth;
 
   const MapSection({
+    super.key,
     required this.address,
     required this.mapUrl,
     required this.r,
@@ -611,7 +618,8 @@ class MapSection extends StatelessWidget {
 class _BottomBar extends StatelessWidget {
   final Acommodation? hotel;
   final R r;
-  const _BottomBar({required this.hotel, required this.r});
+  final AccommodationState state;
+  const _BottomBar({required this.hotel, required this.r, required this.state});
   @override
   Widget build(BuildContext context) {
     final bottomPad = MediaQuery.of(context).padding.bottom;
@@ -634,29 +642,7 @@ class _BottomBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text:
-                      '₹${hotel?.roomId?.first.pricingId?.pricing?.first.price}',
-                  style: TextStyle(
-                    fontSize: r.nameFontSize + 2,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF1A1A2E),
-                  ),
-                ),
-                TextSpan(
-                  text:
-                      '/${hotel?.roomId?.first.pricingId?.pricing?.first.priceType}',
-                  style: TextStyle(
-                    fontSize: r.emailFontSize - 1,
-                    color: Colors.grey[500],
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _priceWidget(hotel, r, state.acommodationdetailesLoading),
           const Spacer(),
           SizedBox(
             child: ElevatedButton(
@@ -666,10 +652,7 @@ class _BottomBar extends StatelessWidget {
                     .toList();
                 context.pushNamed(
                   RouteList.rooms,
-                  extra: RoomsArgs(
-                    rooms: rooms,
-                  acommodation:hotel 
-                  ),
+                  extra: RoomsArgs(rooms: rooms, acommodation: hotel),
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -690,6 +673,38 @@ class _BottomBar extends StatelessWidget {
                 ),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _priceWidget(Acommodation? hotel, R r, bool isLoading) {
+    if (isLoading) {
+      return const AnimatedDots();
+    }
+
+    final price = hotel?.roomId?.first.pricingId?.pricing?.first.price;
+    final priceType = hotel?.roomId?.first.pricingId?.pricing?.first.priceType;
+
+    if (price == null || priceType == null) {
+      return const AnimatedDots();
+    }
+
+    return RichText(
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: '₹$price',
+            style: TextStyle(
+              fontSize: r.nameFontSize + 2,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF1A1A2E),
+            ),
+          ),
+          TextSpan(
+            text: '/$priceType',
+            style: TextStyle(fontSize: r.emailFontSize - 1, color: Colors.grey),
           ),
         ],
       ),
@@ -859,44 +874,44 @@ class _FacilityChip extends StatelessWidget {
 //   }
 // }
 
-class _CircleBtn extends StatelessWidget {
-  final IconData icon;
-  final double iconSize;
-  final Color bgColor;
-  final Color iconColor;
-  final VoidCallback? onTap;
+// class _CircleBtn extends StatelessWidget {
+//   final IconData icon;
+//   final double iconSize;
+//   final Color bgColor;
+//   final Color iconColor;
+//   final VoidCallback? onTap;
 
-  const _CircleBtn({
-    required this.icon,
-    required this.iconSize,
-    this.bgColor = Colors.white,
-    this.iconColor = Colors.black87,
-    this.onTap,
-  });
+//   const _CircleBtn({
+//     required this.icon,
+//     required this.iconSize,
+//     this.bgColor = Colors.white,
+//     this.iconColor = Colors.black87,
+//     this.onTap,
+//   });
 
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: iconSize + 14,
-        height: iconSize + 14,
-        decoration: BoxDecoration(
-          color: bgColor,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.15),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Icon(icon, size: iconSize - 4, color: iconColor),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return GestureDetector(
+//       onTap: onTap,
+//       child: Container(
+//         width: iconSize + 14,
+//         height: iconSize + 14,
+//         decoration: BoxDecoration(
+//           color: bgColor,
+//           shape: BoxShape.circle,
+//           boxShadow: [
+//             BoxShadow(
+//               color: Colors.black.withOpacity(0.15),
+//               blurRadius: 8,
+//               offset: const Offset(0, 2),
+//             ),
+//           ],
+//         ),
+//         child: Icon(icon, size: iconSize - 4, color: iconColor),
+//       ),
+//     );
+//   }
+// }
 
 class _HDivider extends StatelessWidget {
   const _HDivider();

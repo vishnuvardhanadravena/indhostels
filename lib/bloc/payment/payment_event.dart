@@ -116,3 +116,21 @@ class PaymentPricingChanged extends PaymentEvent {
 
   const PaymentPricingChanged(this.pricingType, this.price);
 }
+
+class CheckPaymentStatusEvent extends PaymentEvent {
+  final String orderId;
+  const CheckPaymentStatusEvent(this.orderId);
+}
+
+class GetCouponsRequested extends PaymentEvent {}
+
+class CouponApplied extends PaymentEvent {
+  final String code;
+  const CouponApplied(this.code);
+  @override
+  List<Object?> get props => [code];
+}
+
+class CouponRemoved extends PaymentEvent {
+  const CouponRemoved();
+}

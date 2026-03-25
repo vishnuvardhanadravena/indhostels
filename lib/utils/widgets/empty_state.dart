@@ -623,7 +623,6 @@ class EmptyStateWidget extends StatelessWidget {
     return Expanded(
       child: Center(
         child: Column(
-          
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
@@ -637,7 +636,7 @@ class EmptyStateWidget extends StatelessWidget {
             Text(
               title,
               style: TextStyle(
-                fontSize: isTablet ? 18 : 15,
+                fontSize: isTablet ? 18 : 12,
                 fontWeight: FontWeight.w600,
                 color: const Color(0xFF888888),
               ),

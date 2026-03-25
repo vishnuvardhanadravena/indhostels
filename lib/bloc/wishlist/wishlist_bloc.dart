@@ -14,49 +14,49 @@ class WishlistBloc extends Bloc<WishlistEvent, WishlistState> {
     on<ToggleWishlistEvent>(_toggle);
     on<AddToWishlistEvent>(_add);
     on<RemoveFromWishlistEvent>(_remove);
+
+    on<ResetWishlistEvent>(_reset);
   }
 
-  /// ───────── FETCH ─────────
+  Future<void> _reset(
+    ResetWishlistEvent event,
+    Emitter<WishlistState> emit,
+  ) async {
+    await repository.clearLocalWishlist(); 
+    emit(const WishlistState()); 
+  }
+
   Future<void> _fetch(
     FetchWishlistEvent event,
     Emitter<WishlistState> emit,
   ) async {
-
-    emit(state.copyWith(loading: true, error: null));
+    emit(state.copyWith(loading: true, error: null, items: []));
 
     try {
-
       final localItems = await repository.getLocalWishlist();
 
-      emit(state.copyWith(
-        loading: false,
-        items: localItems,
-      ));
+      emit(state.copyWith(loading: false, items: localItems));
 
       try {
-
         final apiItems = await repository.fetchWishlist();
 
         emit(state.copyWith(items: apiItems));
-
       } catch (_) {}
-
     } catch (e) {
-
-      emit(state.copyWith(
-        loading: false,
-        error: e.toString(),
-      ));
-
+      emit(
+        state.copyWith(
+          loading: false,
+          error: e.toString(),
+          items: [],
+        ),
+      );
     }
   }
 
-  /// ───────── TOGGLE ─────────
   Future<void> _toggle(
     ToggleWishlistEvent event,
     Emitter<WishlistState> emit,
   ) async {
-
     final exists = state.items.any(
       (e) => e.accommodationId == event.accommodationId,
     );
@@ -68,82 +68,68 @@ class WishlistBloc extends Bloc<WishlistEvent, WishlistState> {
     }
   }
 
-  /// ───────── ADD ─────────
   Future<void> _add(
     AddToWishlistEvent event,
     Emitter<WishlistState> emit,
   ) async {
-
-    emit(state.copyWith(
-      pendingId: event.accommodationId,
-      addError: null,
-      addSuccess: false,
-    ));
+    emit(
+      state.copyWith(
+        pendingId: event.accommodationId,
+        addError: null,
+        addSuccess: false,
+      ),
+    );
 
     try {
-
-      final newItem =
-          await repository.addToWishlist(event.accommodationId);
+      final newItem = await repository.addToWishlist(event.accommodationId);
 
       final updated = List<WishlistItem>.from(state.items)
         ..removeWhere((e) => e.accommodationId == event.accommodationId)
         ..add(newItem);
 
-      emit(state.copyWith(
-        items: updated,
-        clearPending: true,
-        addSuccess: true,
-      ));
+      emit(
+        state.copyWith(items: updated, clearPending: true, addSuccess: true),
+      );
 
-      /// reset success
       emit(state.copyWith(addSuccess: false));
-
     } catch (e) {
-
-      emit(state.copyWith(
-        clearPending: true,
-        addError: "Failed to add wishlist",
-      ));
-
+      emit(
+        state.copyWith(clearPending: true, addError: "Failed to add wishlist"),
+      );
     }
   }
 
-  /// ───────── REMOVE ─────────
   Future<void> _remove(
     RemoveFromWishlistEvent event,
     Emitter<WishlistState> emit,
   ) async {
-
-    emit(state.copyWith(
-      pendingId: event.accommodationId,
-      removeError: null,
-      removeSuccess: false,
-    ));
+    emit(
+      state.copyWith(
+        pendingId: event.accommodationId,
+        removeError: null,
+        removeSuccess: false,
+      ),
+    );
 
     try {
-
       await repository.removeFromWishlist(event.accommodationId);
 
       final updated = state.items
           .where((e) => e.accommodationId != event.accommodationId)
           .toList();
 
-      emit(state.copyWith(
-        items: updated,
-        clearPending: true,
-        removeSuccess: true,
-      ));
+      emit(
+        state.copyWith(items: updated, clearPending: true, removeSuccess: true),
+      );
 
-      /// reset success
       emit(state.copyWith(removeSuccess: false));
-
     } catch (e) {
-
-      emit(state.copyWith(
-        clearPending: true,
-        removeError: "Failed to remove wishlist",
-      ));
-
+      emit(
+        state.copyWith(
+          clearPending: true,
+          removeError: "Failed to remove wishlist",
+        ),
+      );
     }
   }
 }

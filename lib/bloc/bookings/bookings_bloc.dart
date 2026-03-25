@@ -31,14 +31,22 @@ class BookingsBloc extends Bloc<BookingsEvent, BookingsState> {
       );
     });
   }
-  Future<void> _fetchBookings(
+
+  Future<void> _fetchCoupons(
     FetchBookings event,
     Emitter<BookingsState> emit,
   ) async {
     if (state.hasReachedMax && event.page != 1) return;
 
     if (event.page == 1) {
-      emit(state.copyWith(bookingsLoading: true, bookingsError: null));
+      emit(
+        state.copyWith(
+          bookingsLoading: true,
+          bookingsError: null,
+          bookings: [],
+          hasReachedMax: false,
+        ),
+      );
     } else {
       emit(state.copyWith(bookingsMoreLoading: true));
     }
@@ -69,6 +77,59 @@ class BookingsBloc extends Bloc<BookingsEvent, BookingsState> {
         state.copyWith(
           bookingsLoading: false,
           bookingsMoreLoading: false,
+          bookings: event.page == 1 ? [] : state.bookings,
+          bookingsError: e.toString(),
+        ),
+      );
+    }
+  }
+
+  Future<void> _fetchBookings(
+    FetchBookings event,
+    Emitter<BookingsState> emit,
+  ) async {
+    if (state.hasReachedMax && event.page != 1) return;
+
+    if (event.page == 1) {
+      emit(
+        state.copyWith(
+          bookingsLoading: true,
+          bookingsError: null,
+          bookings: [],
+          hasReachedMax: false,
+        ),
+      );
+    } else {
+      emit(state.copyWith(bookingsMoreLoading: true));
+    }
+
+    try {
+      final response = await repository.getBookings(
+        page: event.page,
+        limit: event.limit,
+      );
+
+      final bookings = response.data;
+
+      emit(
+        state.copyWith(
+          bookingsLoading: false,
+          bookingsMoreLoading: false,
+          bookings: event.page == 1
+              ? bookings
+              : [...state.bookings, ...bookings],
+          currentPage: event.page,
+          totalPages: response.totalPages,
+          totalOrders: response.totalOrders,
+          hasReachedMax: event.page >= response.totalPages,
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          bookingsLoading: false,
+          bookingsMoreLoading: false,
+          bookings: event.page == 1 ? [] : state.bookings,
           bookingsError: e.toString(),
         ),
       );
@@ -86,6 +147,8 @@ class BookingsBloc extends Bloc<BookingsEvent, BookingsState> {
         state.copyWith(
           bookingsHistoryLoading: true,
           bookingsHistoryError: null,
+          bookingshistory: [],
+          historyhasReachedMax: false,
         ),
       );
     } else {
@@ -118,6 +181,7 @@ class BookingsBloc extends Bloc<BookingsEvent, BookingsState> {
         state.copyWith(
           bookingsHistoryLoading: false,
           bookingshistoryMoreLoading: false,
+          bookingshistory: event.page == 1 ? [] : state.bookingshistory,
           bookingsHistoryError: e.toString(),
         ),
       );
@@ -199,8 +263,9 @@ class BookingsBloc extends Bloc<BookingsEvent, BookingsState> {
 
     try {
       final res = await repository.cancelBooking(id: event.bookingId);
-
-      if (res.success) {
+      final isRealSuccess =
+          res.success && res.message.toLowerCase().contains('success');
+      if (isRealSuccess) {
         final updatedBookings = state.bookings
             .where((b) => b.bookingId != event.bookingId)
             .toList();

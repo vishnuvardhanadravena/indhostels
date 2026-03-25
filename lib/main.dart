@@ -92,6 +92,7 @@ void main() async {
   //   DeviceOrientation.portraitUp,
   // ]);
   await setup();
+  
   AppLogger.enableLogs = true;
   runApp(
     MultiBlocProvider(

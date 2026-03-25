@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:indhostels/bloc/Serach/search_bloc.dart';
 import 'package:indhostels/data/models/accomodation/accomodation_details_res.dart';
+import 'package:indhostels/data/models/bookings/coupons.dart';
 import 'package:indhostels/pages/category/category_screen.dart';
 import 'package:indhostels/routing/route_constants.dart';
 import 'package:intl/intl.dart';
@@ -36,6 +37,8 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
   final _emailCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   late List<Map<String, dynamic>> pricingOptions;
+  final _couponCtrl = TextEditingController();
+  String? _appliedCoupon;
   // @override
   // void initState() {
   //   super.initState();
@@ -83,7 +86,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
     final bool taxEnabled = widget.accommodation.tax ?? false;
     final double taxAmount = (widget.accommodation.taxAmount ?? 0).toDouble();
     // final double taxPercentage =
-    //     (widget.accommodation.taxPercentage ?? 0).toDouble(); // if available
+    //     (widget.accommodation.taxPercentage ?? 0).toDouble();
     context.read<PaymentBloc>().add(
       PaymentInitialized(
         pricePerNight: defaultPricing?["price"] ?? 0,
@@ -100,13 +103,42 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
         maxAdults: widget.room.bedsAvailable,
       ),
     );
+    context.read<PaymentBloc>().add(GetCouponsRequested());
   }
+
+  final List<Map<String, dynamic>> _availableCoupons = [
+    {
+      'code': 'STAY10',
+      'title': '10% Off',
+      'description': 'Get 10% off on your first booking',
+      'discount': '10%',
+      'expiry': 'Dec 31, 2025',
+      'type': 'percent',
+    },
+    {
+      'code': 'FLAT200',
+      'title': '₹200 Flat Off',
+      'description': 'Flat ₹200 off on bookings above ₹1000',
+      'discount': '₹200',
+      'expiry': 'Nov 30, 2025',
+      'type': 'flat',
+    },
+    {
+      'code': 'WELCOME50',
+      'title': '50% Welcome Offer',
+      'description': 'Welcome discount for new users only',
+      'discount': '50%',
+      'expiry': 'Oct 15, 2025',
+      'type': 'percent',
+    },
+  ];
 
   @override
   void dispose() {
     _nameCtrl.dispose();
     _emailCtrl.dispose();
     _phoneCtrl.dispose();
+    _couponCtrl.dispose();
     super.dispose();
   }
 
@@ -120,10 +152,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
         ? DateTime(checkIn.year, checkIn.month + 1, checkIn.day)
         : (ps.checkOutDate ?? today.add(const Duration(days: 1)));
 
-    final initial = DateTimeRange(
-      start: checkIn,
-      end: checkOut,
-    );
+    final initial = DateTimeRange(start: checkIn, end: checkOut);
 
     final result = await showModalBottomSheet<DateTimeRange>(
       context: ctx,
@@ -151,6 +180,30 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
         UpdateSearchParams(checkInDate: newCheckIn, checkOutDate: newCheckOut),
       );
     }
+  }
+
+  void _applyCoupon(BuildContext context) {
+    final code = _couponCtrl.text.trim().toUpperCase();
+    if (code.isEmpty) return;
+    context.read<PaymentBloc>().add(CouponApplied(code));
+  }
+
+  void _openCouponBrowser(BuildContext context) {
+    final ps = context.read<PaymentBloc>().state;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => BlocProvider.value(
+        value: context.read<PaymentBloc>(),
+        child: _CouponBrowserSheet(
+          onSelect: (code) {
+            setState(() => _couponCtrl.text = code);
+            Navigator.pop(context);
+          },
+        ),
+      ),
+    );
   }
 
   @override
@@ -248,17 +301,42 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                         ),
                         const Divider(color: Color(0xFFF0F0F0)),
                         _PricingDropdown(ps: ps, options: pricingOptions),
-                        // _GuestCounter(
-                        //   label: 'Children',
-                        //   count: ps.children,
-                        //   onDecrement: () => ctx.read<PaymentBloc>().add(
-                        //     const PaymentChildrenChanged(-1),
-                        //   ),
-                        //   onIncrement: () => ctx.read<PaymentBloc>().add(
-                        //     const PaymentChildrenChanged(1),
-                        //   ),
-                        // ),
-                        const SizedBox(height: 24),
+                        _SectionTitle(
+                          title: 'Apply Coupon',
+                          trailing: TextButton.icon(
+                            onPressed: () => _openCouponBrowser(ctx),
+                            icon: const Icon(
+                              Icons.local_offer_outlined,
+                              size: 15,
+                              color: Color(0xFF5B4FCF),
+                            ),
+                            label: const Text(
+                              "Browse available coupons",
+                              style: TextStyle(
+                                color: Color(0xFF5B4FCF),
+                                fontSize: 13,
+                              ),
+                            ),
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _CouponInputRow(
+                          controller: _couponCtrl,
+                          appliedCoupon: ps.appliedCouponCode,
+                          onApply: () => _applyCoupon(ctx),
+                          onRemove: () {
+                            setState(() => _couponCtrl.clear());
+                            ctx.read<PaymentBloc>().add(const CouponRemoved());
+                          },
+                        ),
+                        if (ps.couponsError != null) ...[
+                          const SizedBox(height: 6),
+                          _ErrorText(ps.couponsError!),
+                        ],
+                        const SizedBox(height: 16),
 
                         const _SectionTitle(title: 'Payment Details'),
                         const SizedBox(height: 12),
@@ -303,6 +381,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                 _CheckoutButton(
                   isLoading:
                       ps.status == PaymentStatus.creatingOrder ||
+                      ps.status == PaymentStatus.openingGateway ||
                       ps.status == PaymentStatus.verifying,
                   enabled:
                       ps.canCheckout &&
@@ -310,11 +389,9 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                       ps.status != PaymentStatus.verifying,
                   onTap: () {
                     final bloc = ctx.read<PaymentBloc>();
-
                     bloc.add(PaymentFullNameChanged(_nameCtrl.text));
                     bloc.add(PaymentEmailChanged(_emailCtrl.text));
                     bloc.add(PaymentPhoneChanged(_phoneCtrl.text));
-
                     bloc.add(
                       PaymentCheckoutRequested(
                         propertyId:
@@ -333,6 +410,395 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
   }
 }
 
+class _CouponInputRow extends StatelessWidget {
+  final TextEditingController controller;
+  final String? appliedCoupon;
+  final VoidCallback onApply;
+  final VoidCallback onRemove;
+
+  const _CouponInputRow({
+    required this.controller,
+    required this.appliedCoupon,
+    required this.onApply,
+    required this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isApplied = appliedCoupon != null;
+
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: controller,
+            readOnly: isApplied,
+            textCapitalization: TextCapitalization.characters,
+            style: TextStyle(
+              fontSize: 13,
+              color: isApplied
+                  ? const Color(0xFF5B4FCF)
+                  : const Color(0xFF1A1A1A),
+              fontWeight: isApplied ? FontWeight.w600 : FontWeight.w400,
+              letterSpacing: isApplied ? 1.2 : 0,
+            ),
+            decoration: InputDecoration(
+              hintText: 'Enter coupon code',
+              hintStyle: const TextStyle(
+                fontSize: 13,
+                color: Color(0xFFAAAAAA),
+              ),
+              prefixIcon: Icon(
+                isApplied
+                    ? Icons.check_circle_outline_rounded
+                    : Icons.confirmation_number_outlined,
+                size: 18,
+                color: isApplied
+                    ? const Color(0xFF2DB89A)
+                    : const Color(0xFF9CA3AF),
+              ),
+              suffixIcon: isApplied
+                  ? IconButton(
+                      icon: const Icon(
+                        Icons.close_rounded,
+                        size: 18,
+                        color: Color(0xFFAAAAAA),
+                      ),
+                      onPressed: onRemove,
+                    )
+                  : null,
+              filled: true,
+              fillColor: isApplied
+                  ? const Color(0xFFF0FDF9)
+                  : const Color(0xFFFAFAFA),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 13,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: isApplied
+                      ? const Color(0xFF2DB89A)
+                      : const Color(0xFFE5E7EB),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(
+                  color: Color(0xFF5B4FCF),
+                  width: 1.5,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        GestureDetector(
+          onTap: isApplied ? onRemove : onApply,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            decoration: BoxDecoration(
+              color: isApplied
+                  ? const Color(0xFFFFEEEE)
+                  : const Color(0xFF5B4FCF),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              isApplied ? 'Remove' : 'Apply',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isApplied ? Colors.redAccent : Colors.white,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CouponBrowserSheet extends StatelessWidget {
+  final ValueChanged<String> onSelect;
+
+  const _CouponBrowserSheet({required this.onSelect});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<PaymentBloc, PaymentState>(
+      builder: (context, ps) {
+        return Container(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE0E0E0),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEDE9FE),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        Icons.local_offer_rounded,
+                        size: 18,
+                        color: Color(0xFF5B4FCF),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    const Text(
+                      'Available Coupons',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1A1A1A),
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.close_rounded,
+                        color: Color(0xFF888888),
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(color: Color(0xFFF0F0F0)),
+
+              if (ps.couponsLoading)
+                const Padding(
+                  padding: EdgeInsets.all(40),
+                  child: CircularProgressIndicator(color: Color(0xFF5B4FCF)),
+                )
+              else if (ps.coupons.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(40),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.discount_outlined,
+                        size: 48,
+                        color: Color(0xFFCCCCCC),
+                      ),
+                      SizedBox(height: 12),
+                      Text(
+                        'No coupons available',
+                        style: TextStyle(color: Color(0xFF888888)),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.55,
+                  ),
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    shrinkWrap: true,
+                    itemCount: ps.coupons.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (_, i) => _CouponCard(
+                      coupon: ps.coupons[i],
+                      isApplied:
+                          ps.appliedCouponCode == ps.coupons[i].couponCode,
+                      onTap: () => onSelect(ps.coupons[i].couponCode ?? ''),
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 12),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _CouponCard extends StatelessWidget {
+  final Coupons coupon;
+  final bool isApplied;
+  final VoidCallback onTap;
+
+  const _CouponCard({
+    required this.coupon,
+    required this.isApplied,
+    required this.onTap,
+  });
+
+  String get _discountLabel {
+    if (coupon.discounttype?.toLowerCase() == 'percentage') {
+      return '${coupon.discountpercentage ?? 0}% OFF';
+    }
+    return '₹${coupon.discountamount ?? 0} OFF';
+  }
+
+  String get _expiryLabel {
+    if (coupon.expireDate == null) return 'No expiry';
+    final date = DateTime.tryParse(coupon.expireDate!);
+    if (date == null) return coupon.expireDate!;
+    return 'Expires: ${DateFormat('MMM dd, yyyy').format(date)}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: isApplied ? null : onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isApplied ? const Color(0xFFF4F4FB) : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isApplied
+                ? const Color(0xFF5B4FCF)
+                : const Color(0xFFE0DFF5),
+            width: isApplied ? 1.5 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: isApplied
+                    ? const Color(0xFF5B4FCF)
+                    : const Color(0xFFEDE9FE),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.discount_rounded,
+                    size: 20,
+                    color: isApplied ? Colors.white : const Color(0xFF5B4FCF),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _discountLabel,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: isApplied ? Colors.white : const Color(0xFF5B4FCF),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 14),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        coupon.couponCode ?? '',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF1A1A1A),
+                        ),
+                      ),
+                      if (isApplied) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2DB89A),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text(
+                            'Applied',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  if (coupon.minimumamount != null && coupon.minimumamount! > 0)
+                    Text(
+                      'Min. order ₹${coupon.minimumamount}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF6B7280),
+                      ),
+                    ),
+                  const SizedBox(height: 6),
+                  Text(
+                    _expiryLabel,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFFAAAAAA),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Icon(
+              isApplied
+                  ? Icons.check_circle_rounded
+                  : Icons.arrow_forward_ios_rounded,
+              size: isApplied ? 20 : 14,
+              color: isApplied
+                  ? const Color(0xFF2DB89A)
+                  : const Color(0xFFCCCCCC),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _SectionTitle extends StatelessWidget {
   final String title;
   final Widget? trailing;
@@ -341,6 +807,7 @@ class _SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           title,
@@ -498,7 +965,7 @@ class _DateCard extends StatelessWidget {
 class _GuestCounter extends StatelessWidget {
   final String label;
   final int count;
-  final int max; // 🔥 NEW
+  final int max; 
   final VoidCallback onDecrement;
   final VoidCallback onIncrement;
 
@@ -530,7 +997,6 @@ class _GuestCounter extends StatelessWidget {
             ),
           ),
 
-          // 🔽 DECREMENT
           _CounterBtn(
             icon: Icons.remove,
             onTap: canDecrement ? onDecrement : null,
@@ -551,7 +1017,6 @@ class _GuestCounter extends StatelessWidget {
             ),
           ),
 
-          // 🔼 INCREMENT
           _CounterBtn(
             icon: Icons.add,
             onTap: canIncrement ? onIncrement : null,
@@ -586,7 +1051,7 @@ class _CounterBtn extends StatelessWidget {
         height: 32,
         decoration: BoxDecoration(
           color: disabled
-              ? const Color(0xFFE5E7EB) // 🔥 disabled color
+              ? const Color(0xFFE5E7EB) 
               : filled
               ? const Color(0xFF5B4FCF)
               : const Color(0xFFF4F4FB),
@@ -648,12 +1113,21 @@ class _PaymentDetails extends StatelessWidget {
           // _PriceRow(label: "Cleaning Fee", amount: ps.cleaningFee),
           // const SizedBox(height: 8),
           // _PriceRow(label: "Service Fee", amount: ps.serviceFee),
+          // In _PaymentDetails build(), after tax row:
+          if (ps.discountAmount > 0)
+            _PriceRow(
+              label: 'Coupon (${ps.appliedCouponCode})',
+              amount: -ps.discountAmount, // negative shows as deduction
+              isDiscount: true,
+            ),
           const SizedBox(height: 8),
           if (ps.taxEnabled)
             _PriceRow(
-              label: ps.taxAmount > 0
-                  ? "Tax (${ps.taxAmount.toStringAsFixed(0)}%)"
-                  : "Tax",
+              label:
+                  // ps.taxAmount > 0
+                  //     ? "Tax (${ps.taxAmount.toStringAsFixed(0)}%)"
+                  //     :
+                  "Tax",
               amount: ps.taxTotal,
             ),
           const SizedBox(height: 12),
@@ -689,7 +1163,12 @@ class _PaymentDetails extends StatelessWidget {
 class _PriceRow extends StatelessWidget {
   final String label;
   final double amount;
-  const _PriceRow({required this.label, required this.amount});
+  final bool isDiscount;
+  const _PriceRow({
+    required this.label,
+    required this.amount,
+    this.isDiscount = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -701,10 +1180,14 @@ class _PriceRow extends StatelessWidget {
         ),
         const Spacer(),
         Text(
-          '₹${amount.toStringAsFixed(0)}',
-          style: const TextStyle(
+          isDiscount
+              ? '- ₹${amount.abs().toStringAsFixed(0)}'
+              : '₹${amount.toStringAsFixed(0)}',
+          style: TextStyle(
             fontSize: 13,
-            color: Color(0xFF1A1A1A),
+            color: isDiscount
+                ? const Color(0xFF2DB89A)
+                : const Color(0xFF1A1A1A),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -736,6 +1219,7 @@ class _GuestInfoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width > 600;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
@@ -784,69 +1268,118 @@ class _GuestInfoSection extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          // Row 1: Full Name + Gender
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: _FormField(
-                  label: 'Full Name',
-                  required: true,
-                  controller: nameCtrl,
-                  hint: 'Enter your full name',
-                  prefixIcon: Icons.person_outline_rounded,
-                  error: ps.fullNameError,
-                  onChanged: onNameChanged,
-                  inputType: TextInputType.name,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: _GenderField(
-                  selected: ps.gender,
-                  onChanged: onGenderChanged,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          // Row 2: Email + Phone
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: _FormField(
-                  label: 'Email Address',
-                  required: true,
-                  controller: emailCtrl,
-                  hint: 'your@email.com',
-                  prefixIcon: Icons.mail_outline_rounded,
-                  error: ps.emailError,
-                  onChanged: onEmailChanged,
-                  inputType: TextInputType.emailAddress,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: _FormField(
-                  label: 'Phone Number',
-                  required: true,
-                  controller: phoneCtrl,
-                  hint: 'your mobile number',
-                  prefixIcon: Icons.phone_outlined,
-                  error: ps.phoneError,
-                  onChanged: onPhoneChanged,
-                  inputType: TextInputType.phone,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(10),
+          isTablet
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: _FormField(
+                        label: 'Full Name',
+                        required: true,
+                        controller: nameCtrl,
+                        hint: 'Enter your full name',
+                        prefixIcon: Icons.person_outline_rounded,
+                        error: ps.fullNameError,
+                        onChanged: onNameChanged,
+                        inputType: TextInputType.name,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: _GenderField(
+                        selected: ps.gender,
+                        onChanged: onGenderChanged,
+                      ),
+                    ),
+                  ],
+                )
+              : Column(
+                  children: [
+                    _FormField(
+                      label: 'Full Name',
+                      required: true,
+                      controller: nameCtrl,
+                      hint: 'Enter your full name',
+                      prefixIcon: Icons.person_outline_rounded,
+                      error: ps.fullNameError,
+                      onChanged: onNameChanged,
+                      inputType: TextInputType.name,
+                    ),
+                    const SizedBox(height: 16),
+                    _FormField(
+                      label: 'Email Address',
+                      required: true,
+                      controller: emailCtrl,
+                      hint: 'your@email.com',
+                      prefixIcon: Icons.mail_outline_rounded,
+                      error: ps.emailError,
+                      onChanged: onEmailChanged,
+                      inputType: TextInputType.emailAddress,
+                    ),
                   ],
                 ),
-              ),
-            ],
-          ),
+
+          // Row 2: Email + Phone
+          const SizedBox(height: 16),
+
+          isTablet
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: _FormField(
+                        label: 'Email Address',
+                        required: true,
+                        controller: emailCtrl,
+                        hint: 'your@email.com',
+                        prefixIcon: Icons.mail_outline_rounded,
+                        error: ps.emailError,
+                        onChanged: onEmailChanged,
+                        inputType: TextInputType.emailAddress,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: _FormField(
+                        label: 'Phone Number',
+                        required: true,
+                        controller: phoneCtrl,
+                        hint: 'your mobile number',
+                        prefixIcon: Icons.phone_outlined,
+                        error: ps.phoneError,
+                        onChanged: onPhoneChanged,
+                        inputType: TextInputType.phone,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(10),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+              : Column(
+                  children: [
+                    _FormField(
+                      label: 'Phone Number',
+                      required: true,
+                      controller: phoneCtrl,
+                      hint: 'your mobile number',
+                      prefixIcon: Icons.phone_outlined,
+                      error: ps.phoneError,
+                      onChanged: onPhoneChanged,
+                      inputType: TextInputType.phone,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(10),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _GenderField(
+                      selected: ps.gender,
+                      onChanged: onGenderChanged,
+                    ),
+                  ],
+                ),
         ],
       ),
     );
@@ -972,7 +1505,8 @@ class _GenderField extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Column(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: options.map((opt) {
             final isSelected = selected == opt;
             return GestureDetector(
@@ -1069,8 +1603,11 @@ class _TermsSection extends StatelessWidget {
           const SizedBox(height: 14),
           _TermsPoint(label: 'Cancellation Policy:', value: cancellation),
           const SizedBox(height: 8),
-          const _TermsPoint(label: 'Tax:', value: 'No tax'),
-          const SizedBox(height: 8),
+
+          _TermsPoint(
+            label: 'Tax:',
+            value: "${ps.taxEnabled ? ps.taxAmount : 'No tax'}",
+          ),
           _TermsPoint(
             label: 'Verified:',
             value: ps.isVerified ? '✓ Property is verified' : '✗ Not verified',
@@ -1078,8 +1615,6 @@ class _TermsSection extends StatelessWidget {
           const SizedBox(height: 8),
           _TermsPoint(label: 'Check-in Time:', value: checkInTime),
           const SizedBox(height: 16),
-
-          // Checkbox row
           GestureDetector(
             onTap: onToggle,
             child: Row(

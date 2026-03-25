@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:indhostels/data/models/bookings/coupons.dart';
 import 'package:indhostels/data/repo/bookings_repo.dart';
 import 'package:indhostels/services/payment/razorpay_gateway.dart';
 
@@ -31,6 +32,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<PaymentCheckoutRequested>(_onCheckoutRequested);
     on<PaymentVerifyRequested>(_onVerifyPayment);
     on<PaymentFailed>(_onPaymentFailed);
+    // In constructor, register:
+    on<GetCouponsRequested>(_onGetCoupons);
+    on<CouponApplied>(_onCouponApplied);
+    on<CouponRemoved>(_onCouponRemoved);
     on<PaymentReset>((event, emit) {
       emit(state.copyWith(status: PaymentStatus.initial, errorMessage: null));
     });
@@ -66,6 +71,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         serviceFee: _serviceFee,
         pricingType: e.pricingType,
         maxAdults: e.maxAdults,
+        taxAmount: e.taxAmount,
+        taxEnabled: e.taxEnabled,
       ),
     );
   }
@@ -139,8 +146,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       },
       "paymentmode": "online",
       "bookingamount": state.grandTotal.toInt(),
-      "couponCode": "",
-      "discountamount": 0,
+      "couponCode": state.appliedCouponCode ?? "",
+      "discountamount": state.discountAmount.toInt(),
     };
   }
 
@@ -207,6 +214,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     Emitter<PaymentState> emit,
   ) async {
     try {
+      emit(state.copyWith(status: PaymentStatus.verifying));
       final body = {
         "razorpay_order_id": e.orderId,
         "razorpay_payment_id": e.paymentId,
@@ -256,6 +264,86 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   void _onPaymentFailed(PaymentFailed e, Emitter<PaymentState> emit) {
     emit(
       state.copyWith(status: PaymentStatus.failure, errorMessage: e.message),
+    );
+  }
+  // Add these handler methods:
+
+  Future<void> _onGetCoupons(
+    GetCouponsRequested e,
+    Emitter<PaymentState> emit,
+  ) async {
+    emit(state.copyWith(couponsLoading: true, clearCouponsError: true));
+    try {
+      final res = await bookingsRepository.getCoupons();
+      emit(state.copyWith(coupons: res.data ?? [], couponsLoading: false));
+    } catch (e) {
+      emit(state.copyWith(couponsLoading: false, couponsError: e.toString()));
+    }
+  }
+
+  void _onCouponApplied(CouponApplied e, Emitter<PaymentState> emit) {
+    final coupon = state.coupons.firstWhere(
+      (c) => c.couponCode == e.code,
+      orElse: () => Coupons(),
+    );
+
+    if (coupon.couponCode == null) {
+      emit(state.copyWith(couponsError: 'Invalid coupon code'));
+      return;
+    }
+
+    if (coupon.status?.toLowerCase() != 'active') {
+      emit(state.copyWith(couponsError: 'This coupon is no longer active'));
+      return;
+    }
+
+    // Check expiry
+    if (coupon.expireDate != null) {
+      final expiry = DateTime.tryParse(coupon.expireDate!);
+      if (expiry != null && DateTime.now().isAfter(expiry)) {
+        emit(state.copyWith(couponsError: 'This coupon has expired'));
+        return;
+      }
+    }
+
+    // Check minimum amount
+    if (coupon.minimumamount != null &&
+        state.grandTotal < coupon.minimumamount!) {
+      emit(
+        state.copyWith(
+          couponsError:
+              'Minimum order amount ₹${coupon.minimumamount} required',
+        ),
+      );
+      return;
+    }
+
+    double discount = 0;
+    if (coupon.discounttype?.toLowerCase() == 'percentage') {
+      discount = (state.roomTotal * (coupon.discountpercentage ?? 0)) / 100;
+    } else {
+      discount = (coupon.discountamount ?? 0).toDouble();
+    }
+
+    // Cap discount to grand total
+    discount = discount.clamp(0, state.grandTotal);
+
+    emit(
+      state.copyWith(
+        appliedCouponCode: coupon.couponCode,
+        discountAmount: discount,
+        clearCouponsError: true,
+      ),
+    );
+  }
+
+  void _onCouponRemoved(CouponRemoved e, Emitter<PaymentState> emit) {
+    emit(
+      state.copyWith(
+        clearAppliedCoupon: true,
+        discountAmount: 0,
+        clearCouponsError: true,
+      ),
     );
   }
 

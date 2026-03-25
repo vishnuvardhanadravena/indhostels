@@ -115,3 +115,4 @@ class LocationItemSelected extends SearchEvent {
 class LocationSearchCleared extends SearchEvent {
   const LocationSearchCleared();
 }
+class ResetSearchEvent extends SearchEvent {}

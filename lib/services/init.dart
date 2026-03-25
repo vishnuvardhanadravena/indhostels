@@ -96,4 +96,5 @@ Future<void> setup() async {
     () => NotificationBloc(sl<NotificationRepository>()),
   );
   sl.registerFactory<SupportBloc>(() => SupportBloc(sl<ReviewRepository>()));
+  sl<RazorpayService>();
 }

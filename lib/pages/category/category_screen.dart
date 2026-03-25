@@ -120,12 +120,12 @@ class _HotelsScreenState extends State<HotelsScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    // final screenHeight = MediaQuery.of(context).size.height;
 
-    final listHeight = screenWidth > 600
-        ? screenHeight * 0.3
-        : screenHeight * 0.4;
-    final cardWidth = screenWidth > 600 ? screenWidth * 0.2 : screenWidth * 0.6;
+    // final listHeight = screenWidth > 600
+    //     ? screenHeight * 0.3
+    //     : screenHeight * 0.4;
+    // final cardWidth = screenWidth > 600 ? screenWidth * 0.2 : screenWidth * 0.6;
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
         final now = DateTime.now();

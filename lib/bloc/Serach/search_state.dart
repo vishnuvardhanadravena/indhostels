@@ -1,6 +1,5 @@
 part of 'search_bloc.dart';
 
-
 enum SuggestionType { city, area, stayType, roomType, amenity }
 
 class Suggestion extends Equatable {
@@ -21,7 +20,6 @@ class PopularCity extends Equatable {
   List<Object?> get props => [city, hotelCount];
 }
 
-
 class SearchState extends Equatable {
   final String? city;
   final DateTime? checkInDate;
@@ -41,7 +39,7 @@ class SearchState extends Equatable {
 
   final SerachByCatRes? searchResponse;
   final GlobalSearchResponse? globalResponse;
-  final Searches? recentSearch;
+  final List<String>? recentSearch;
   final List<Accommodationdata>? recentlyViewed;
 
   final bool locationLoading;
@@ -109,7 +107,7 @@ class SearchState extends Equatable {
     String? viewedError,
     SerachByCatRes? searchResponse,
     GlobalSearchResponse? globalResponse,
-    Searches? recentSearch,
+    List<String>? recentSearch,
     List<Accommodationdata>? recentlyViewed,
     bool? locationLoading,
     String? locationError,
@@ -118,7 +116,6 @@ class SearchState extends Equatable {
     List<PopularCity>? popularCities,
     bool? locationSearchActive,
     String? stayType,
-    
   }) {
     return SearchState(
       city: city ?? this.city,
@@ -151,29 +148,29 @@ class SearchState extends Equatable {
 
   @override
   List<Object?> get props => [
-        city,
-        checkInDate,
-        checkOutDate,
-        guestCount,
-        searchLoading,
-        searchMoreLoading,
-        globalLoading,
-        recentLoading,
-        viewedLoading,
-        searchError,
-        globalError,
-        recentError,
-        viewedError,
-        searchResponse,
-        globalResponse,
-        recentSearch,
-        recentlyViewed,
-        locationLoading,
-        locationError,
-        locationSuggestions,
-        locationRecentSearches,
-        popularCities,
-        locationSearchActive,
-        stayType,
-      ];
+    city,
+    checkInDate,
+    checkOutDate,
+    guestCount,
+    searchLoading,
+    searchMoreLoading,
+    globalLoading,
+    recentLoading,
+    viewedLoading,
+    searchError,
+    globalError,
+    recentError,
+    viewedError,
+    searchResponse,
+    globalResponse,
+    recentSearch,
+    recentlyViewed,
+    locationLoading,
+    locationError,
+    locationSuggestions,
+    locationRecentSearches,
+    popularCities,
+    locationSearchActive,
+    stayType,
+  ];
 }

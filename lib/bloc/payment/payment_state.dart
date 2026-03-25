@@ -7,6 +7,7 @@ enum PaymentStatus {
   verifying,
   success,
   failure,
+  pending,
 }
 
 class PaymentState extends Equatable {
@@ -44,6 +45,11 @@ class PaymentState extends Equatable {
   final double taxAmount;
   final double taxPercentage;
   final int maxAdults;
+  final List<Coupons> coupons;
+  final bool couponsLoading;
+  final String? couponsError;
+  final String? appliedCouponCode;
+  final double discountAmount;
   const PaymentState({
     this.stayType = 'hostel',
     this.cancellationPolicy,
@@ -72,6 +78,11 @@ class PaymentState extends Equatable {
     this.taxAmount = 0,
     this.taxPercentage = 0,
     this.maxAdults = 1,
+    this.coupons = const [],
+    this.couponsLoading = false,
+    this.couponsError,
+    this.appliedCouponCode,
+    this.discountAmount = 0,
   });
 
   String get normalizedPricing => pricingType.toLowerCase().trim();
@@ -117,7 +128,11 @@ class PaymentState extends Equatable {
     return taxAmount;
   }
 
-  double get grandTotal => subtotal + taxTotal;
+  double get grandTotal =>
+      (roomTotal + (taxEnabled ? taxTotal : 0) - discountAmount).clamp(
+        0,
+        double.infinity,
+      );
 
   bool get canCheckout =>
       checkInDate != null &&
@@ -167,6 +182,13 @@ class PaymentState extends Equatable {
     double? taxAmount,
     double? taxPercentage,
     int? maxAdults,
+    List<Coupons>? coupons,
+    bool? couponsLoading,
+    String? couponsError,
+    bool clearCouponsError = false,
+    String? appliedCouponCode,
+    bool clearAppliedCoupon = false,
+    double? discountAmount,
   }) {
     return PaymentState(
       stayType: stayType ?? this.stayType,
@@ -201,6 +223,15 @@ class PaymentState extends Equatable {
       taxAmount: taxAmount ?? this.taxAmount,
       taxPercentage: taxPercentage ?? this.taxPercentage,
       maxAdults: maxAdults ?? this.maxAdults,
+      coupons: coupons ?? this.coupons,
+      couponsLoading: couponsLoading ?? this.couponsLoading,
+      couponsError: clearCouponsError
+          ? null
+          : couponsError ?? this.couponsError,
+      appliedCouponCode: clearAppliedCoupon
+          ? null
+          : appliedCouponCode ?? this.appliedCouponCode,
+      discountAmount: discountAmount ?? this.discountAmount,
     );
   }
 
@@ -232,5 +263,10 @@ class PaymentState extends Equatable {
     taxEnabled,
     taxAmount,
     taxPercentage,
+    coupons,
+    couponsLoading,
+    couponsError,
+    appliedCouponCode,
+    discountAmount,
   ];
 }

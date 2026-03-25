@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:indhostels/data/models/bookings/booking_details_res.dart';
 import 'package:indhostels/data/models/bookings/booking_res.dart';
+import 'package:indhostels/data/models/bookings/coupons.dart';
 import 'package:indhostels/services/apiservice/api_client.dart';
 import 'package:indhostels/utils/constants/api_constants.dart';
 
@@ -16,7 +17,18 @@ class BookingsRepository {
       query: {"page": page, "limit": limit, "status": true},
     );
 
-    return BookingsResponse.fromJson(response.data);
+    final data = response.data;
+
+    if (data["success"] != true) {
+      return BookingsResponse(
+        success: false,
+        data: [],
+        totalPages: 1,
+        totalOrders: 0,
+      );
+    }
+
+    return BookingsResponse.fromJson(data);
   }
 
   Future<BookingsResponse> getBookingsHistory({
@@ -33,8 +45,16 @@ class BookingsRepository {
 
   Future<BookingDetailResponse> getBookingDetalies({required String id}) async {
     final response = await api.get(ApiConstants.bookingDetails(id));
-
     return BookingDetailResponse.fromJson(response.data);
+  }
+
+  Future<GetCouponsResponce> getCoupons() async {
+    final response = await api.get(ApiConstants.getCoupons);
+    final data = response.data;
+    if (data["success"] != true) {
+      return GetCouponsResponce(success: false, data: []);
+    }
+    return GetCouponsResponce.fromJson(data);
   }
 
   Future<Map<String, dynamic>> createBooking({

@@ -12,19 +12,24 @@ class RazorpayService {
   RazorpayService() {
     _init();
   }
-
+  bool _isInitialized = false;
   // ───────────────── INIT ─────────────────
   void _init() {
+    if (_isInitialized) return; 
+
     _razorpay = Razorpay();
+
+    _razorpay.clear(); 
 
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handleSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handleError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
 
-    _logBlue("Razorpay initialized");
+    _isInitialized = true;
+
+    _logBlue("Razorpay initialized ONCE");
   }
 
-  // ───────────────── OPEN CHECKOUT ─────────────────
   void openCheckout({
     required String orderId,
     required int amount,
@@ -59,14 +64,14 @@ class RazorpayService {
 
     final options = {
       'key': "rzp_test_P7eTEWTbR1y2Sm",
-      'amount': amount, // ⚠️ DO NOT multiply
+      'amount': amount,
       'order_id': orderId,
       'name': "IndHostels",
       'description': "Room Booking",
       'prefill': {'contact': cleanContact, 'email': email},
       // 'retry': {'enabled': true, 'max_count': 1},
       'external': {
-        'wallets': ['paytm'], 
+        'wallets': ['paytm'],
       },
       'theme': {'color': '#5B4BCC'},
     };

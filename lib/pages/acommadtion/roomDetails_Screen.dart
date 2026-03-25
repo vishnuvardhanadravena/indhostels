@@ -123,10 +123,6 @@ class RoomDetailScreen extends StatelessWidget {
                       RouteList.bookingSummary,
                       extra: {
                         "room": room,
-                        // "stayType": "pgs",
-                        // "pricePerNight": double.tryParse(room.priceAmount) ?? 0,
-                        // "cancellationPolicy": cancellationPolicy,
-                        // "checkInTime": checkInTime,
                         "accommodation":acommodation
                       },
                     );

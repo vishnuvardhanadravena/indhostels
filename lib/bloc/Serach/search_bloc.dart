@@ -41,6 +41,30 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<LocationSearchChanged>(_onLocationSearchChanged);
     on<LocationItemSelected>(_onLocationItemSelected);
     on<LocationSearchCleared>(_onLocationSearchCleared);
+    on<ResetSearchEvent>(_onResetSearch);
+  }
+
+  Future<void> _onResetSearch(
+    ResetSearchEvent event,
+    Emitter<SearchState> emit,
+  ) async {
+    hotels.clear();
+    globalHotels.clear();
+
+    currentPage = 1;
+    hasMore = true;
+    isFetching = false;
+
+    globalCurrentPage = 1;
+    globalHasMore = true;
+    globalIsFetching = false;
+
+    _locationItems = [];
+    _stayTypes = [];
+    _roomTypes = [];
+    _amenities = [];
+
+    emit(SearchState.initial());
   }
 
   void _onUpdateSearchParams(
@@ -213,11 +237,17 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     try {
       final response = await repository.loadRecentSerches();
       if (response.success == true && response.statuscode == 200) {
-        emit(state.copyWith(recentLoading: false, recentSearch: response.data));
+        emit(
+          state.copyWith(
+            recentLoading: false,
+            recentSearch: response.data?.searchtext??[],
+          ),
+        );
       } else {
         emit(
           state.copyWith(
             recentLoading: false,
+            recentSearch: [],
             recentError: response.message ?? 'Failed to load searches',
           ),
         );
@@ -237,22 +267,27 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     Emitter<SearchState> emit,
   ) async {
     emit(state.copyWith(viewedLoading: true, viewedError: null));
+
     try {
       final response = await repository.loadRecentViews();
-      if (response.success == true && response.statuscode == 200) {
+
+      emit(
+        state.copyWith(
+          viewedLoading: false,
+          recentlyViewed: response.accommodationdata ?? [],
+        ),
+      );
+    } on ApiException catch (e) {
+      if (e.statusCode == 404) {
         emit(
           state.copyWith(
             viewedLoading: false,
-            recentlyViewed: response.accommodationdata,
+            recentlyViewed: [],
+            viewedError: null,
           ),
         );
       } else {
-        emit(
-          state.copyWith(
-            viewedLoading: false,
-            viewedError: response.message ?? 'Failed to load views',
-          ),
-        );
+        emit(state.copyWith(viewedLoading: false, viewedError: e.message));
       }
     } catch (_) {
       emit(

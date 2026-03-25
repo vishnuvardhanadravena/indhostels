@@ -110,6 +110,7 @@ class AccommodationBloc extends Bloc<AccommodationEvent, AccommodationState> {
       state.copyWith(
         acommodationdetailesLoading: true,
         acommodationdetailes: null,
+        
       ),
     );
 

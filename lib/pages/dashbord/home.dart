@@ -147,6 +147,8 @@ class _HomeScreenState extends State<HomeScreen> {
         }
         return ListView.builder(
           controller: _scrollController,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 16),
 
           itemCount: hotels.length + (isFetchingMore ? 1 : 0),
@@ -185,63 +187,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               .toDouble()
                         : 0,
                     imageUrl: hotel.imagesUrl?.first ?? "",
+                    pricetype:
+                        hotel.pricingData!.first.pricing!.first.priceType ?? '',
                   ),
                 ),
               ),
             );
           },
         );
-        // return ListView.builder(
-        //   controller: _scrollController,
-        //   padding: const EdgeInsets.symmetric(horizontal: 16),
-
-        //   shrinkWrap: true,
-        //   physics: const NeverScrollableScrollPhysics(),
-
-        //   itemCount: hotels.length + 1,
-
-        //   itemBuilder: (context, index) {
-        //     if (index == hotels.length) {
-        //       return state.globalLoading
-        //           ? Padding(
-        //               padding: EdgeInsets.all(16),
-        //               child: Center(child: RecentlyViewedShimmer()),
-        //             )
-        //           : const SizedBox();
-        //     }
-
-        //     final hotel = hotels[index];
-
-        //     return Padding(
-        //       padding: const EdgeInsets.only(bottom: 12),
-        //       child: InkWell(
-        //         onTap: () {
-        //           context.pushNamed(
-        //             RouteList.accommodationDetails,
-        //             extra: {"id": hotel.sId},
-        //           );
-        //         },
-        //         child: HotelCard(
-        //           model: HotelModel(
-        //             id: hotel.sId ?? "",
-        //             name: hotel.propertyName ?? "",
-        //             location: hotel.location?.area ?? "",
-        //             rating: hotel.averageRating ?? 0,
-        //             pricePerNight:
-        //                 (hotel.pricingData != null &&
-        //                     hotel.pricingData!.isNotEmpty &&
-        //                     hotel.pricingData!.first.pricing != null &&
-        //                     hotel.pricingData!.first.pricing!.isNotEmpty)
-        //                 ? (hotel.pricingData!.first.pricing!.first.price ?? 0)
-        //                       .toDouble()
-        //                 : 0,
-        //             imageUrl: hotel.imagesUrl?.first ?? "",
-        //           ),
-        //         ),
-        //       ),
-        //     );
-        //   },
-        // );
       },
     );
   }
@@ -256,10 +209,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final listHeight = screenWidth > 600
         ? screenHeight * 0.5
         : screenHeight * 0.4;
-
-    final cardWidth = screenWidth > 600
-        ? screenWidth * 0.30
-        : screenWidth * 0.8;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -321,32 +270,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                       const SizedBox(width: 4),
                                       Text(UserSession().user?.fullname ?? ""),
-                                      // GestureDetector(
-                                      //   onTap: () async {
-                                      //     final result = await context
-                                      //         .pushNamed<String>(
-                                      //           RouteList.serachLocation,
-                                      //         );
-
-                                      //     if (result != null &&
-                                      //         result.isNotEmpty) {
-                                      //       context.read<SearchBloc>().add(
-                                      //         UpdateSearchParams(city: result),
-                                      //       );
-                                      //       setState(() {
-                                      //         selectedCity = result;
-                                      //       });
-                                      //     }
-                                      //   },
-                                      //   child: Text(
-                                      //     selectedCity,
-                                      //     style: const TextStyle(
-                                      //       fontSize: 13,
-                                      //       fontWeight: FontWeight.w600,
-                                      //       color: Color(0xFF333333),
-                                      //     ),
-                                      //   ),
-                                      // ),
                                       const SizedBox(width: 4),
                                       const Icon(
                                         Icons.keyboard_arrow_down,
@@ -437,6 +360,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: TextField(
+                                      textInputAction: TextInputAction.search,
+                                      onSubmitted: (value) {
+                                        _onSearch(value);
+                                      },
                                       focusNode: _focusNode,
                                       controller: _searchController,
                                       onChanged: (value) {
@@ -447,11 +374,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                             searchText = "";
                                             isSearching = false;
                                           });
-                                        } else {
-                                          // setState(() {
-                                          //   searchText = value;
-                                          //   isSearching = true;
-                                          // });
                                         }
                                       },
                                       decoration: const InputDecoration(
@@ -666,11 +588,37 @@ class _HomeScreenState extends State<HomeScreen> {
                                       );
                                     }
 
-                                    final hostels = state.topHostels ?? [];
+                                    final hostels =
+                                        // [];
+                                        state.topHostels ?? [];
 
                                     if (hostels.isEmpty) {
-                                      return const SizedBox(
-                                        child: Text("empty"),
+                                      return SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: Row(
+                                          children: List.generate(3, (i) {
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                left: 10,
+                                                right: 12,
+                                              ),
+                                              child: SizedBox(
+                                                width:
+                                                    MediaQuery.of(
+                                                          context,
+                                                        ).size.width >
+                                                        600
+                                                    ? 280
+                                                    : MediaQuery.of(
+                                                            context,
+                                                          ).size.width *
+                                                          0.75,
+                                                child:
+                                                    const PopularHotelCardShimmer(),
+                                              ),
+                                            );
+                                          }),
+                                        ),
                                       );
                                     }
 
@@ -726,7 +674,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               ?.area ??
                                                           '',
                                                       price:
-                                                          '₹${hotel.pricingData?.first.pricing?.first.price ?? ''}',
+                                                          '${hotel.pricingData?.first.pricing?.first.price ?? ''}',
+                                                      pricetype: hotel
+                                                          .pricingData
+                                                          ?.first
+                                                          .pricing
+                                                          ?.first
+                                                          .priceType,
                                                       rating:
                                                           hotel.averageRating ??
                                                           0,
@@ -789,13 +743,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                       );
                                     }
 
-                                    final hostels = state.budgetHostels ?? [];
+                                    final hostels =
+                                        // [];
+                                        state.budgetHostels ?? [];
 
                                     if (hostels.isEmpty) {
-                                      return const SizedBox();
+                                      return SizedBox(
+                                        height: listHeight,
+                                        child: ListView.builder(
+                                          itemCount: 6,
+                                          itemBuilder: (_, __) =>
+                                              const PGListTileSkeleton(),
+                                        ),
+                                      );
                                     }
 
-                                    /// DATA
                                     return Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -919,7 +881,7 @@ class _PGListTile extends StatelessWidget {
             ),
             child: SizedBox(
               width: 90,
-              height: 90,
+              height: 91,
               child: CachedNetworkImage(
                 imageUrl: imageUrl,
                 fit: BoxFit.cover,
@@ -935,6 +897,7 @@ class _PGListTile extends StatelessWidget {
                 ),
 
                 errorWidget: (context, url, error) => Container(
+                  height: double.infinity,
                   color: Colors.grey.shade200,
                   child: const Icon(
                     Icons.image_not_supported,
@@ -967,10 +930,7 @@ class _PGListTile extends StatelessWidget {
                           ),
                         ),
                       ),
-                      RatingBadge(
-                        rating: hotel.averageRating ?? 0,
-                        // compact: true,
-                      ),
+                      RatingBadge(rating: hotel.averageRating ?? 0),
                     ],
                   ),
 
@@ -988,7 +948,6 @@ class _PGListTile extends StatelessWidget {
 
                   const SizedBox(height: 6),
 
-                  /// PRICE
                   Text.rich(
                     TextSpan(
                       children: [
@@ -1000,13 +959,28 @@ class _PGListTile extends StatelessWidget {
                             color: Color(0xFF222222),
                           ),
                         ),
-                        const TextSpan(
-                          text: ' / night',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Color(0xFF999999),
+
+                        if (hotel.pricingData != null &&
+                            hotel.pricingData!.isNotEmpty &&
+                            hotel.pricingData!.first.pricing != null &&
+                            hotel.pricingData!.first.pricing!.isNotEmpty &&
+                            hotel.pricingData!.first.pricing!.first.priceType !=
+                                null &&
+                            hotel
+                                .pricingData!
+                                .first
+                                .pricing!
+                                .first
+                                .priceType!
+                                .isNotEmpty)
+                          TextSpan(
+                            text:
+                                ' / ${hotel.pricingData!.first.pricing!.first.priceType}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Color(0xFF999999),
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),
@@ -1019,75 +993,3 @@ class _PGListTile extends StatelessWidget {
     );
   }
 }
-
-class _HotelImagePlaceholder extends StatelessWidget {
-  final String imageUrl;
-  final Color color;
-
-  const _HotelImagePlaceholder({required this.imageUrl, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return CachedNetworkImage(
-      imageUrl: imageUrl,
-      fit: BoxFit.cover,
-
-      placeholder: (context, url) => Container(
-        color: color.withOpacity(0.25),
-        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-      ),
-
-      errorWidget: (context, url, error) => Container(
-        color: color.withOpacity(0.25),
-        child: Icon(Icons.hotel, size: 32, color: color.withOpacity(0.5)),
-      ),
-    );
-  }
-}
-
-// class _RoomPainter extends CustomPainter {
-//   final Color color;
-//   const _RoomPainter({required this.color});
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     final paint = Paint()..color = color.withOpacity(0.15);
-//     canvas.drawRRect(
-//       RRect.fromRectAndRadius(
-//         Rect.fromLTWH(
-//           size.width * 0.1,
-//           size.height * 0.55,
-//           size.width * 0.8,
-//           size.height * 0.3,
-//         ),
-//         const Radius.circular(4),
-//       ),
-//       paint,
-//     );
-//     canvas.drawRRect(
-//       RRect.fromRectAndRadius(
-//         Rect.fromLTWH(
-//           size.width * 0.15,
-//           size.height * 0.45,
-//           size.width * 0.25,
-//           size.height * 0.15,
-//         ),
-//         const Radius.circular(4),
-//       ),
-//       paint,
-//     );
-//     canvas.drawRRect(
-//       RRect.fromRectAndRadius(
-//         Rect.fromLTWH(
-//           size.width * 0.55,
-//           size.height * 0.45,
-//           size.width * 0.25,
-//           size.height * 0.15,
-//         ),
-//         const Radius.circular(4),
-//       ),
-//       paint,
-//     );
-//   }
-//   @override
-//   bool shouldRepaint(_) => false;
-// }

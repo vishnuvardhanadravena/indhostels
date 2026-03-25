@@ -22,6 +22,7 @@ class HotelModel {
   final double pricePerNight;
   final String imageUrl;
   final String id;
+  final String pricetype;
 
   const HotelModel({
     required this.name,
@@ -30,6 +31,7 @@ class HotelModel {
     required this.pricePerNight,
     required this.imageUrl,
     required this.id,
+    required this.pricetype,
   });
 }
 
@@ -111,6 +113,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: BlocBuilder<SearchBloc, SearchState>(
@@ -147,12 +150,13 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildInitialUI(SearchState state) {
-    final recentSearchModels = (state.recentSearch?.searchtext ?? [])
+    final recentSearchModels = (state.recentSearch ?? [])
         .map((e) => RecentSearchModel(title: e, subtitle: ""))
         .toList()
         .reversed
         .take(5)
         .toList();
+
     final recentlyViewedHotels = (state.recentlyViewed ?? []).map((hotel) {
       return HotelModel(
         id: hotel.sId ?? "",
@@ -165,50 +169,66 @@ class _SearchScreenState extends State<SearchScreen> {
             ? (hotel.pricingIds!.first.pricing!.first.price ?? 0).toDouble()
             : 0.0,
         imageUrl: hotel.imagesUrl?.first ?? "",
+        pricetype: hotel.pricingIds!.first.pricing!.first.priceType ?? "",
       );
     }).toList();
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        0,
+        16,
+        MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (state.recentLoading) ...[
-            const SectionHeader(title: 'Recent Searches'),
-            const SizedBox(height: 8),
-            const _RecentSearchShimmer(),
-            const SizedBox(height: 24),
-          ] else if (recentSearchModels.isNotEmpty) ...[
-            SectionHeader(
-              title: 'Recent Searches',
-              actionText: '',
-              onActionTap: _clearAllRecentSearches,
-            ),
-            const SizedBox(height: 8),
+          // ── Recent Searches Section ──────────────────────────────────────
+          const SectionHeader(title: 'Recent Searches'),
+          const SizedBox(height: 8),
 
+          if (state.recentLoading)
+            const _RecentSearchShimmer()
+          else if (recentSearchModels.isNotEmpty)
             RecentSearchList(
               searches: recentSearchModels,
               onTap: (value) {
                 _searchController.text = value;
-
                 _searchController.selection = TextSelection.fromPosition(
                   TextPosition(offset: value.length),
                 );
-
                 _onSearch(value);
               },
+            )
+          else
+            // FIX: SizedBox with a fixed height gives the inner Column
+            // bounded constraints so EmptyStateWidget's internal Expanded
+            // has a valid Flex ancestor — no more ParentDataWidget error.
+            SizedBox(
+              height: 180,
+              child: Column(
+                children: [
+                  EmptyStateWidget(
+                    icon: Icons.history,
+                    title: "No Recent Searches",
+                    subtitle: "",
+                    isTablet: MediaQuery.of(context).size.width > 600,
+                    showAction: false,
+                  ),
+                ],
+              ),
             ),
 
-            const SizedBox(height: 24),
-          ],
+          const SizedBox(height: 24),
 
+          // ── Recently Viewed Section ──────────────────────────────────────
           const SectionHeader(title: 'Recently Viewed'),
           const SizedBox(height: 12),
 
           if (state.viewedLoading)
             const RecentlyViewedShimmer()
           else if (state.viewedError != null)
-            Center(child: Text(state.viewedError ?? "Something went worng"))
+            Center(child: Text(state.viewedError ?? "Something went wrong"))
           else if (recentlyViewedHotels.isNotEmpty)
             RecentlyViewedList(
               hotels: recentlyViewedHotels,
@@ -218,8 +238,23 @@ class _SearchScreenState extends State<SearchScreen> {
                   extra: {"id": id},
                 );
               },
+            )
+          else
+            // FIX: same pattern as above
+            SizedBox(
+              height: 180,
+              child: Column(
+                children: [
+                  EmptyStateWidget(
+                    icon: Icons.hotel_outlined,
+                    title: "No Recently Viewed",
+                    subtitle: "",
+                    isTablet: MediaQuery.of(context).size.width > 600,
+                    showAction: false,
+                  ),
+                ],
+              ),
             ),
-          const SizedBox(height: 24),
         ],
       ),
     );
@@ -237,6 +272,8 @@ class _SearchScreenState extends State<SearchScreen> {
     final hotels = state.globalResponse?.data ?? [];
 
     if (hotels.isEmpty) {
+      // Safe here — EmptyStateWidget is returned directly into an Expanded
+      // widget in build(), so it already has a valid Flex ancestor.
       return EmptyStateWidget(
         icon: Icons.hotel_outlined,
         title: "No rooms found",
@@ -257,6 +294,7 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Center(child: CircularProgressIndicator()),
           );
         }
+
         final hotel = hotels[index];
 
         return Padding(
@@ -283,6 +321,8 @@ class _SearchScreenState extends State<SearchScreen> {
                           .toDouble()
                     : 0,
                 imageUrl: hotel.imagesUrl?.first ?? "",
+                pricetype:
+                    hotel.pricingData!.first.pricing!.first.priceType ?? "",
               ),
             ),
           ),
@@ -291,6 +331,10 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Supporting Widgets
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _RecentSearchShimmer extends StatelessWidget {
   const _RecentSearchShimmer();
@@ -318,16 +362,14 @@ class RecentlyViewedShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: 10,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemBuilder: (context, index) {
-        return const Padding(
+    return Column(
+      children: List.generate(
+        5,
+        (index) => const Padding(
           padding: EdgeInsets.only(bottom: 12),
           child: PGListTileSkeleton(),
-        );
-      },
+        ),
+      ),
     );
   }
 }
@@ -361,7 +403,7 @@ class SearchBar extends StatefulWidget {
   const SearchBar({
     super.key,
     required this.controller,
-    this.hintText = 'Search hotels, PGs, hotels...',
+    this.hintText = 'Search hotels, PGs, hostels...',
     this.onFilterTap,
     this.onChanged,
   });
@@ -383,7 +425,6 @@ class _SearchBarState extends State<SearchBar> {
     if (value.isEmpty && _focusNode.hasFocus) {
       _focusNode.unfocus();
     }
-
     widget.onChanged?.call(value);
   }
 
@@ -411,13 +452,12 @@ class _SearchBarState extends State<SearchBar> {
       child: Row(
         children: [
           const SizedBox(width: 14),
-
           Icon(Icons.search, color: Colors.grey.shade500, size: 20),
-
           const SizedBox(width: 10),
-
           Expanded(
             child: TextField(
+              textInputAction: TextInputAction.search,
+              onSubmitted: (_) => _handleSearchTap(),
               controller: widget.controller,
               focusNode: _focusNode,
               onChanged: _handleChange,
@@ -433,7 +473,6 @@ class _SearchBarState extends State<SearchBar> {
               style: const TextStyle(fontSize: 14),
             ),
           ),
-
           GestureDetector(
             onTap: _handleSearchTap,
             child: Container(
@@ -445,7 +484,6 @@ class _SearchBarState extends State<SearchBar> {
               child: const Icon(Icons.search, color: Colors.white, size: 20),
             ),
           ),
-
           const SizedBox(width: 6),
         ],
       ),
@@ -574,7 +612,6 @@ class RecentSearchItem extends StatelessWidget {
   }
 }
 
-/// Renders a list of recently viewed hotel cards.
 class RecentlyViewedList extends StatelessWidget {
   final List<HotelModel> hotels;
   final void Function(String id) onTap;
@@ -672,14 +709,12 @@ class HotelCard extends StatelessWidget {
 
             const SizedBox(width: 14),
 
-            // Hotel Details
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Name + Rating Row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -699,10 +734,7 @@ class HotelCard extends StatelessWidget {
                         const SizedBox(width: 12),
                       ],
                     ),
-
                     const SizedBox(height: 4),
-
-                    // Location
                     Text(
                       model.location,
                       style: TextStyle(
@@ -710,11 +742,11 @@ class HotelCard extends StatelessWidget {
                         color: Colors.grey.shade500,
                       ),
                     ),
-
                     const SizedBox(height: 8),
-
-                    // Price
-                    HotelPriceTag(pricePerNight: model.pricePerNight),
+                    HotelPriceTag(
+                      pricePerNight: model.pricePerNight,
+                      pricetype: model.pricetype,
+                    ),
                   ],
                 ),
               ),
@@ -726,7 +758,6 @@ class HotelCard extends StatelessWidget {
   }
 }
 
-/// Star rating badge showing a filled star + rating number.
 class StarRatingBadge extends StatelessWidget {
   final double rating;
 
@@ -754,8 +785,13 @@ class StarRatingBadge extends StatelessWidget {
 
 class HotelPriceTag extends StatelessWidget {
   final double pricePerNight;
+  final String pricetype;
 
-  const HotelPriceTag({super.key, required this.pricePerNight});
+  const HotelPriceTag({
+    super.key,
+    required this.pricePerNight,
+    required this.pricetype,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -771,7 +807,7 @@ class HotelPriceTag extends StatelessWidget {
             ),
           ),
           TextSpan(
-            text: ' / 1 night',
+            text: ' /$pricetype',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w400,
