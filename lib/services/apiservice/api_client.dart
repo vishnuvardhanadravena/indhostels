@@ -93,7 +93,7 @@ class ApiClient {
     final stopwatch = Stopwatch()..start();
 
     try {
-      _logRequest(method, path, body);
+      // _logRequest(method, path, body);
 
       final response = await request();
 
@@ -214,20 +214,23 @@ class ApiClient {
 
   // ================= LOGGING =================
 
-  void _logRequest(String method, String path, dynamic body) {
+  void _logRequest(
+    String method,
+    String path,
+    dynamic body, {
+    Options? options,
+  }) {
     if (!AppLogger.canLog) return;
 
     AppLogger.debug("📤 [$method] $path");
 
-    final headers = Map<String, dynamic>.from(_dio.options.headers);
+    final headers = {..._dio.options.headers, ...?options?.headers};
 
-    if (headers.containsKey("Authorization")) {
-      headers["Authorization"] = "Bearer ******";
-    }
-
+    AppLogger.debug("Headers:");
     AppLogger.prettyJson(headers);
 
     if (body != null) {
+      AppLogger.debug("Body:");
       AppLogger.prettyJson(body);
     }
   }

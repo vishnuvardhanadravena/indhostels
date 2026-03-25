@@ -274,10 +274,10 @@ class RoomCard extends StatelessWidget {
     final visibleBadges = [
       '${room.bedsAvailable} beds',
       'Max ${room.noOfGuests}',
-    ].take(2).toList(); // ✅ LIMIT ITEMS
-
+    ].take(2).toList();
+    final isAvailable = (room.bedsAvailable ?? 0) > 0;
     return GestureDetector(
-      onTap: onTap,
+      onTap: isAvailable ? onTap : null,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -302,7 +302,7 @@ class RoomCard extends StatelessWidget {
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: r.cardPadH,
-                vertical: r.cardPadV,
+                // vertical: r.cardPadV,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min, // ✅ KEY FIX
@@ -317,7 +317,7 @@ class RoomCard extends StatelessWidget {
                     ),
                   ),
 
-                  SizedBox(height: r.fieldGap * 0.3),
+                  SizedBox(height: r.fieldGap * 0.2),
 
                   /// DESCRIPTION
                   Text(
@@ -330,7 +330,7 @@ class RoomCard extends StatelessWidget {
                     ),
                   ),
 
-                  SizedBox(height: r.fieldGap * 0.6),
+                  SizedBox(height: r.fieldGap * 0.2),
 
                   /// BADGES (LIMITED)
                   Wrap(
@@ -341,7 +341,7 @@ class RoomCard extends StatelessWidget {
                         .toList(),
                   ),
 
-                  SizedBox(height: r.fieldGap * 0.7),
+                  SizedBox(height: r.fieldGap * 0.2),
 
                   /// PRICE
                   Row(
@@ -366,7 +366,7 @@ class RoomCard extends StatelessWidget {
                     ],
                   ),
 
-                  SizedBox(height: r.fieldGap * 0.4),
+                  SizedBox(height: r.fieldGap * 0.2),
 
                   /// AMENITIES
                   AmenitiesRow(amenities: room.parsedAmenities, r: r),
@@ -381,9 +381,40 @@ class RoomCard extends StatelessWidget {
                       ),
                     ),
                   ],
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: r.supportBtnHeight,
+                      child: ElevatedButton(
+                        onPressed: isAvailable ? onTap : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isAvailable
+                              ? const Color(0xFF3D3BF3)
+                              : Colors.grey.shade400,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              r.bookBtnRadius,
+                            ),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          isAvailable ? "View Details" : "Sold Out",
+                          style: TextStyle(
+                            fontSize: r.bookBtnFont,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
+
+            // SizedBox(height: r.fieldGap),
           ],
         ),
       ),

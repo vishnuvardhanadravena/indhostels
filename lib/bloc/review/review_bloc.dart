@@ -59,7 +59,9 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
       }
     } on ApiException catch (e) {
       emit(state.copyWith(reviewsLoading: false, reviewsError: e.message));
-    } catch (_) {
+    } catch (e, s) {
+      print(e);
+      print(s);
       emit(
         state.copyWith(
           reviewsLoading: false,
@@ -121,44 +123,47 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     }
   }
 
-Future<void> _onReviewCreateRequested(
-  ReviewCreateRequested event,
-  Emitter<ReviewState> emit,
-) async {
-  emit(state.copyWith(
-    createLoading: true,
-    createSuccess: false,
-    createError: null,
-  ));
-
-  try {
-    final res = await repository.createReview(
-      propertyId: event.propertyId,
-      rating: event.rating,
-      aboutStay: event.aboutStay,
-      verifiedStay: event.verifiedStay,
-      stayDate: event.stayDate,
-      roomType: event.roomType,
+  Future<void> _onReviewCreateRequested(
+    ReviewCreateRequested event,
+    Emitter<ReviewState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        createLoading: true,
+        createSuccess: false,
+        createError: null,
+      ),
     );
 
-    if (res["success"] == true) {
-      emit(state.copyWith(
-        createLoading: false,
-        createSuccess: true,
-      ));
-    } else {
-      emit(state.copyWith(
-        createLoading: false,
-        createError: res["message"] ?? "Failed to post review",
-      ));
+    try {
+      final res = await repository.createReview(
+        propertyId: event.propertyId,
+        rating: event.rating,
+        aboutStay: event.aboutStay,
+        verifiedStay: event.verifiedStay,
+        stayDate: event.stayDate,
+        roomType: event.roomType,
+      );
+
+      if (res["success"] == true) {
+        emit(state.copyWith(createLoading: false, createSuccess: true));
+      } else {
+        emit(
+          state.copyWith(
+            createLoading: false,
+            createError: res["message"] ?? "Failed to post review",
+          ),
+        );
+      }
+    } on ApiException catch (e) {
+      emit(state.copyWith(createLoading: false, createError: e.message));
+    } catch (_) {
+      emit(
+        state.copyWith(
+          createLoading: false,
+          createError: "Something went wrong",
+        ),
+      );
     }
-  } on ApiException catch (e) {
-    emit(state.copyWith(createLoading: false, createError: e.message));
-  } catch (_) {
-    emit(state.copyWith(
-      createLoading: false,
-      createError: "Something went wrong",
-    ));
   }
-}
 }
