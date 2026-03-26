@@ -8,7 +8,7 @@ class ColorResources {
     return Get.isDarkMode ? const Color(0xFFbd0a00) : const Color(0xFFFF4848);
   }
   static Color getSplashColor1() {
-    return Get.isDarkMode ? const Color(0xFFCC003F).withOpacity(.15) : const Color(0xFFCC003F).withOpacity(.15);
+    return Get.isDarkMode ? const Color(0xFFCC003F).withValues(alpha:.15) : const Color(0xFFCC003F).withValues(alpha:.15);
   }
   static Color getTextColor() {
     return Get.isDarkMode ? const Color(0xFFE4E8EC) : const Color(0xFF25282B);
@@ -33,7 +33,7 @@ class ColorResources {
 
 
   static Color getSplashColor2() {
-    return Get.isDarkMode ? const Color(0xFF003473).withOpacity(.15) : const Color(0xFF003473).withOpacity(.15);
+    return Get.isDarkMode ? const Color(0xFF003473).withValues(alpha:.15) : const Color(0xFF003473).withValues(alpha:.15);
   }
   static Color revenueCardOneColor() {
     return Get.isDarkMode ? const Color(0xFF286FC6) : const Color(0xFF286FC6);

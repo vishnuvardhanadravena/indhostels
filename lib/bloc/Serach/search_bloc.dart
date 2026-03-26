@@ -4,10 +4,10 @@ import 'package:bloc/bloc.dart';
 import 'package:indhostels/data/models/accomodation/search_res.dart';
 import 'package:indhostels/data/models/search/globelsearch_res.dart';
 import 'package:indhostels/data/models/search/loction_serach_res.dart';
-import 'package:indhostels/data/models/search/recent_searchs_res.dart';
 import 'package:indhostels/data/models/search/recent_views_res.dart';
-import 'package:indhostels/data/repo/searchRepo.dart';
+import 'package:indhostels/data/repo/search_repo.dart';
 import 'package:indhostels/exceptions/api_exceptions.dart';
+import 'package:indhostels/services/apiservice/api_client.dart';
 
 part 'search_event.dart';
 part 'search_state.dart';
@@ -215,8 +215,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         ),
       );
     } catch (e, s) {
-      print(e);
-      print(s);
+      AppLogger.error("Error: $e");
+      AppLogger.error("StackTrace: $s");
       emit(
         state.copyWith(
           globalLoading: false,
@@ -240,7 +240,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         emit(
           state.copyWith(
             recentLoading: false,
-            recentSearch: response.data?.searchtext??[],
+            recentSearch: response.data?.searchtext ?? [],
           ),
         );
       } else {

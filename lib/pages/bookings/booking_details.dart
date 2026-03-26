@@ -5,7 +5,7 @@ import 'package:indhostels/bloc/bookings/bookings_bloc.dart';
 import 'package:indhostels/data/models/bookings/booking_details_res.dart';
 import 'package:indhostels/pages/acommadtion/acommadation_detailes.dart';
 import 'package:indhostels/pages/profile/profile.dart';
-import 'package:indhostels/utils/shimmers/booking_Detailes_Screen.dart';
+import 'package:indhostels/utils/shimmers/booking_detailes_screen.dart';
 import 'package:indhostels/utils/theame/app_themes.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -259,7 +259,7 @@ class _HeaderCard extends StatelessWidget {
                 width: 78,
                 height: 70,
                 fit: BoxFit.cover,
-                placeholder: (_, __) => Container(
+                placeholder: (context, url) => Container(
                   width: 78,
                   height: 70,
                   color: const Color(0xFFF0EEFF),
@@ -268,7 +268,7 @@ class _HeaderCard extends StatelessWidget {
                     color: Color(0xFF5B4BCC),
                   ),
                 ),
-                errorWidget: (_, __, ___) => Container(
+                errorWidget: (c, e, s) => Container(
                   width: 78,
                   height: 70,
                   decoration: BoxDecoration(
@@ -540,7 +540,7 @@ class _FakeMapPainter extends CustomPainter {
     );
     // Diagonal
     final diag = Paint()
-      ..color = Colors.white.withOpacity(0.6)
+      ..color = Colors.white.withValues(alpha: 0.6)
       ..strokeWidth = 2;
     canvas.drawLine(
       Offset(0, size.height * 0.2),
@@ -745,8 +745,8 @@ class _PaymentCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
                 color: p.isPaid
-                    ? const Color(0xFF4CAF50).withOpacity(0.1)
-                    : const Color(0xFFFFA726).withOpacity(0.1),
+                    ? const Color(0xFF4CAF50).withValues(alpha: 0.1)
+                    : const Color(0xFFFFA726).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -890,7 +890,7 @@ class _BottomBar extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, -4),
           ),

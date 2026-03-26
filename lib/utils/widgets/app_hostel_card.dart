@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class AppHotelCard extends StatelessWidget {
   final String? imageUrl;
@@ -42,7 +41,7 @@ class AppHotelCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(14),
       child: Card(
         elevation: 4,
-        shadowColor: Colors.black.withOpacity(0.12),
+        shadowColor: Colors.black.withValues(alpha:0.12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         clipBehavior: Clip.antiAlias,
         color: Colors.white,
@@ -60,13 +59,13 @@ class AppHotelCard extends StatelessWidget {
                     CachedNetworkImage(
                       imageUrl: imageUrl!,
                       fit: BoxFit.cover,
-                      placeholder: (_, __) => Container(
+                      placeholder: (context, url) => Container(
                         color: const Color(0xFFE8EAF0),
                         child: const Center(
                           child: CircularProgressIndicator(strokeWidth: 2),
                         ),
                       ),
-                      errorWidget: (_, __, ___) => const Center(
+                      errorWidget: (context, url, error) => const Center(
                         child: Icon(
                           Icons.broken_image_outlined,
                           size: 40,
@@ -134,7 +133,7 @@ class AppHotelCard extends StatelessWidget {
                           ),
                           if (pricetype != null && pricetype != null)
                             TextSpan(
-                              text: "/${pricetype}",
+                              text: "/$pricetype",
                               style: TextStyle(
                                 fontSize: 11,
                                 color: Color(0xFF888888),
@@ -173,14 +172,14 @@ class AppHotelCard extends StatelessWidget {
 
 class RatingBadge extends StatelessWidget {
   final double rating;
-  const RatingBadge({required this.rating});
+  const RatingBadge({super.key, required this.rating});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
+        color: Colors.white.withValues(alpha:0.9),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -200,7 +199,7 @@ class RatingBadge extends StatelessWidget {
 
 class AmenityChip extends StatelessWidget {
   final String label;
-  const AmenityChip({required this.label});
+  const AmenityChip({super.key, required this.label});
 
   @override
   Widget build(BuildContext context) {

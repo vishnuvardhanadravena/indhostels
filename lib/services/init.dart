@@ -19,7 +19,7 @@ import 'package:indhostels/data/repo/bookings_repo.dart';
 import 'package:indhostels/data/repo/notification_repo.dart';
 import 'package:indhostels/data/repo/profile_repo.dart';
 import 'package:indhostels/data/repo/reviews_support_repo.dart';
-import 'package:indhostels/data/repo/searchRepo.dart';
+import 'package:indhostels/data/repo/search_repo.dart';
 import 'package:indhostels/data/repo/wish_list_repo.dart';
 
 import 'package:indhostels/services/apiservice/api_client.dart';

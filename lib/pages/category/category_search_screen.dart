@@ -436,7 +436,7 @@ class _TopSection extends StatelessWidget {
                                   states,
                                 ) {
                                   if (states.contains(WidgetState.hovered)) {
-                                    return Colors.blue.withOpacity(0.1);
+                                    return Colors.blue.withValues(alpha:0.1);
                                   }
                                   return null;
                                 }),

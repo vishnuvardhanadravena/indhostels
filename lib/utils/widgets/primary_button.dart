@@ -35,7 +35,7 @@ class PrimaryButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: bgColor,
           foregroundColor: textColor ?? Colors.white,
-          disabledBackgroundColor: bgColor.withOpacity(0.6),
+          disabledBackgroundColor: bgColor.withValues(alpha:0.6),
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),

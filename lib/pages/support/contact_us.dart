@@ -291,7 +291,7 @@ class _FormCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(r.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha:0.06),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -452,7 +452,7 @@ class _FormCard extends StatelessWidget {
                     backgroundColor: AppColors.primary,
                     disabledBackgroundColor: const Color(
                       0xFF1A237E,
-                    ).withOpacity(0.6),
+                    ).withValues(alpha:0.6),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
                         r.supportBtnRadius * 2,
@@ -539,7 +539,7 @@ class _ContactInfoCard extends StatelessWidget {
                   subtitle: '+91 98765 43210 (Mon–Sun, 9AM–9PM)',
                 ),
                 Divider(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha:0.15),
                   height: r.sectionGap,
                 ),
                 _InfoRow(
@@ -549,7 +549,7 @@ class _ContactInfoCard extends StatelessWidget {
                   subtitle: 'support@indhostel.com',
                 ),
                 Divider(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha:0.15),
                   height: r.sectionGap,
                 ),
                 _InfoRow(
@@ -589,7 +589,7 @@ class _InfoRow extends StatelessWidget {
           width: r.iconBox,
           height: r.iconBox,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.12),
+            color: Colors.white.withValues(alpha:0.12),
             borderRadius: BorderRadius.circular(r.iconBoxRadius * 1.2),
           ),
           child: Icon(icon, size: r.iconSize, color: Colors.white),
@@ -612,7 +612,7 @@ class _InfoRow extends StatelessWidget {
                 subtitle,
                 style: TextStyle(
                   fontSize: r.supportFieldFont,
-                  color: Colors.white.withOpacity(0.75),
+                  color: Colors.white.withValues(alpha:0.75),
                   height: 1.45,
                 ),
               ),

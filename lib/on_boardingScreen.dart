@@ -169,7 +169,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.transparent, Colors.black.withOpacity(0.85)],
+            colors: [Colors.transparent, Colors.black.withValues(alpha:0.85)],
           ),
         ),
         child: Column(
@@ -244,7 +244,7 @@ class _OnboardingPage extends StatelessWidget {
       return Image.network(
         path,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _errorWidget(),
+        errorBuilder: (context, url, error) => _errorWidget(),
         loadingBuilder: (_, child, progress) {
           if (progress == null) return child;
           return _loadingWidget();
@@ -261,7 +261,7 @@ class _OnboardingPage extends StatelessWidget {
     return Image.asset(
       path,
       fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => _errorWidget(),
+      errorBuilder: (context, url, error) => _errorWidget(),
     );
   }
 
@@ -295,8 +295,8 @@ class _OnboardingPage extends StatelessWidget {
               stops: const [0.3, 0.65, 1.0],
               colors: [
                 Colors.transparent,
-                Colors.black.withOpacity(0.5),
-                Colors.black.withOpacity(0.92),
+                Colors.black.withValues(alpha:0.5),
+                Colors.black.withValues(alpha:0.92),
               ],
             ),
           ),
@@ -351,7 +351,7 @@ class _OnboardingImagePanel extends StatelessWidget {
         Image.network(
           data.networkImage,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Container(
+          errorBuilder: (context, error, stackTrace) => Container(
             color: const Color(0xFF1A1A2E),
             child: const Icon(Icons.hotel, color: Colors.white30, size: 120),
           ),

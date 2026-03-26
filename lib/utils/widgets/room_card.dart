@@ -153,7 +153,7 @@ class _RoomImageWidgetState extends State<RoomImageWidget> {
                 ? Image.network(
                     widget.imageUrl!,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _placeholder(),
+                    errorBuilder: (context, error, stackTrace) => _placeholder(),
                     loadingBuilder: (_, child, progress) =>
                         progress == null ? child : _shimmer(),
                   )
@@ -275,7 +275,7 @@ class RoomCard extends StatelessWidget {
       '${room.bedsAvailable} beds',
       'Max ${room.noOfGuests}',
     ].take(2).toList();
-    final isAvailable = (room.bedsAvailable ?? 0) > 0;
+    final isAvailable = (room.bedsAvailable) > 0;
     return GestureDetector(
       onTap: isAvailable ? onTap : null,
       child: Container(
@@ -284,7 +284,7 @@ class RoomCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(r.cardRadius),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.07),
+              color: Colors.black.withValues(alpha:0.07),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),

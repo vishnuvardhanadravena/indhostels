@@ -136,8 +136,8 @@ class _NotificationDetailPageState extends State<NotificationDetailPage>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          accent.withOpacity(0.85),
-                          accent.withOpacity(0.35),
+                          accent.withValues(alpha:0.85),
+                          accent.withValues(alpha:0.35),
                         ],
                       ),
                       borderRadius: BorderRadius.only(
@@ -195,7 +195,7 @@ class _NotificationDetailPageState extends State<NotificationDetailPage>
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: accent.withOpacity(0.3),
+                                  color: accent.withValues(alpha:0.3),
                                   blurRadius: 24,
                                   offset: const Offset(0, 8),
                                 ),

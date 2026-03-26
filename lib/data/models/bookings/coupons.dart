@@ -20,21 +20,21 @@ class GetCouponsResponce {
     if (json['data'] != null) {
       data = <Coupons>[];
       json['data'].forEach((v) {
-        data!.add(new Coupons.fromJson(v));
+        data!.add(Coupons.fromJson(v));
       });
     }
     totalcoupons = json['totalcoupons'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    data['statuscode'] = this.statuscode;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['success'] = success;
+    data['statuscode'] = statuscode;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
-    data['totalcoupons'] = this.totalcoupons;
+    data['totalcoupons'] = totalcoupons;
     return data;
   }
 }
@@ -90,21 +90,21 @@ class Coupons {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['_id'] = this.sId;
-    data['couponCode'] = this.couponCode;
-    data['discounttype'] = this.discounttype;
-    data['discountpercentage'] = this.discountpercentage;
-    data['discountamount'] = this.discountamount;
-    data['minimumamount'] = this.minimumamount;
-    data['status'] = this.status;
-    data['targetedAccommodations'] = this.targetedAccommodations;
-    data['usedBy'] = this.usedBy;
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    data['__v'] = this.iV;
-    data['expireDate'] = this.expireDate;
-    data['Id'] = this.id;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    data['couponCode'] = couponCode;
+    data['discounttype'] = discounttype;
+    data['discountpercentage'] = discountpercentage;
+    data['discountamount'] = discountamount;
+    data['minimumamount'] = minimumamount;
+    data['status'] = status;
+    data['targetedAccommodations'] = targetedAccommodations;
+    data['usedBy'] = usedBy;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    data['__v'] = iV;
+    data['expireDate'] = expireDate;
+    data['Id'] = id;
     return data;
   }
 }

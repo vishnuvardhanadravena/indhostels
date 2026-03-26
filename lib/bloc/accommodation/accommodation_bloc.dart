@@ -6,6 +6,7 @@ import 'package:indhostels/data/models/accomodation/top_hstl_res.dart';
 import 'package:indhostels/data/models/accomodation/user_liked_acommodation_res.dart';
 import 'package:indhostels/data/repo/accomodation_repo.dart';
 import 'package:indhostels/exceptions/api_exceptions.dart';
+import 'package:indhostels/services/apiservice/api_client.dart';
 part 'accommodation_event.dart';
 part 'accommodation_state.dart';
 
@@ -90,9 +91,9 @@ class AccommodationBloc extends Bloc<AccommodationEvent, AccommodationState> {
           budgetHostelError: e.message,
         ),
       );
-    } catch (e,s) {
-      print("Budget-->${e}");
-      print("Budget-->${s}");
+    } catch (e, s) {
+      AppLogger.error("[Budget] Error: $e");
+      AppLogger.error("[Budget] StackTrace: $s");
       emit(
         state.copyWith(
           budgetHostelLoading: false,
@@ -110,7 +111,6 @@ class AccommodationBloc extends Bloc<AccommodationEvent, AccommodationState> {
       state.copyWith(
         acommodationdetailesLoading: true,
         acommodationdetailes: null,
-        
       ),
     );
 
@@ -125,6 +125,8 @@ class AccommodationBloc extends Bloc<AccommodationEvent, AccommodationState> {
           ),
         );
       } else {
+        AppLogger.warning("Failed to fetch data", tag: "AccommodationDetails");
+
         emit(
           state.copyWith(
             acommodationdetailesLoading: false,
@@ -133,8 +135,8 @@ class AccommodationBloc extends Bloc<AccommodationEvent, AccommodationState> {
         );
       }
     } on ApiException catch (e, s) {
-      print(e);
-      print(s);
+      AppLogger.exception(e, s, tag: "AccommodationDetails");
+
       emit(
         state.copyWith(
           acommodationdetailesLoading: false,
@@ -142,8 +144,8 @@ class AccommodationBloc extends Bloc<AccommodationEvent, AccommodationState> {
         ),
       );
     } catch (e, s) {
-      print(e);
-      print(s);
+      AppLogger.exception(e, s, tag: "AccommodationDetails");
+
       emit(
         state.copyWith(
           acommodationdetailesLoading: false,
@@ -165,6 +167,11 @@ class AccommodationBloc extends Bloc<AccommodationEvent, AccommodationState> {
       final response = await repository.getUserlikedAcommodations(event.type);
 
       if (response.statuscode == 200) {
+        AppLogger.success(
+          "Liked accommodations fetched successfully",
+          tag: "LikedAccommodation",
+        );
+
         emit(
           state.copyWith(
             lIkedAcommodationsLoading: false,
@@ -172,6 +179,11 @@ class AccommodationBloc extends Bloc<AccommodationEvent, AccommodationState> {
           ),
         );
       } else {
+        AppLogger.warning(
+          "Failed to fetch liked accommodations",
+          tag: "LikedAccommodation",
+        );
+
         emit(
           state.copyWith(
             lIkedAcommodationsLoading: false,
@@ -180,8 +192,8 @@ class AccommodationBloc extends Bloc<AccommodationEvent, AccommodationState> {
         );
       }
     } on ApiException catch (e, s) {
-      print(e);
-      print(s);
+      AppLogger.exception(e, s, tag: "LikedAccommodation");
+
       emit(
         state.copyWith(
           lIkedAcommodationsLoading: false,
@@ -189,8 +201,8 @@ class AccommodationBloc extends Bloc<AccommodationEvent, AccommodationState> {
         ),
       );
     } catch (e, s) {
-      print(e);
-      print(s);
+      AppLogger.exception(e, s, tag: "LikedAccommodation");
+
       emit(
         state.copyWith(
           lIkedAcommodationsLoading: false,

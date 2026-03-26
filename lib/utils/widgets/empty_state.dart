@@ -146,14 +146,14 @@ class _EmptyStateCardState extends State<EmptyStateCard>
         //     boxShadow: widget.elevation > 0
         //         ? [
         //             BoxShadow(
-        //               color: Colors.black.withOpacity(0.06),
+        //               color: Colors.black.withValues(alpha:0.06),
         //               blurRadius: widget.elevation * 6,
         //               offset: Offset(0, widget.elevation * 2),
         //             ),
         //           ]
         //         : [
         //             BoxShadow(
-        //               color: Colors.black.withOpacity(0.05),
+        //               color: Colors.black.withValues(alpha:0.05),
         //               blurRadius: 20,
         //               offset: const Offset(0, 4),
         //             ),
@@ -288,12 +288,12 @@ class _EmptyStateCardState extends State<EmptyStateCard>
         color: const Color(0xFFEEF0F5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.07),
+            color: Colors.black.withValues(alpha:  0.07),
             blurRadius: 18,
             offset: const Offset(0, 6),
           ),
           BoxShadow(
-            color: Colors.white.withOpacity(0.9),
+            color: Colors.white.withValues(alpha:0.9),
             blurRadius: 10,
             offset: const Offset(-4, -4),
           ),
@@ -448,13 +448,13 @@ class _EmptyStateButtonState extends State<_EmptyStateButton> {
         duration: const Duration(milliseconds: 110),
         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 13),
         decoration: BoxDecoration(
-          color: _pressed ? widget.color.withOpacity(0.82) : widget.color,
+          color: _pressed ? widget.color.withValues(alpha:0.82) : widget.color,
           borderRadius: BorderRadius.circular(50),
           boxShadow: _pressed
               ? []
               : [
                   BoxShadow(
-                    color: widget.color.withOpacity(0.32),
+                    color: widget.color.withValues(alpha:0.32),
                     blurRadius: 16,
                     offset: const Offset(0, 6),
                   ),
@@ -468,130 +468,6 @@ class _EmptyStateButtonState extends State<_EmptyStateButton> {
             color: Colors.white,
             letterSpacing: 0.2,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-// void main() => runApp(const _DemoApp());
-
-// class _DemoApp extends StatelessWidget {
-//   const _DemoApp();
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       debugShowCheckedModeBanner: false,
-//       theme: ThemeData(
-//           colorScheme:
-//               ColorScheme.fromSeed(seedColor: const Color(0xFF4A90D9)),
-//           useMaterial3: true),
-//       home: const _DemoScreen(),
-//     );
-//   }
-// }
-
-// class _DemoScreen extends StatelessWidget {
-//   const _DemoScreen();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: const Color(0xFFF2F4F8),
-//       appBar: AppBar(
-//         backgroundColor: const Color(0xFFF2F4F8),
-//         elevation: 0,
-//         title: const Text('EmptyStateCard demos',
-//             style: TextStyle(
-//                 fontSize: 18,
-//                 fontWeight: FontWeight.w700,
-//                 color: Color(0xFF1A1A1A))),
-//       ),
-//       body: ListView(
-//         padding: const EdgeInsets.symmetric(vertical: 24),
-//         children: [
-//           const _Label('Default — built-in painter'),
-//           EmptyStateCard(
-//             title: 'No Accommodations Found',
-//             subtitle:
-//                 'Try adjusting your filters or search criteria',
-//             buttonLabel: 'Search Again',
-//             onButtonTap: () {},
-//           ),
-//           const SizedBox(height: 24),
-
-//           const _Label('Custom widget (emoji)'),
-//           EmptyStateCard(
-//             title: 'No Accommodations Found',
-//             subtitle:
-//                 'Try adjusting your filters or search criteria',
-//             customIllustration: const Text('🏠',
-//                 style: TextStyle(fontSize: 52)),
-//             imageSize: 60,
-//           ),
-//           const SizedBox(height: 24),
-
-// const _Label('Icon illustration'),
-// EmptyStateCard(
-//   title: 'No Hotels Available',
-//   subtitle: 'No hotels match your dates.\nTry different dates.',
-//   icon: Icons.hotel_outlined,
-//   iconColor: const Color(0xFF4A90D9),
-//   imageSize: 80,
-//   buttonLabel: 'Change Dates',
-//   onButtonTap: () {},
-//   buttonColor: const Color(0xFF4A90D9),
-// ),
-//           const SizedBox(height: 24),
-
-//           const _Label('Asset image  (swap path)'),
-//           EmptyStateCard(
-//             title: 'No Accommodations Found',
-//             subtitle: 'Try adjusting your filters or search criteria',
-//             customIllustration: Container(
-//               decoration: BoxDecoration(
-//                 color: const Color(0xFFDDE3EE),
-//                 borderRadius: BorderRadius.circular(16),
-//               ),
-//               child: const Icon(Icons.image_outlined,
-//                   size: 40, color: Color(0xFFAEB5C4)),
-//             ),
-//             imageSize: 70,
-//           ),
-//           const SizedBox(height: 24),
-
-//           const _Label('No circle bg — card style like screenshot'),
-//           EmptyStateCard(
-//             title: 'No Accommodations Found',
-//             subtitle: 'Try adjusting your filters or search criteria',
-//             customIllustration: const Text('🏠',
-//                 style: TextStyle(fontSize: 64)),
-//             imageSize: 64,
-//             showCircleBackground: false,
-//             enableFloatAnimation: false,
-//             borderRadius: 20,
-//           ),
-//           const SizedBox(height: 32),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-class _Label extends StatelessWidget {
-  const _Label(this.text);
-  final String text;
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 24, bottom: 10),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: Color(0xFF8E8E93),
-          letterSpacing: 0.8,
         ),
       ),
     );

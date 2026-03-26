@@ -214,26 +214,26 @@ class ApiClient {
 
   // ================= LOGGING =================
 
-  void _logRequest(
-    String method,
-    String path,
-    dynamic body, {
-    Options? options,
-  }) {
-    if (!AppLogger.canLog) return;
+  // void _logRequest(
+  //   String method,
+  //   String path,
+  //   dynamic body, {
+  //   Options? options,
+  // }) {
+  //   if (!AppLogger.canLog) return;
 
-    AppLogger.debug("📤 [$method] $path");
+  //   AppLogger.debug("📤 [$method] $path");
 
-    final headers = {..._dio.options.headers, ...?options?.headers};
+  //   final headers = {..._dio.options.headers, ...?options?.headers};
 
-    AppLogger.debug("Headers:");
-    AppLogger.prettyJson(headers);
+  //   AppLogger.debug("Headers:");
+  //   AppLogger.prettyJson(headers);
 
-    if (body != null) {
-      AppLogger.debug("Body:");
-      AppLogger.prettyJson(body);
-    }
-  }
+  //   if (body != null) {
+  //     AppLogger.debug("Body:");
+  //     AppLogger.prettyJson(body);
+  //   }
+  // }
 
   void _logResponse(String method, String path, Response response, int time) {
     if (!AppLogger.canLog) return;
@@ -253,7 +253,6 @@ class ApiClient {
     AppLogger.error("❌ [$method] $path ERROR → $message");
   }
 }
-
 class AppLogger {
   static bool enableLogs = true;
 
@@ -265,34 +264,44 @@ class AppLogger {
 
   static bool get canLog => enableLogs && kDebugMode;
 
-  static void debug(String msg) {
-    if (!canLog) return;
-    debugPrint("$_blue$msg$_reset");
+  static String _format(String msg, {String? tag}) {
+    return tag != null ? "[$tag] $msg" : msg;
   }
 
-  static void success(String msg) {
+  static void debug(String msg, {String? tag}) {
     if (!canLog) return;
-    debugPrint("$_green$msg$_reset");
+    debugPrint("$_blue${_format(msg, tag: tag)}$_reset");
   }
 
-  static void error(String msg) {
+  static void success(String msg, {String? tag}) {
     if (!canLog) return;
-    debugPrint("$_red$msg$_reset");
+    debugPrint("$_green${_format(msg, tag: tag)}$_reset");
   }
 
-  static void warning(String msg) {
+  static void warning(String msg, {String? tag}) {
     if (!canLog) return;
-    debugPrint("$_yellow$msg$_reset");
+    debugPrint("$_yellow${_format(msg, tag: tag)}$_reset");
   }
 
-  static void prettyJson(dynamic data) {
+  static void error(String msg, {String? tag}) {
+    if (!canLog) return;
+    debugPrint("$_red${_format(msg, tag: tag)}$_reset");
+  }
+
+  static void exception(Object e, StackTrace s, {String? tag}) {
+    if (!canLog) return;
+    debugPrint("$_red${_format("Exception: $e", tag: tag)}$_reset");
+    debugPrint("$_yellow$s$_reset");
+  }
+
+  static void prettyJson(dynamic data, {String? tag}) {
     if (!canLog) return;
 
     try {
       const encoder = JsonEncoder.withIndent('  ');
-      debugPrint(encoder.convert(data));
+      debugPrint(_format(encoder.convert(data), tag: tag));
     } catch (_) {
-      debugPrint(data.toString());
+      debugPrint(_format(data.toString(), tag: tag));
     }
   }
 }

@@ -20,24 +20,24 @@ class GlobalSearchResponse {
     if (json['data'] != null) {
       data = <Accomdations>[];
       json['data'].forEach((v) {
-        data!.add(new Accomdations.fromJson(v));
+        data!.add(Accomdations.fromJson(v));
       });
     }
     pagination = json['pagination'] != null
-        ? new Pagination.fromJson(json['pagination'])
+        ? Pagination.fromJson(json['pagination'])
         : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    data['statuscode'] = this.statuscode;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['success'] = success;
+    data['statuscode'] = statuscode;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
-    if (this.pagination != null) {
-      data['pagination'] = this.pagination!.toJson();
+    if (pagination != null) {
+      data['pagination'] = pagination!.toJson();
     }
     return data;
   }
@@ -86,21 +86,21 @@ class Accomdations {
     propertyType = json['property_type'];
     categoryName = json['category_name'];
     location = json['location'] != null
-        ? new Location.fromJson(json['location'])
+        ? Location.fromJson(json['location'])
         : null;
     imagesUrl = json['images_url'].cast<String>();
     isverified = json['isverified'];
     bookingcount = json[' bookingcount'];
     checkOutTime = json['check_out_time'];
     hostDetails = json['host_details'] != null
-        ? new HostDetails.fromJson(json['host_details'])
+        ? HostDetails.fromJson(json['host_details'])
         : null;
     dealOfTheDay = json['deal_of_the_day'];
     dealOfferPercent = json['deal_offer_percent'];
     if (json['pricingData'] != null) {
       pricingData = <PricingData>[];
       json['pricingData'].forEach((v) {
-        pricingData!.add(new PricingData.fromJson(v));
+        pricingData!.add(PricingData.fromJson(v));
       });
     }
   averageRating = (json['averageRating'] as num?)?.toDouble();
@@ -108,29 +108,29 @@ class Accomdations {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['_id'] = this.sId;
-    data['property_name'] = this.propertyName;
-    data['property_description'] = this.propertyDescription;
-    data['property_type'] = this.propertyType;
-    data['category_name'] = this.categoryName;
-    if (this.location != null) {
-      data['location'] = this.location!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    data['property_name'] = propertyName;
+    data['property_description'] = propertyDescription;
+    data['property_type'] = propertyType;
+    data['category_name'] = categoryName;
+    if (location != null) {
+      data['location'] = location!.toJson();
     }
-    data['images_url'] = this.imagesUrl;
-    data['isverified'] = this.isverified;
-    data[' bookingcount'] = this.bookingcount;
-    data['check_out_time'] = this.checkOutTime;
-    if (this.hostDetails != null) {
-      data['host_details'] = this.hostDetails!.toJson();
+    data['images_url'] = imagesUrl;
+    data['isverified'] = isverified;
+    data[' bookingcount'] = bookingcount;
+    data['check_out_time'] = checkOutTime;
+    if (hostDetails != null) {
+      data['host_details'] = hostDetails!.toJson();
     }
-    data['deal_of_the_day'] = this.dealOfTheDay;
-    data['deal_offer_percent'] = this.dealOfferPercent;
-    if (this.pricingData != null) {
-      data['pricingData'] = this.pricingData!.map((v) => v.toJson()).toList();
+    data['deal_of_the_day'] = dealOfTheDay;
+    data['deal_offer_percent'] = dealOfferPercent;
+    if (pricingData != null) {
+      data['pricingData'] = pricingData!.map((v) => v.toJson()).toList();
     }
-    data['averageRating'] = this.averageRating;
-    data['totalReviews'] = this.totalReviews;
+    data['averageRating'] = averageRating;
+    data['totalReviews'] = totalReviews;
     return data;
   }
 }
@@ -151,11 +151,11 @@ class Location {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['city'] = this.city;
-    data['area'] = this.area;
-    data['address'] = this.address;
-    data['locationurl'] = this.locationurl;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['city'] = city;
+    data['area'] = area;
+    data['address'] = address;
+    data['locationurl'] = locationurl;
     return data;
   }
 }
@@ -172,9 +172,9 @@ class HostDetails {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['host_name'] = this.hostName;
-    data['host_contact'] = this.hostContact;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['host_name'] = hostName;
+    data['host_contact'] = hostContact;
     return data;
   }
 }
@@ -204,7 +204,7 @@ class PricingData {
     if (json['pricing'] != null) {
       pricing = <Pricing>[];
       json['pricing'].forEach((v) {
-        pricing!.add(new Pricing.fromJson(v));
+        pricing!.add(Pricing.fromJson(v));
       });
     }
     createdAt = json['createdAt'];
@@ -213,16 +213,16 @@ class PricingData {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['_id'] = this.sId;
-    data['accommodation_id'] = this.accommodationId;
-    data['room_id'] = this.roomId;
-    if (this.pricing != null) {
-      data['pricing'] = this.pricing!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    data['accommodation_id'] = accommodationId;
+    data['room_id'] = roomId;
+    if (pricing != null) {
+      data['pricing'] = pricing!.map((v) => v.toJson()).toList();
     }
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    data['__v'] = this.iV;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    data['__v'] = iV;
     return data;
   }
 }
@@ -241,10 +241,10 @@ class Pricing {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['price'] = this.price;
-    data['price_type'] = this.priceType;
-    data['_id'] = this.sId;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['price'] = price;
+    data['price_type'] = priceType;
+    data['_id'] = sId;
     return data;
   }
 }
@@ -265,11 +265,11 @@ class Pagination {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['currentPage'] = this.currentPage;
-    data['totalPages'] = this.totalPages;
-    data['totalCount'] = this.totalCount;
-    data['limit'] = this.limit;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['currentPage'] = currentPage;
+    data['totalPages'] = totalPages;
+    data['totalCount'] = totalCount;
+    data['limit'] = limit;
     return data;
   }
 }

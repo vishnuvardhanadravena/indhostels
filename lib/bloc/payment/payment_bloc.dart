@@ -189,8 +189,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
             PaymentVerifyRequested(
               paymentId: paymentId,
               orderId: orderId,
-              aco_id: e.propertyId,
-              room_id: e.roomId,
+              acoid: e.propertyId,
+              roomid: e.roomId,
               signature: signature,
             ),
           );
@@ -221,8 +221,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         "razorpay_signature": e.signature,
 
         "orderData": {
-          "accoid": e.aco_id,
-          "roomid": e.room_id,
+          "accoid": e.acoid,
+          "roomid": e.roomid,
 
           "check_in_date": _formatDate(state.checkInDate),
           "check_out_date": _formatDate(state.checkOutDate),

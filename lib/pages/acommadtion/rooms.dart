@@ -100,7 +100,7 @@ class _RoomsList extends StatelessWidget {
         vertical: r.screenPadV,
       ),
       itemCount: rooms.length,
-      separatorBuilder: (_, __) => SizedBox(height: r.fieldGap),
+      separatorBuilder: (context, index) => SizedBox(height: r.fieldGap),
       itemBuilder: (context, index) => RoomCard(
         taxamount: taxamount,
         taxenable: taxenable,

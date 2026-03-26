@@ -7,10 +7,10 @@ import 'package:indhostels/bloc/review/review_bloc.dart';
 import 'package:indhostels/data/models/accomodation/accomodation_details_res.dart';
 import 'package:indhostels/data/models/accomodation/room_card_model.dart';
 import 'package:indhostels/pages/profile/profile.dart';
-import 'package:indhostels/pages/notifications/reviews_Screen.dart';
+import 'package:indhostels/pages/notifications/reviews_screen.dart';
 import 'package:indhostels/routing/app_roter.dart';
 import 'package:indhostels/routing/route_constants.dart';
-import 'package:indhostels/utils/shimmers/details_Screen.dart';
+import 'package:indhostels/utils/shimmers/details_screen.dart';
 import 'package:indhostels/utils/widgets/loading_dots.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -42,7 +42,7 @@ class _HotelDetailsScreenState extends State<AcommadationDetailesScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final r = R(size.width);
-    final hotel = context.watch<AccommodationBloc>().state.acommodationdetailes;
+    // final hotel = context.watch<AccommodationBloc>().state.acommodationdetailes;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -634,7 +634,7 @@ class _BottomBar extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 16,
             offset: const Offset(0, -4),
           ),
@@ -960,7 +960,7 @@ class _MapPlaceholder extends StatelessWidget {
                     borderRadius: BorderRadius.circular(r.logoutRadius),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                       color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 6,
                       ),
                     ],

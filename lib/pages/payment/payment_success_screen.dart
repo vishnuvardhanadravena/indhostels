@@ -164,7 +164,7 @@ class _PaymentIllustration extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.12),
+                  color: Colors.black.withValues(alpha:0.12),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -252,7 +252,7 @@ class _PaymentIllustration extends StatelessWidget {
               color: Colors.white,
               shape: BoxShape.circle,
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8),
+                BoxShadow(color: Colors.black.withValues(alpha:0.1), blurRadius: 8),
               ],
             ),
             child: const Icon(Icons.lock, color: Color(0xFF4B3FF0), size: 14),
@@ -287,7 +287,7 @@ class _FloatingCoin extends StatelessWidget {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.4),
+            color: color.withValues(alpha:0.4),
             blurRadius: 6,
             offset: const Offset(0, 3),
           ),

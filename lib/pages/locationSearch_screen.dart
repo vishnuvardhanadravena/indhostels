@@ -182,7 +182,7 @@ class _SearchBar extends StatelessWidget {
           ),
           ValueListenableBuilder<TextEditingValue>(
             valueListenable: controller,
-            builder: (_, v, __) => v.text.isNotEmpty
+            builder: (context, value, child) => value.text.isNotEmpty
                 ? GestureDetector(
                     onTap: onClear,
                     child: Icon(Icons.close,
@@ -306,7 +306,7 @@ class _SuggestionList extends StatelessWidget {
       padding: EdgeInsets.symmetric(
           horizontal: r.screenPadH, vertical: r.screenPadV * 0.5),
       itemCount: suggestions.length,
-      separatorBuilder: (_, __) => SizedBox(height: r.itemGap),
+      separatorBuilder: (ctx, index) => SizedBox(height: r.itemGap),
       itemBuilder: (_, i) {
         final s = suggestions[i];
         return _LocationTile(

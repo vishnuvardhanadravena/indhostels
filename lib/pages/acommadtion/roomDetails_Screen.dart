@@ -250,7 +250,7 @@ class _RoomImageFullState extends State<_RoomImageFull> {
               images[i],
               fit: BoxFit.cover,
               width: double.infinity,
-              errorBuilder: (_, __, ___) => Container(
+              errorBuilder: (context, error, stackTrace) => Container(
                 color: const Color(0xFFF0F0F0),
                 child: const Center(
                   child: Icon(
@@ -280,7 +280,7 @@ class _RoomImageFullState extends State<_RoomImageFull> {
                     decoration: BoxDecoration(
                       color: _current == i
                           ? Colors.white
-                          : Colors.white.withOpacity(0.5),
+                          : Colors.white.withValues(alpha:0.5),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -642,7 +642,7 @@ class _BottomBookBar extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha:0.08),
             blurRadius: 20,
             offset: const Offset(0, -4),
           ),

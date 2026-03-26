@@ -89,15 +89,15 @@ class PaymentCheckoutRequested extends PaymentEvent {
 class PaymentVerifyRequested extends PaymentEvent {
   final String paymentId;
   final String orderId;
-  final String aco_id;
-  final String room_id;
+  final String acoid;
+  final String roomid;
   final String signature;
 
   const PaymentVerifyRequested({
     required this.paymentId,
     required this.orderId,
-    required this.aco_id,
-    required this.room_id,
+    required this.acoid,
+    required this.roomid,
     required this.signature,
   });
 }

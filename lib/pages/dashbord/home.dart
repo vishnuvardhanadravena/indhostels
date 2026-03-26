@@ -257,7 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     vertical: 6,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.6),
+                                    color: Colors.white.withValues(alpha:0.6),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Row(
@@ -280,17 +280,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 const Spacer(),
-                                Container(
-                                  width: 36,
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.7),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.notifications_none,
-                                    size: 20,
-                                    color: Color(0xFF555555),
+                                InkWell(
+                                  onTap: () {
+                                    context.push(RouteList.notifications);
+                                  },
+                                  child: Container(
+                                    width: 36,
+                                    height: 36,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha:0.7),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.notifications_none,
+                                      size: 20,
+                                      color: Color(0xFF555555),
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -319,7 +324,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ? Image.network(
                                             UserSession().user!.profileUrl!,
                                             fit: BoxFit.cover,
-                                            errorBuilder: (_, __, ___) =>
+                                            errorBuilder: (ctx, error, stackTrace) =>
                                                 const Icon(
                                                   Icons.person,
                                                   color: Colors.white,
@@ -343,7 +348,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.06),
+                                    color: Colors.black.withValues(alpha:0.06),
                                     blurRadius: 8,
                                     offset: const Offset(0, 2),
                                   ),
@@ -457,7 +462,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               decoration: BoxDecoration(
                                                 color: isSelected
                                                     ? Colors.white
-                                                    : Colors.white.withOpacity(
+                                                    : Colors.white.withValues(alpha:
                                                         0.45,
                                                       ),
                                                 borderRadius:
@@ -468,7 +473,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     ? [
                                                         BoxShadow(
                                                           color: Colors.black
-                                                              .withOpacity(
+                                                              .withValues(alpha:
                                                                 0.08,
                                                               ),
                                                           blurRadius: 6,
@@ -724,7 +729,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         height: listHeight,
                                         child: ListView.builder(
                                           itemCount: 6,
-                                          itemBuilder: (_, __) =>
+                                          itemBuilder: (ctx, index) =>
                                               const PGListTileSkeleton(),
                                         ),
                                       );
@@ -752,7 +757,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         height: listHeight,
                                         child: ListView.builder(
                                           itemCount: 6,
-                                          itemBuilder: (_, __) =>
+                                          itemBuilder: (ctx, index) =>
                                               const PGListTileSkeleton(),
                                         ),
                                       );
@@ -865,7 +870,7 @@ class _PGListTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha:0.06),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

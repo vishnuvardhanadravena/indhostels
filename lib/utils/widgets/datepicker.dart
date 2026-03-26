@@ -222,7 +222,7 @@ class _DatePickerSheetState extends State<_DatePickerSheet> {
                         : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _kPrimary,
-                      disabledBackgroundColor: _kPrimary.withOpacity(0.5),
+                      disabledBackgroundColor: _kPrimary.withValues(alpha:0.5),
                       foregroundColor: Colors.white,
                       minimumSize: const Size(double.infinity, 52),
                       shape: RoundedRectangleBorder(
@@ -338,7 +338,7 @@ class _MonthGrid extends StatelessWidget {
                       color: selected ? _kPrimary : Colors.transparent,
                       borderRadius: BorderRadius.circular(10),
                       border: range
-                          ? Border.all(color: _kPrimary.withOpacity(0.3))
+                          ? Border.all(color: _kPrimary.withValues(alpha:0.3))
                           : null,
                     ),
                     alignment: Alignment.center,

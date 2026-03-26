@@ -29,7 +29,7 @@ class PopularHotelCardShimmer extends StatelessWidget {
       height: isTablet ? 300 : 260,
       child: Card(
         elevation: 6,
-        shadowColor: Colors.black.withOpacity(0.15),
+        shadowColor: Colors.black.withValues(alpha:0.15),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         clipBehavior: Clip.antiAlias,
         color: Colors.white,
@@ -173,7 +173,7 @@ class _ShimmerBoxState extends State<_ShimmerBox>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _shimmer,
-      builder: (_, __) => Container(
+      builder: (context, child) => Container(
         width: widget.width,
         height: widget.height,
         decoration: BoxDecoration(

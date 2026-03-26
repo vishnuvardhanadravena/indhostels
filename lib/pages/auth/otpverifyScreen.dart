@@ -86,7 +86,7 @@ class _OtpInputWidgetState extends State<OtpInputWidget> {
               boxShadow: isFocused
                   ? [
                       BoxShadow(
-                        color: const Color(0xFF3D3BF3).withOpacity(0.12),
+                        color: const Color(0xFF3D3BF3).withValues(alpha:0.12),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),

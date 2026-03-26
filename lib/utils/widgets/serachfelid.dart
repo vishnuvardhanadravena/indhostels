@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:indhostels/data/models/accomodation/search_res.dart';
@@ -144,7 +146,7 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
           //       borderRadius: BorderRadius.circular(12),
           //       boxShadow: [
           //         BoxShadow(
-          //           color: Colors.black.withOpacity(0.05),
+          //           color: Colors.black.withValues(alpha:0.05),
           //           blurRadius: 8,
           //           offset: const Offset(0, 2),
           //         ),
@@ -185,7 +187,7 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha:0.05),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -488,7 +490,7 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
                         activeTrackColor: _purple,
                         inactiveTrackColor: _lightPurple,
                         thumbColor: _purple,
-                        overlayColor: _purple.withOpacity(0.12),
+                        overlayColor: _purple.withValues(alpha:0.12),
                         trackHeight: 4,
                         thumbShape: const RoundSliderThumbShape(
                           enabledThumbRadius: 8,
@@ -569,7 +571,6 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
                     ),
                   ],
 
-                  // ── Category / Meals (single-select radio) ──
                   if (categories.isNotEmpty) ...[
                     _sectionDivider(),
                     const Text('Meals', style: _headerStyle),
@@ -613,7 +614,6 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
                     ),
                   ],
 
-                  // ── Empty state ──────────────────────────────
                   if (roomTypes.isEmpty &&
                       amenities.isEmpty &&
                       categories.isEmpty &&
@@ -649,9 +649,9 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
                     onPressed: _isLoading ? null : _clearAll,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: _purple,
-                      disabledForegroundColor: _purple.withOpacity(0.4),
+                      disabledForegroundColor: _purple.withValues(alpha:0.4),
                       side: BorderSide(
-                        color: _isLoading ? _purple.withOpacity(0.3) : _purple,
+                        color: _isLoading ? _purple.withValues(alpha:0.3) : _purple,
                         width: 1.5,
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -674,7 +674,7 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
                     onPressed: _isLoading ? null : _apply,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _purple,
-                      disabledBackgroundColor: _purple.withOpacity(0.5),
+                      disabledBackgroundColor: _purple.withValues(alpha:0.5),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       elevation: 0,
@@ -699,7 +699,6 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
     );
   }
 
-  // ─── sub-widgets ──────────────────────────────────────────────
 
   Widget _sectionDivider() => Padding(
     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -726,7 +725,6 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
     );
   }
 
-  /// Single-select — used for Category & Location
   Widget _radioTile({
     required String label,
     required bool selected,
@@ -772,7 +770,6 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
     );
   }
 
-  /// Multi-select — used for Room Type & Amenities
   Widget _checkboxTile({
     required String label,
     required bool checked,

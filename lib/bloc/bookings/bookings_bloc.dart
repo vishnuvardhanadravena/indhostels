@@ -32,58 +32,6 @@ class BookingsBloc extends Bloc<BookingsEvent, BookingsState> {
     });
   }
 
-  Future<void> _fetchCoupons(
-    FetchBookings event,
-    Emitter<BookingsState> emit,
-  ) async {
-    if (state.hasReachedMax && event.page != 1) return;
-
-    if (event.page == 1) {
-      emit(
-        state.copyWith(
-          bookingsLoading: true,
-          bookingsError: null,
-          bookings: [],
-          hasReachedMax: false,
-        ),
-      );
-    } else {
-      emit(state.copyWith(bookingsMoreLoading: true));
-    }
-
-    try {
-      final response = await repository.getBookings(
-        page: event.page,
-        limit: event.limit,
-      );
-
-      final bookings = response.data;
-
-      emit(
-        state.copyWith(
-          bookingsLoading: false,
-          bookingsMoreLoading: false,
-          bookings: event.page == 1
-              ? bookings
-              : [...state.bookings, ...bookings],
-          currentPage: event.page,
-          totalPages: response.totalPages,
-          totalOrders: response.totalOrders,
-          hasReachedMax: event.page >= response.totalPages,
-        ),
-      );
-    } catch (e) {
-      emit(
-        state.copyWith(
-          bookingsLoading: false,
-          bookingsMoreLoading: false,
-          bookings: event.page == 1 ? [] : state.bookings,
-          bookingsError: e.toString(),
-        ),
-      );
-    }
-  }
-
   Future<void> _fetchBookings(
     FetchBookings event,
     Emitter<BookingsState> emit,

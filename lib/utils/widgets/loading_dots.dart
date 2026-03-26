@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AnimatedDots extends StatefulWidget {
-  const AnimatedDots();
+  const AnimatedDots({super.key});
 
   @override
   State<AnimatedDots> createState() => _AnimatedDotsState();
@@ -28,7 +28,7 @@ class _AnimatedDotsState extends State<AnimatedDots>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _dotCount,
-      builder: (_, __) {
+      builder: (context,child) {
         return Text(
           '●●' * _dotCount.value,
           style: const TextStyle(

@@ -159,7 +159,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               child: ListView.builder(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                 itemCount: 6,
-                itemBuilder: (_, __) => const BookingCardSkeleton(),
+                itemBuilder: (context, index) => const BookingCardSkeleton(),
               ),
             )
           else if (_current.isEmpty)
@@ -502,7 +502,7 @@ class BookingCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha:0.06),
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),
@@ -588,7 +588,7 @@ class BookingCard extends StatelessWidget {
                             26,
                             34,
                             126,
-                          ).withOpacity(0.1),
+                          ).withValues(alpha:0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: const Text(
@@ -735,8 +735,8 @@ class _PaymentPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: isPaid
-            ? const Color(0xFF4CAF50).withOpacity(0.1)
-            : const Color(0xFFFFA726).withOpacity(0.1),
+            ? const Color(0xFF4CAF50).withValues(alpha:0.1)
+            : const Color(0xFFFFA726).withValues(alpha:0.1),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
@@ -761,7 +761,7 @@ class AppBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: status.color.withOpacity(0.1),
+        color: status.color.withValues(alpha:0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -944,7 +944,7 @@ class HotelImageCard extends StatelessWidget {
         width: width,
         height: height,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Container(
+        errorBuilder: (c, e, s) => Container(
           width: width,
           height: height,
           color: const Color(0xFFEEEEEE),

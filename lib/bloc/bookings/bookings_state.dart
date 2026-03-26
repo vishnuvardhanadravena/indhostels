@@ -87,7 +87,6 @@ class BookingsState extends Equatable {
     String? invoiceError,
     List<int>? invoiceBytes,
 
-    // 🔥 NEW
     bool? cancelLoading,
     bool? cancelSuccess,
     String? cancelError,
@@ -105,8 +104,7 @@ class BookingsState extends Equatable {
       historyhasReachedMax: historyhasReachedMax ?? this.historyhasReachedMax,
 
       bookingsError: bookingsError,
-      bookingsHistoryError:
-          bookingsHistoryError ,
+      bookingsHistoryError: bookingsHistoryError,
 
       bookings: bookings ?? this.bookings,
       bookingshistory: bookingshistory ?? this.bookingshistory,
@@ -116,15 +114,14 @@ class BookingsState extends Equatable {
       historytotalPages: historytotalPages ?? this.historytotalPages,
       historycurrentPage: historycurrentPage ?? this.historycurrentPage,
       historytotalOrders: historytotalOrders ?? this.historytotalOrders,
-      bookingsDetailsError:
-          bookingsDetailsError ?? this.bookingsDetailsError,
+      bookingsDetailsError: bookingsDetailsError ?? this.bookingsDetailsError,
       bookingsDetailsLoading:
           bookingsDetailsLoading ?? this.bookingsDetailsLoading,
       bookingDetail: bookingDetail ?? this.bookingDetail,
       invoiceLoading: invoiceLoading ?? this.invoiceLoading,
       invoiceSuccess: invoiceSuccess ?? this.invoiceSuccess,
 
-      invoiceError: invoiceError ,
+      invoiceError: invoiceError,
 
       invoiceBytes: invoiceBytes,
 
@@ -132,40 +129,38 @@ class BookingsState extends Equatable {
       cancelSuccess: resetCancelSuccess
           ? false
           : cancelSuccess ?? this.cancelSuccess,
-      cancelError:
-          clearCancelError ? null : cancelError ?? this.cancelError,
+      cancelError: clearCancelError ? null : cancelError ?? this.cancelError,
     );
   }
 
   @override
   List<Object?> get props => [
-        bookingsLoading,
-        bookingsHistoryLoading,
-        bookingsMoreLoading,
-        hasReachedMax,
-        bookingshistoryMoreLoading,
-        historyhasReachedMax,
-        bookingsError,
-        bookingsHistoryError,
-        bookings,
-        bookingshistory,
-        totalPages,
-        currentPage,
-        totalOrders,
-        historytotalPages,
-        historycurrentPage,
-        historytotalOrders,
-        bookingsDetailsLoading,
-        bookingsDetailsError,
-        bookingDetail,
-        invoiceLoading,
-        invoiceSuccess,
-        invoiceError,
-        invoiceBytes,
+    bookingsLoading,
+    bookingsHistoryLoading,
+    bookingsMoreLoading,
+    hasReachedMax,
+    bookingshistoryMoreLoading,
+    historyhasReachedMax,
+    bookingsError,
+    bookingsHistoryError,
+    bookings,
+    bookingshistory,
+    totalPages,
+    currentPage,
+    totalOrders,
+    historytotalPages,
+    historycurrentPage,
+    historytotalOrders,
+    bookingsDetailsLoading,
+    bookingsDetailsError,
+    bookingDetail,
+    invoiceLoading,
+    invoiceSuccess,
+    invoiceError,
+    invoiceBytes,
 
-        // 🔥 NEW
-        cancelLoading,
-        cancelSuccess,
-        cancelError,
-      ];
+    cancelLoading,
+    cancelSuccess,
+    cancelError,
+  ];
 }

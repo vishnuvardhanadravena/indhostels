@@ -10,14 +10,14 @@ class RecentSearchesRes {
     success = json['success'];
     statuscode = json['statuscode'];
     message = json['message'];
-    data = json['data'] != null ? new Searches.fromJson(json['data']) : null;
+    data = json['data'] != null ? Searches.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    data['statuscode'] = this.statuscode;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['success'] = success;
+    data['statuscode'] = statuscode;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }
@@ -38,19 +38,17 @@ class Searches {
     if (json['locationsearch'] != null) {
       locationsearch = <Locationsearch>[];
       json['locationsearch'].forEach((v) {
-        locationsearch!.add(new Locationsearch.fromJson(v));
+        locationsearch!.add(Locationsearch.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['_id'] = this.sId;
-    data['searchtext'] = this.searchtext;
-    if (this.locationsearch != null) {
-      data['locationsearch'] = this.locationsearch!
-          .map((v) => v.toJson())
-          .toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    data['searchtext'] = searchtext;
+    if (locationsearch != null) {
+      data['locationsearch'] = locationsearch!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -72,11 +70,11 @@ class Locationsearch {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['location'] = this.location;
-    data['checkin'] = this.checkin;
-    data['checkout'] = this.checkout;
-    data['_id'] = this.sId;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['location'] = location;
+    data['checkin'] = checkin;
+    data['checkout'] = checkout;
+    data['_id'] = sId;
     return data;
   }
 }

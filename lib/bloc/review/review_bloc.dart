@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:indhostels/data/models/ReviewsAndSupport/reviews_res.dart';
 import 'package:indhostels/data/repo/reviews_support_repo.dart';
 import 'package:indhostels/exceptions/api_exceptions.dart';
+import 'package:indhostels/services/apiservice/api_client.dart';
 
 part 'review_event.dart';
 part 'review_state.dart';
@@ -16,60 +17,78 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     on<ReviewCreateRequested>(_onReviewCreateRequested);
   }
 
-  Future<void> _onReviewsRequested(
-    ReviewsRequested event,
-    Emitter<ReviewState> emit,
-  ) async {
-    emit(
-      state.copyWith(
-        reviewsLoading: true,
-        reviewsError: null,
-        hasReachedMax: false,
-      ),
+Future<void> _onReviewsRequested(
+  ReviewsRequested event,
+  Emitter<ReviewState> emit,
+) async {
+  emit(
+    state.copyWith(
+      reviewsLoading: true,
+      reviewsError: null,
+      hasReachedMax: false,
+    ),
+  );
+
+  try {
+    final response = await repository.getReviews(
+      propertyId: event.propertyId,
+      page: event.page,
+      limit: event.limit,
     );
 
-    try {
-      final response = await repository.getReviews(
-        propertyId: event.propertyId,
-        page: event.page,
-        limit: event.limit,
+    if (response.statuscode == 200 && response.data != null) {
+      final data = response.data!;
+
+      AppLogger.success(
+        "Reviews fetched successfully",
+        tag: "Reviews",
       );
 
-      if (response.statuscode == 200 && response.data != null) {
-        final data = response.data!;
-        emit(
-          state.copyWith(
-            reviewsLoading: false,
-            reviews: data.reviews,
-            averageRating: data.averageRating,
-            count: data.count,
-            totalRatings: data.totalRatings,
-            totalPages: data.totalPages,
-            currentPage: data.page,
-            hasReachedMax: data.page >= data.totalPages,
-          ),
-        );
-      } else {
-        emit(
-          state.copyWith(
-            reviewsLoading: false,
-            reviewsError: "Failed to fetch reviews",
-          ),
-        );
-      }
-    } on ApiException catch (e) {
-      emit(state.copyWith(reviewsLoading: false, reviewsError: e.message));
-    } catch (e, s) {
-      print(e);
-      print(s);
       emit(
         state.copyWith(
           reviewsLoading: false,
-          reviewsError: "Something went wrong",
+          reviews: data.reviews,
+          averageRating: data.averageRating,
+          count: data.count,
+          totalRatings: data.totalRatings,
+          totalPages: data.totalPages,
+          currentPage: data.page,
+          hasReachedMax: data.page >= data.totalPages,
+        ),
+      );
+    } else {
+      AppLogger.warning(
+        "Failed to fetch reviews",
+        tag: "Reviews",
+      );
+
+      emit(
+        state.copyWith(
+          reviewsLoading: false,
+          reviewsError: "Failed to fetch reviews",
         ),
       );
     }
+  } on ApiException catch (e, s) {
+    AppLogger.exception(e, s, tag: "Reviews");
+
+    emit(
+      state.copyWith(
+        reviewsLoading: false,
+        reviewsError: e.message,
+      ),
+    );
+  } catch (e, s) {
+    AppLogger.exception(e, s, tag: "Reviews");
+
+    emit(
+      state.copyWith(
+        reviewsLoading: false,
+        reviewsError: "Something went wrong",
+      ),
+    );
   }
+}
 
   Future<void> _onReviewsNextPageRequested(
     ReviewsNextPageRequested event,

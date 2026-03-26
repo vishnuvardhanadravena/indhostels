@@ -221,7 +221,7 @@ class _NotificationCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha:0.04),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -239,7 +239,7 @@ class _NotificationCard extends StatelessWidget {
                   width: 46,
                   height: 46,
                   decoration: BoxDecoration(
-                    color: ui.color.withOpacity(0.12),
+                    color: ui.color.withValues(alpha:0.12),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Icon(ui.icon, color: ui.color, size: 22),
@@ -313,7 +313,7 @@ class _SkeletonLoaderState extends State<_SkeletonLoader>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _anim,
-      builder: (_, __) {
+      builder: (ctx, child) {
         final opacity = 0.35 + _anim.value * 0.45;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -330,7 +330,7 @@ class _SkeletonLoaderState extends State<_SkeletonLoader>
                         width: 150,
                         height: 14,
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade300.withOpacity(opacity),
+                          color: Colors.grey.shade300.withValues(alpha:opacity),
                           borderRadius: BorderRadius.circular(7),
                         ),
                       ),
@@ -339,7 +339,7 @@ class _SkeletonLoaderState extends State<_SkeletonLoader>
                     margin: const EdgeInsets.only(bottom: 10),
                     height: 74,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(opacity),
+                      color: Colors.white.withValues(alpha:opacity),
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),

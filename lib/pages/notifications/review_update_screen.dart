@@ -17,21 +17,11 @@ class MyReviewScreen extends StatefulWidget {
 class _MyReviewScreenState extends State<MyReviewScreen> {
   int _selectedRating = 4;
   final TextEditingController _messageController = TextEditingController();
-
-  final List<String> _addedImages = [
-    'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=200',
-    'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=200',
-    'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=200',
-    'https://images.unsplash.com/photo-1540541338537-a27de0171e58?w=200',
-    'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=200',
-  ];
-
   @override
   void dispose() {
     _messageController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,34 +103,7 @@ class _MyReviewScreenState extends State<MyReviewScreen> {
                   },
                 ),
               ),
-
-              // Submit Button
-              // SizedBox(
-              //   width: double.infinity,
-              //   height: 52,
-              //   child: ElevatedButton(
-              //     onPressed: () {},
-              //     style: ElevatedButton.styleFrom(
-              //       backgroundColor: const Color(0xFF4B3FC8),
-              //       foregroundColor: Colors.white,
-              //       shape: RoundedRectangleBorder(
-              //         borderRadius: BorderRadius.circular(12),
-              //       ),
-              //       elevation: 0,
-              //     ),
-              //     child: const Text(
-              //       'Submit Review',
-              //       style: TextStyle(
-              //         fontSize: 16,
-              //         fontWeight: FontWeight.w600,
-              //         letterSpacing: 0.3,
-              //       ),
-              //     ),
-              //   ),
-              // ),
               const SizedBox(height: 12),
-
-              // Cancel Button
               SizedBox(
                 width: double.infinity,
                 height: 52,
@@ -173,7 +136,7 @@ class _MyReviewScreenState extends State<MyReviewScreen> {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:  0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -189,7 +152,7 @@ class _MyReviewScreenState extends State<MyReviewScreen> {
               width: 70,
               height: 70,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+              errorBuilder: (context, error, stackTrace) => Container(
                 width: 70,
                 height: 70,
                 color: Colors.teal.shade100,
@@ -295,76 +258,75 @@ class _MyReviewScreenState extends State<MyReviewScreen> {
     );
   }
 
-  Widget _buildAddImagesSection() {
-    final int imageCount = _addedImages.length;
-    final int maxImages = 5;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Text(
-              'Add Images',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              '($imageCount/$maxImages)',
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            // Add button
-            GestureDetector(
-              onTap: () {
-                // Handle image pick
-              },
-              child: Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: Colors.grey.shade400,
-                    width: 1.5,
-                    style: BorderStyle.solid,
-                  ),
-                  color: Colors.grey.shade50,
-                ),
-                child: Icon(Icons.add, size: 28, color: Colors.grey.shade500),
-              ),
-            ),
-            // Image thumbnails
-            ..._addedImages.map(
-              (url) => ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.network(
-                  url,
-                  width: 72,
-                  height: 72,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    width: 72,
-                    height: 72,
-                    color: Colors.grey.shade200,
-                    child: const Icon(Icons.image, color: Colors.grey),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
+  // Widget _buildAddImagesSection() {
+  //   final int imageCount = _addedImages.length;
+  //   final int maxImages = 5;
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Row(
+  //         children: [
+  //           const Text(
+  //             'Add Images',
+  //             style: TextStyle(
+  //               fontSize: 16,
+  //               fontWeight: FontWeight.w700,
+  //               color: Colors.black87,
+  //             ),
+  //           ),
+  //           const SizedBox(width: 6),
+  //           Text(
+  //             '($imageCount/$maxImages)',
+  //             style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+  //           ),
+  //         ],
+  //       ),
+  //       const SizedBox(height: 12),
+  //       Wrap(
+  //         spacing: 8,
+  //         runSpacing: 8,
+  //         children: [
+  //           // Add button
+  //           GestureDetector(
+  //             onTap: () {
+  //               // Handle image pick
+  //             },
+  //             child: Container(
+  //               width: 72,
+  //               height: 72,
+  //               decoration: BoxDecoration(
+  //                 borderRadius: BorderRadius.circular(10),
+  //                 border: Border.all(
+  //                   color: Colors.grey.shade400,
+  //                   width: 1.5,
+  //                   style: BorderStyle.solid,
+  //                 ),
+  //                 color: Colors.grey.shade50,
+  //               ),
+  //               child: Icon(Icons.add, size: 28, color: Colors.grey.shade500),
+  //             ),
+  //           ),
+  //           // Image thumbnails
+  //           ..._addedImages.map(
+  //             (url) => ClipRRect(
+  //               borderRadius: BorderRadius.circular(10),
+  //               child: Image.network(
+  //                 url,
+  //                 width: 72,
+  //                 height: 72,
+  //                 fit: BoxFit.cover,
+  //                 errorBuilder: (context, error, stackTrace) => Container(
+  //                   width: 72,
+  //                   height: 72,
+  //                   color: Colors.grey.shade200,
+  //                   child: const Icon(Icons.image, color: Colors.grey),
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ],
+  //   );
+  // }
 }

@@ -49,9 +49,9 @@ class _HotelsScreenState extends State<HotelsScreen> {
 
   String _formatDate(DateTime d) => DateFormat('dd MMM, yy').format(d);
 
-  String _formatApiDate(DateTime d) {
-    return DateFormat('yyyy-MM-dd').format(d);
-  }
+  // String _formatApiDate(DateTime d) {
+  //   return DateFormat('yyyy-MM-dd').format(d);
+  // }
 
   Future<void> _openDatePicker(
     BuildContext context,
@@ -65,6 +65,8 @@ class _HotelsScreenState extends State<HotelsScreen> {
       builder: (_) => DateRangePickerSheet(initialRange: range, type: type),
     );
 
+    if (!context.mounted) return;
+
     if (result != null) {
       context.read<SearchBloc>().add(
         UpdateSearchParams(checkInDate: result.start, checkOutDate: result.end),
@@ -76,13 +78,15 @@ class _HotelsScreenState extends State<HotelsScreen> {
     BuildContext context,
     String selectedCity,
   ) async {
+    final bloc = context.read<SearchBloc>();
+
     final result = await context.pushNamed<String>(
       RouteList.serachLocation,
       extra: selectedCity,
     );
 
     if (result != null) {
-      context.read<SearchBloc>().add(UpdateSearchParams(city: result));
+      bloc.add(UpdateSearchParams(city: result));
     }
   }
 
@@ -198,7 +202,7 @@ class _HotelsScreenState extends State<HotelsScreen> {
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               itemCount: 3,
-                              itemBuilder: (_, __) {
+                              itemBuilder: (_, index) {
                                 return Padding(
                                   padding: const EdgeInsets.only(right: 12),
                                   child: SizedBox(
@@ -317,6 +321,7 @@ class SearchCard extends StatelessWidget {
   final bool isSearching;
 
   const SearchCard({
+    super.key,
     required this.city,
     required this.dateRange,
     required this.nights,
@@ -336,7 +341,7 @@ class SearchCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.07),
+            color: Colors.black.withValues(alpha: 0.07),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -831,7 +836,7 @@ class _DateTile extends StatelessWidget {
 class CityPickerSheet extends StatefulWidget {
   final String selected;
   final ValueChanged<String> onSelect;
-  const CityPickerSheet({required this.selected, required this.onSelect});
+  const CityPickerSheet({super.key, required this.selected, required this.onSelect});
 
   @override
   State<CityPickerSheet> createState() => _CityPickerSheetState();
@@ -906,7 +911,7 @@ class _CityPickerSheetState extends State<CityPickerSheet> {
               child: ListView.separated(
                 controller: controller,
                 itemCount: filtered.length,
-                separatorBuilder: (_, __) =>
+                separatorBuilder: (_, index) =>
                     const Divider(height: 1, thickness: 0.5),
                 itemBuilder: (_, i) {
                   final city = filtered[i];
@@ -965,7 +970,7 @@ class PrimaryButton extends StatelessWidget {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
-        disabledBackgroundColor: AppColors.primary.withOpacity(0.5),
+        disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
         foregroundColor: Colors.white,
         minimumSize: const Size(double.infinity, 52),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

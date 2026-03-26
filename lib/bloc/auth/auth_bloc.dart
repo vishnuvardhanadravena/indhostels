@@ -2,8 +2,10 @@ import 'package:bloc/bloc.dart';
 import 'package:indhostels/bloc/auth/auth_event.dart';
 import 'package:indhostels/bloc/auth/auth_state.dart';
 import 'package:indhostels/data/models/auth_models/auth_req.dart';
+import 'package:indhostels/data/models/auth_models/auth_res.dart';
 import 'package:indhostels/data/repo/authrepo.dart';
 import 'package:indhostels/exceptions/api_exceptions.dart';
+import 'package:indhostels/services/apiservice/api_client.dart';
 import 'package:indhostels/services/database/app_secure_storage.dart';
 import 'package:indhostels/services/init.dart';
 import 'package:indhostels/utils/helpers/app_toast.dart';
@@ -27,7 +29,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(AuthLoading());
-    final response;
+    final LoginResponseModel response;
     try {
       if (event.type == LoginType.otp) {
         final response = await repository.loginwithotp(
@@ -231,15 +233,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     try {
       final response = await repository.logout();
+
       if (response["success"] == true) {
+        AppLogger.success("Logout successful", tag: "Auth");
+
         emit(LogoutReqSuccess(response["message"]));
+      } else {
+        AppLogger.warning("Logout failed", tag: "Auth");
+
+        emit(LogoutReqError("Logout failed"));
       }
-    } on ApiException catch (e) {
+    } on ApiException catch (e, s) {
+      AppLogger.exception(e, s, tag: "Auth");
+
       emit(LogoutReqError(e.message));
     } catch (e, s) {
-      print(e);
-      print(s);
-      emit(LogoutReqError(e.toString()));
+      AppLogger.exception(e, s, tag: "Auth");
+
+      emit(LogoutReqError("Something went wrong"));
     }
   }
 
@@ -251,15 +262,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     try {
       final response = await repository.deactivate();
+
       if (response["success"] == true) {
+        AppLogger.success("Account deactivated", tag: "Auth");
+
         emit(DeActivateReqSuccess(response["message"]));
+      } else {
+        AppLogger.warning("Deactivate failed", tag: "Auth");
+
+        emit(DeActivateReqError("Deactivate failed"));
       }
-    } on ApiException catch (e) {
+    } on ApiException catch (e, s) {
+      AppLogger.exception(e, s, tag: "Auth");
+
       emit(DeActivateReqError(e.message));
     } catch (e, s) {
-      print(e);
-      print(s);
-      emit(DeActivateReqError(e.toString()));
+      AppLogger.exception(e, s, tag: "Auth");
+
+      emit(DeActivateReqError("Something went wrong"));
     }
   }
 

@@ -13,16 +13,16 @@ class TicketsResponce {
     if (json['data'] != null) {
       data = <Message>[];
       json['data'].forEach((v) {
-        data!.add(new Message.fromJson(v));
+        data!.add(Message.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    data['statuscode'] = this.statuscode;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['success'] = success;
+    data['statuscode'] = statuscode;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
@@ -56,20 +56,20 @@ class Message {
     if (json['messages'] != null) {
       messages = <Messages>[];
       json['messages'].forEach((v) {
-        messages!.add(new Messages.fromJson(v));
+        messages!.add(Messages.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['_id'] = this.sId;
-    data['category'] = this.category;
-    data['subject'] = this.subject;
-    data['status'] = this.status;
-    data['createdAt'] = this.createdAt;
-    if (this.messages != null) {
-      data['messages'] = this.messages!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    data['category'] = category;
+    data['subject'] = subject;
+    data['status'] = status;
+    data['createdAt'] = createdAt;
+    if (messages != null) {
+      data['messages'] = messages!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -87,9 +87,9 @@ class Messages {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['sender'] = this.sender;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['sender'] = sender;
+    data['message'] = message;
     return data;
   }
 }

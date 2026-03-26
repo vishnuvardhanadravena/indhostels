@@ -184,12 +184,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                     BoxShadow(
                                       color: const Color(
                                         0xFF4B3FC8,
-                                      ).withOpacity(0.07),
+                                      ).withValues(alpha:0.07),
                                       blurRadius: 24,
                                       offset: const Offset(0, 8),
                                     ),
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.03),
+                                      color: Colors.black.withValues(alpha:0.03),
                                       blurRadius: 8,
                                       offset: const Offset(0, 2),
                                     ),
@@ -401,7 +401,7 @@ class _GenderOption extends StatelessWidget {
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               color: isSelected
                   ? const Color(0xFF4B3FC8)
-                  : const Color(0xFF1A1340).withOpacity(0.55),
+                  : const Color(0xFF1A1340).withValues(alpha:0.55),
             ),
           ),
         ],

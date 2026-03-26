@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:indhostels/bloc/Serach/search_bloc.dart';
 import 'package:indhostels/routing/route_constants.dart';
-import 'package:indhostels/utils/helpers/app_toast.dart';
 import 'package:indhostels/utils/shimmers/popular_hstl_shimmer.dart';
 import 'package:indhostels/utils/theame/app_themes.dart';
 import 'package:indhostels/utils/widgets/empty_state.dart';
@@ -78,9 +77,9 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-  void _clearAllRecentSearches() {
-    AppToast.warning("Clearing the history");
-  }
+  // void _clearAllRecentSearches() {
+  //   AppToast.warning("Clearing the history");
+  // }
 
   void _onSearch(String value) {
     if (value.isEmpty) {
@@ -183,7 +182,6 @@ class _SearchScreenState extends State<SearchScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Recent Searches Section ──────────────────────────────────────
           const SectionHeader(title: 'Recent Searches'),
           const SizedBox(height: 8),
 
@@ -201,9 +199,6 @@ class _SearchScreenState extends State<SearchScreen> {
               },
             )
           else
-            // FIX: SizedBox with a fixed height gives the inner Column
-            // bounded constraints so EmptyStateWidget's internal Expanded
-            // has a valid Flex ancestor — no more ParentDataWidget error.
             SizedBox(
               height: 180,
               child: Column(
@@ -218,13 +213,9 @@ class _SearchScreenState extends State<SearchScreen> {
                 ],
               ),
             ),
-
           const SizedBox(height: 24),
-
-          // ── Recently Viewed Section ──────────────────────────────────────
           const SectionHeader(title: 'Recently Viewed'),
           const SizedBox(height: 12),
-
           if (state.viewedLoading)
             const RecentlyViewedShimmer()
           else if (state.viewedError != null)
@@ -272,8 +263,6 @@ class _SearchScreenState extends State<SearchScreen> {
     final hotels = state.globalResponse?.data ?? [];
 
     if (hotels.isEmpty) {
-      // Safe here — EmptyStateWidget is returned directly into an Expanded
-      // widget in build(), so it already has a valid Flex ancestor.
       return EmptyStateWidget(
         icon: Icons.hotel_outlined,
         title: "No rooms found",
@@ -332,10 +321,6 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Supporting Widgets
-// ─────────────────────────────────────────────────────────────────────────────
-
 class _RecentSearchShimmer extends StatelessWidget {
   const _RecentSearchShimmer();
 
@@ -358,7 +343,7 @@ class _RecentSearchShimmer extends StatelessWidget {
 }
 
 class RecentlyViewedShimmer extends StatelessWidget {
-  const RecentlyViewedShimmer();
+  const RecentlyViewedShimmer({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -443,7 +428,7 @@ class _SearchBarState extends State<SearchBar> {
         border: Border.all(color: Colors.grey.shade200, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -658,7 +643,7 @@ class HotelCard extends StatelessWidget {
           border: Border.all(color: Colors.grey.shade200, width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: Colors.black.withValues(alpha: 0.06),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -676,7 +661,7 @@ class HotelCard extends StatelessWidget {
                 width: 100,
                 height: 95,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+                errorBuilder: (context, error, stackTrace) => Container(
                   width: 100,
                   height: 95,
                   color: Colors.grey.shade200,

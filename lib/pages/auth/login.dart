@@ -63,8 +63,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (phone.isEmpty) {
       errors['phone'] = '*Phone number is required';
-    } else if (!_isValidPhone(phone))
-      errors['phone'] = '*Enter valid 10-digit number';
+    } else if (!_isValidPhone(phone)){
+      errors['phone'] = '*Enter valid 10-digit number';}
 
     setState(() => _errors = errors);
     if (errors.isNotEmpty) return;
@@ -203,7 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _passwordLoginContent(bool isLoading, double height, int Slectedtab) {
+  Widget _passwordLoginContent(bool isLoading, double height, int slectedtab) {
     final fieldSpacing = height * 0.02;
 
     return Column(

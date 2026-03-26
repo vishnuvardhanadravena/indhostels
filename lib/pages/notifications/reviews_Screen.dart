@@ -70,7 +70,7 @@ class UserAvatar extends StatelessWidget {
     if (avatarUrl != null && avatarUrl!.isNotEmpty) {
       return CircleAvatar(
         radius: radius,
-        backgroundColor: _color().withOpacity(0.15),
+        backgroundColor: _color().withValues(alpha:0.15),
         child: ClipOval(
           child: CachedNetworkImage(
             imageUrl: avatarUrl!,
@@ -144,7 +144,7 @@ class VerifiedBadge extends StatelessWidget {
       vertical: r.reviewBadgePadV,
     ),
     decoration: BoxDecoration(
-      color: const Color(0xFF00B894).withOpacity(0.12),
+      color: const Color(0xFF00B894).withValues(alpha:0.12),
       borderRadius: BorderRadius.circular(r.reviewBadgeRadius),
     ),
     child: Row(
@@ -181,7 +181,7 @@ class RoomTypeBadge extends StatelessWidget {
       vertical: r.reviewBadgePadV,
     ),
     decoration: BoxDecoration(
-      color: const Color(0xFF6C63FF).withOpacity(0.10),
+      color: const Color(0xFF6C63FF).withValues(alpha:0.10),
       borderRadius: BorderRadius.circular(r.reviewBadgeRadius),
     ),
     child: Text(
@@ -319,7 +319,7 @@ class ReviewSummaryHeader extends StatelessWidget {
               color: const Color(0xFFFFF8E1),
               borderRadius: BorderRadius.circular(r.reviewBadgeRadius),
               border: Border.all(
-                color: const Color(0xFFFFC107).withOpacity(0.4),
+                color: const Color(0xFFFFC107).withValues(alpha:0.4),
               ),
             ),
             child: Row(

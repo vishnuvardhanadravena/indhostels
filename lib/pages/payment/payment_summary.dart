@@ -38,7 +38,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
   final _phoneCtrl = TextEditingController();
   late List<Map<String, dynamic>> pricingOptions;
   final _couponCtrl = TextEditingController();
-  String? _appliedCoupon;
+  // String? _appliedCoupon;
   // @override
   // void initState() {
   //   super.initState();
@@ -66,7 +66,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
   @override
   void initState() {
     super.initState();
-
+    context.read<PaymentBloc>().add(PaymentReset());
     final searchState = context.read<SearchBloc>().state;
 
     final pricingList = widget.room.pricingId?.pricing ?? [];
@@ -105,33 +105,6 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
     );
     context.read<PaymentBloc>().add(GetCouponsRequested());
   }
-
-  final List<Map<String, dynamic>> _availableCoupons = [
-    {
-      'code': 'STAY10',
-      'title': '10% Off',
-      'description': 'Get 10% off on your first booking',
-      'discount': '10%',
-      'expiry': 'Dec 31, 2025',
-      'type': 'percent',
-    },
-    {
-      'code': 'FLAT200',
-      'title': '₹200 Flat Off',
-      'description': 'Flat ₹200 off on bookings above ₹1000',
-      'discount': '₹200',
-      'expiry': 'Nov 30, 2025',
-      'type': 'flat',
-    },
-    {
-      'code': 'WELCOME50',
-      'title': '50% Welcome Offer',
-      'description': 'Welcome discount for new users only',
-      'discount': '50%',
-      'expiry': 'Oct 15, 2025',
-      'type': 'percent',
-    },
-  ];
 
   @override
   void dispose() {
@@ -189,7 +162,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
   }
 
   void _openCouponBrowser(BuildContext context) {
-    final ps = context.read<PaymentBloc>().state;
+    // final ps = context.read<PaymentBloc>().state;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -624,12 +597,13 @@ class _CouponBrowserSheet extends StatelessWidget {
                     ),
                     shrinkWrap: true,
                     itemCount: ps.coupons.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (_, i) => _CouponCard(
-                      coupon: ps.coupons[i],
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 12),
+                    itemBuilder: (context, index) => _CouponCard(
+                      coupon: ps.coupons[index],
                       isApplied:
-                          ps.appliedCouponCode == ps.coupons[i].couponCode,
-                      onTap: () => onSelect(ps.coupons[i].couponCode ?? ''),
+                          ps.appliedCouponCode == ps.coupons[index].couponCode,
+                      onTap: () => onSelect(ps.coupons[index].couponCode ?? ''),
                     ),
                   ),
                 ),
@@ -684,7 +658,7 @@ class _CouponCard extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues( alpha: 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -965,7 +939,7 @@ class _DateCard extends StatelessWidget {
 class _GuestCounter extends StatelessWidget {
   final String label;
   final int count;
-  final int max; 
+  final int max;
   final VoidCallback onDecrement;
   final VoidCallback onIncrement;
 
@@ -1051,7 +1025,7 @@ class _CounterBtn extends StatelessWidget {
         height: 32,
         decoration: BoxDecoration(
           color: disabled
-              ? const Color(0xFFE5E7EB) 
+              ? const Color(0xFFE5E7EB)
               : filled
               ? const Color(0xFF5B4FCF)
               : const Color(0xFFF4F4FB),
@@ -1229,7 +1203,7 @@ class _GuestInfoSection extends StatelessWidget {
         border: Border.all(color: const Color(0xFFEEEEEE)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha:  0.04),
             blurRadius: 12,
             offset: const Offset(0, 2),
           ),
@@ -1583,7 +1557,7 @@ class _TermsSection extends StatelessWidget {
         border: Border.all(color: const Color(0xFFEEEEEE)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha:  0.04),
             blurRadius: 12,
             offset: const Offset(0, 2),
           ),

@@ -255,7 +255,7 @@ class _FormCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(r.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha:0.06),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -526,7 +526,7 @@ class _SendButton extends StatelessWidget {
             onPressed: state.isSubmitting ? null : onSubmit,
             style: ElevatedButton.styleFrom(
               backgroundColor: primary,
-              disabledBackgroundColor: primary.withOpacity(0.6),
+              disabledBackgroundColor: primary.withValues(alpha:0.6),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(r.supportBtnRadius),
               ),
