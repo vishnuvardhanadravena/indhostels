@@ -271,7 +271,7 @@ class _HotelListingScreenState extends State<HotelListingScreen> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: 3,
-      itemBuilder: (_, __) => const _HotelCardSkeleton(),
+      itemBuilder: (ctx,index) => const _HotelCardSkeleton(),
     );
   }
 

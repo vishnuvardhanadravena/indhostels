@@ -141,7 +141,10 @@ class _MobileLayout extends StatelessWidget {
                   const SizedBox(height: 12),
                   _BookingDetailsCard(booking: booking),
                   const SizedBox(height: 12),
-                  // _AmenitiesCard(booking: booking),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: _AmenitiesCard(booking: booking),
+                  ),
                   const SizedBox(height: 12),
                   const Divider(
                     height: 1,
@@ -171,41 +174,46 @@ class _TabLayout extends StatelessWidget {
     return Column(
       children: [
         Expanded(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 5,
                   child: Column(
                     children: [
                       _HeaderCard(booking: booking),
-                      const SizedBox(height: 20),
-                      _LocationCard(booking: booking),
-                      const SizedBox(height: 20),
-                      _AmenitiesCard(booking: booking),
+                      const SizedBox(height: 16),
+                      MapSection(
+                        address: booking.accommodation.location.displayArea,
+                        mapUrl:
+                            booking.accommodation.location.locationUrl ?? "",
+                        r: R(MediaQuery.of(context).size.width),
+                        screenWidth: MediaQuery.of(context).size.width,
+                      ),
+                      const SizedBox(height: 16),
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: _AmenitiesCard(booking: booking),
+                      ),
                     ],
                   ),
                 ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
+                const SizedBox(width: 24),
+                Expanded(
+                  flex: 4,
                   child: Column(
                     children: [
                       _BookingDetailsCard(booking: booking),
-                      const SizedBox(height: 20),
-                      const Divider(
-                        height: 1,
-                        thickness: 1,
-                        color: Color(0xFFF0F0F0),
-                      ),
+                      const SizedBox(height: 16),
+                      const Divider(),
                       _PaymentCard(booking: booking),
                     ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         _BottomBar(booking: booking),
@@ -391,168 +399,6 @@ class _HeaderCard extends StatelessWidget {
   }
 }
 
-class _LocationCard extends StatelessWidget {
-  final BookingDetail booking;
-  const _LocationCard({required this.booking});
-
-  @override
-  Widget build(BuildContext context) {
-    final loc = booking.accommodation.location;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Location',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF1A1A2E),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                // TODO: launch map URL
-              },
-              child: const Text(
-                'Open Map',
-                style: TextStyle(
-                  color: Color(0xFF5B4BCC),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        // Map placeholder with road lines
-        ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: SizedBox(
-            height: 130,
-            width: double.infinity,
-            child: CustomPaint(
-              painter: _FakeMapPainter(),
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.all(7),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF5B4BCC),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0x445B4BCC),
-                        blurRadius: 12,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.location_on,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        // Address
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(Icons.location_on, color: Color(0xFF5B4BCC), size: 15),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                loc.fullAddress,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF555555)),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _FakeMapPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Background
-    final bg = Paint()..color = const Color(0xFFDDE8D4);
-    canvas.drawRect(Offset.zero & size, bg);
-
-    // Block fills
-    final block = Paint()..color = const Color(0xFFC8D9BE);
-    canvas.drawRect(
-      Rect.fromLTRB(0, 0, size.width * 0.28, size.height * 0.38),
-      block,
-    );
-    canvas.drawRect(
-      Rect.fromLTRB(
-        size.width * 0.32,
-        0,
-        size.width * 0.68,
-        size.height * 0.38,
-      ),
-      block,
-    );
-    canvas.drawRect(
-      Rect.fromLTRB(0, size.height * 0.44, size.width * 0.28, size.height),
-      block,
-    );
-    canvas.drawRect(
-      Rect.fromLTRB(
-        size.width * 0.32,
-        size.height * 0.44,
-        size.width,
-        size.height,
-      ),
-      block,
-    );
-
-    // Roads
-    final road = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 3;
-    // Horizontal
-    canvas.drawLine(
-      Offset(0, size.height * 0.41),
-      Offset(size.width, size.height * 0.41),
-      road,
-    );
-    // Vertical
-    canvas.drawLine(
-      Offset(size.width * 0.3, 0),
-      Offset(size.width * 0.3, size.height),
-      road,
-    );
-    canvas.drawLine(
-      Offset(size.width * 0.7, 0),
-      Offset(size.width * 0.7, size.height),
-      road,
-    );
-    // Diagonal
-    final diag = Paint()
-      ..color = Colors.white.withValues(alpha: 0.6)
-      ..strokeWidth = 2;
-    canvas.drawLine(
-      Offset(0, size.height * 0.2),
-      Offset(size.width * 0.3, size.height * 0.41),
-      diag,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter old) => false;
-}
-
 class _BookingDetailsCard extends StatelessWidget {
   final BookingDetail booking;
   const _BookingDetailsCard({required this.booking});
@@ -676,6 +522,7 @@ class _AmenitiesCard extends StatelessWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         const Text(
           'Room Amenities',

@@ -1,4 +1,3 @@
-
 class WishlistItem {
   final String wishlistItemId;
   final String accommodationId;
@@ -14,8 +13,7 @@ class WishlistItem {
 
   factory WishlistItem.fromGetJson(Map<String, dynamic> json) {
     final acc = json['accommodationId'];
-    final accMap =
-        acc is Map ? Map<String, dynamic>.from(acc) : null;
+    final accMap = acc is Map ? Map<String, dynamic>.from(acc) : null;
 
     return WishlistItem(
       wishlistItemId: json['_id'] as String,
@@ -34,11 +32,11 @@ class WishlistItem {
   }
 
   Map<String, dynamic> toJson() => {
-        'wishlistItemId': wishlistItemId,
-        'accommodationId': accommodationId,
-        'addedOn': addedOn.toIso8601String(),
-        if (details != null) 'details': details!.toJson(),
-      };
+    'wishlistItemId': wishlistItemId,
+    'accommodationId': accommodationId,
+    'addedOn': addedOn.toIso8601String(),
+    if (details != null) 'details': details!.toJson(),
+  };
 
   factory WishlistItem.fromStorageJson(Map<String, dynamic> json) {
     return WishlistItem(
@@ -52,8 +50,20 @@ class WishlistItem {
           : null,
     );
   }
+  WishlistItem copyWith({
+    String? wishlistItemId,
+    String? accommodationId,
+    AccommodationDetails? details,
+    DateTime? addedOn,
+  }) {
+    return WishlistItem(
+      wishlistItemId: wishlistItemId ?? this.wishlistItemId,
+      accommodationId: accommodationId ?? this.accommodationId,
+      details: details ?? this.details,
+      addedOn: addedOn ?? this.addedOn,
+    );
+  }
 }
-
 
 class AccommodationDetails {
   final String id;
@@ -105,28 +115,34 @@ class AccommodationDetails {
       dealOfferPercent: json['deal_offer_percent'] as int? ?? 0,
       isVerified: json['isverified'] as bool? ?? false,
       pricingIds: (json['pricing_ids'] as List? ?? [])
-          .map(
-            (e) => PricingInfo.fromJson(Map<String, dynamic>.from(e as Map)),
-          )
+          .map((e) => PricingInfo.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        '_id': id,
-        'property_name': propertyName,
-        'property_type': propertyType,
-        'category_name': categoryName,
-        'images_url': imagesUrl,
-        'location': location.toJson(),
-        'host_details': hostDetails.toJson(),
-        'amenities': amenities,
-        'room_types': roomTypes,
-        'deal_of_the_day': dealOfTheDay,
-        'deal_offer_percent': dealOfferPercent,
-        'isverified': isVerified,
-        'pricing_ids': pricingIds.map((e) => e.toJson()).toList(),
-      };
+    '_id': id,
+    'property_name': propertyName,
+    'property_type': propertyType,
+    'category_name': categoryName,
+    'images_url': imagesUrl,
+    'location': location.toJson(),
+    'host_details': hostDetails.toJson(),
+    'amenities': amenities,
+    'room_types': roomTypes,
+    'deal_of_the_day': dealOfTheDay,
+    'deal_offer_percent': dealOfferPercent,
+    'isverified': isVerified,
+    'pricing_ids': pricingIds.map((e) => e.toJson()).toList(),
+  };
+  String get priceFormatted {
+    if (pricingIds.isEmpty || pricingIds.first.pricing.isEmpty) return '';
+    return pricingIds.first.pricing.first.price.toString();
+  }
+
+  String? get primaryImage {
+    return imagesUrl.isNotEmpty ? imagesUrl.first : null;
+  }
 }
 
 class LocationInfo {
@@ -143,18 +159,18 @@ class LocationInfo {
   });
 
   factory LocationInfo.fromJson(Map<String, dynamic> json) => LocationInfo(
-        city: json['city'] as String? ?? '',
-        area: json['area'] as String? ?? '',
-        address: json['address'] as String? ?? '',
-        locationUrl: json['locationurl'] as String? ?? '',
-      );
+    city: json['city'] as String? ?? '',
+    area: json['area'] as String? ?? '',
+    address: json['address'] as String? ?? '',
+    locationUrl: json['locationurl'] as String? ?? '',
+  );
 
   Map<String, dynamic> toJson() => {
-        'city': city,
-        'area': area,
-        'address': address,
-        'locationurl': locationUrl,
-      };
+    'city': city,
+    'area': area,
+    'address': address,
+    'locationurl': locationUrl,
+  };
 }
 
 class HostDetails {
@@ -164,12 +180,14 @@ class HostDetails {
   const HostDetails({required this.hostName, required this.hostContact});
 
   factory HostDetails.fromJson(Map<String, dynamic> json) => HostDetails(
-        hostName: json['host_name'] as String? ?? '',
-        hostContact: json['host_contact'] as String? ?? '',
-      );
+    hostName: json['host_name'] as String? ?? '',
+    hostContact: json['host_contact'] as String? ?? '',
+  );
 
-  Map<String, dynamic> toJson() =>
-      {'host_name': hostName, 'host_contact': hostContact};
+  Map<String, dynamic> toJson() => {
+    'host_name': hostName,
+    'host_contact': hostContact,
+  };
 }
 
 class PricingInfo {
@@ -186,22 +204,20 @@ class PricingInfo {
   });
 
   factory PricingInfo.fromJson(Map<String, dynamic> json) => PricingInfo(
-        id: json['_id'] as String,
-        accommodationId: json['accommodation_id'] as String? ?? '',
-        roomId: json['room_id'] as String? ?? '',
-        pricing: (json['pricing'] as List? ?? [])
-            .map(
-              (e) => PriceEntry.fromJson(Map<String, dynamic>.from(e as Map)),
-            )
-            .toList(),
-      );
+    id: json['_id'] as String,
+    accommodationId: json['accommodation_id'] as String? ?? '',
+    roomId: json['room_id'] as String? ?? '',
+    pricing: (json['pricing'] as List? ?? [])
+        .map((e) => PriceEntry.fromJson(Map<String, dynamic>.from(e as Map)))
+        .toList(),
+  );
 
   Map<String, dynamic> toJson() => {
-        '_id': id,
-        'accommodation_id': accommodationId,
-        'room_id': roomId,
-        'pricing': pricing.map((e) => e.toJson()).toList(),
-      };
+    '_id': id,
+    'accommodation_id': accommodationId,
+    'room_id': roomId,
+    'pricing': pricing.map((e) => e.toJson()).toList(),
+  };
 }
 
 class PriceEntry {
@@ -211,9 +227,9 @@ class PriceEntry {
   const PriceEntry({required this.price, required this.priceType});
 
   factory PriceEntry.fromJson(Map<String, dynamic> json) => PriceEntry(
-        price: json['price'] as int,
-        priceType: json['price_type'] as String,
-      );
+    price: json['price'] as int,
+    priceType: json['price_type'] as String,
+  );
 
   Map<String, dynamic> toJson() => {'price': price, 'price_type': priceType};
 }
