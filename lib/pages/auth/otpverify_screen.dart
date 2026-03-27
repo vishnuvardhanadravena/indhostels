@@ -14,7 +14,6 @@ class OtpInputWidget extends StatefulWidget {
   final double boxSize;
   final ValueChanged<String> onCompleted;
   final ValueChanged<String>? onChanged;
-
   const OtpInputWidget({
     super.key,
     this.length = 4,
@@ -22,7 +21,6 @@ class OtpInputWidget extends StatefulWidget {
     required this.onCompleted,
     this.onChanged,
   });
-
   @override
   State<OtpInputWidget> createState() => _OtpInputWidgetState();
 }
@@ -30,7 +28,6 @@ class OtpInputWidget extends StatefulWidget {
 class _OtpInputWidgetState extends State<OtpInputWidget> {
   late List<TextEditingController> _controllers;
   late List<FocusNode> _focusNodes;
-
   @override
   void initState() {
     super.initState();
@@ -50,7 +47,6 @@ class _OtpInputWidgetState extends State<OtpInputWidget> {
   }
 
   String get _fullOtp => _controllers.map((c) => c.text).join();
-
   void _onChanged(String value, int index) {
     if (value.length == 1 && index < widget.length - 1) {
       _focusNodes[index + 1].requestFocus();
@@ -86,7 +82,7 @@ class _OtpInputWidgetState extends State<OtpInputWidget> {
               boxShadow: isFocused
                   ? [
                       BoxShadow(
-                        color: const Color(0xFF3D3BF3).withValues(alpha:0.12),
+                        color: const Color(0xFF3D3BF3).withValues(alpha: 0.12),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -177,7 +173,6 @@ class _OtpverifyscreenState extends State<Otpverifyscreen> {
       },
       builder: (context, state) {
         final isLoading = state is AuthLoading;
-
         return Scaffold(
           backgroundColor: const Color(0xFFF7F8FF),
           body: SafeArea(
@@ -185,16 +180,12 @@ class _OtpverifyscreenState extends State<Otpverifyscreen> {
               builder: (context, constraints) {
                 final width = constraints.maxWidth;
                 final isTablet = width >= 600;
-
                 final contentWidth = isTablet
                     ? (width * 0.58).clamp(400.0, 520.0)
                     : width;
-
                 final horizontalPadding = isTablet ? 0.0 : 24.0;
                 final verticalPadding = isTablet ? 40.0 : 20.0;
-
                 final boxSize = isTablet ? 68.0 : ((width - 48) / 4) * 0.74;
-
                 final content = SizedBox(
                   width: contentWidth,
                   child: SingleChildScrollView(
@@ -210,9 +201,7 @@ class _OtpverifyscreenState extends State<Otpverifyscreen> {
                               'We have just sent you a 4-digit code via your phone number(${widget.otp})',
                           showBackButton: true,
                         ),
-
                         const SizedBox(height: 8),
-
                         Text(
                           widget.phone,
                           style: TextStyle(
@@ -221,26 +210,20 @@ class _OtpverifyscreenState extends State<Otpverifyscreen> {
                             color: const Color(0xFF1A1A2E),
                           ),
                         ),
-
                         SizedBox(height: isTablet ? 48 : 36),
-
                         OtpInputWidget(
                           length: 4,
                           boxSize: boxSize,
                           onCompleted: (otp) => setState(() => _otp = otp),
                           onChanged: (otp) => setState(() => _otp = otp),
                         ),
-
                         SizedBox(height: isTablet ? 48 : 36),
-
                         PrimaryButton(
                           text: 'Continue',
                           isLoading: isLoading,
                           onPressed: isLoading ? null : _onContinue,
                         ),
-
                         const SizedBox(height: 20),
-
                         AuthFooterLink(
                           normalText: "Didn't receive code? ",
                           linkText: 'Resend Code',
@@ -250,8 +233,6 @@ class _OtpverifyscreenState extends State<Otpverifyscreen> {
                     ),
                   ),
                 );
-
-                /// ===== RESPONSIVE WRAP =====
                 return isTablet ? Center(child: content) : content;
               },
             ),

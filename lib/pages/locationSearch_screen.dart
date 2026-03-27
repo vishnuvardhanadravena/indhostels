@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:indhostels/bloc/Serach/search_bloc.dart';
 import 'package:indhostels/pages/profile/profile.dart';
+import 'package:indhostels/utils/constants/icons_contants.dart';
 
 
 class LocationSearchScreen extends StatefulWidget {
@@ -55,7 +56,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
               ),
               child: GestureDetector(
                 onTap: () => context.pop(),
-                child: Icon(Icons.arrow_back,
+                child: Icon(AppIcons.back,
                     size: r.backIconSize, color: Colors.black87),
               ),
             ),

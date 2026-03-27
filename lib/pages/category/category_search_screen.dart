@@ -271,7 +271,7 @@ class _HotelListingScreenState extends State<HotelListingScreen> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: 3,
-      itemBuilder: (ctx,index) => const _HotelCardSkeleton(),
+      itemBuilder: (ctx, index) => const _HotelCardSkeleton(),
     );
   }
 
@@ -436,7 +436,7 @@ class _TopSection extends StatelessWidget {
                                   states,
                                 ) {
                                   if (states.contains(WidgetState.hovered)) {
-                                    return Colors.blue.withValues(alpha:0.1);
+                                    return Colors.blue.withValues(alpha: 0.1);
                                   }
                                   return null;
                                 }),
@@ -528,11 +528,12 @@ void showSearchTopSheet(
                         dateRange: range,
                         nights: nights,
                         formatDate: (d) => DateFormat('dd MMM, yy').format(d),
-
                         onCityTap: () async {
                           final result = await context.pushNamed<String>(
                             RouteList.serachLocation,
                           );
+
+                          if (!context.mounted) return;
 
                           if (result != null && result.isNotEmpty) {
                             context.read<SearchBloc>().add(
@@ -552,7 +553,7 @@ void showSearchTopSheet(
                                   type: state.stayType,
                                 ),
                               );
-
+                          if (!context.mounted) return;
                           if (result != null) {
                             context.read<SearchBloc>().add(
                               UpdateSearchParams(

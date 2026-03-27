@@ -26,7 +26,6 @@ class HotelDetailsShimmer extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             /// Image shimmer
             Container(
               height: size.width * 0.55,
@@ -41,7 +40,6 @@ class HotelDetailsShimmer extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   /// Hotel Name
                   box(height: 22, width: 200),
 
@@ -84,7 +82,7 @@ class HotelDetailsShimmer extends StatelessWidget {
                   const SizedBox(height: 40),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

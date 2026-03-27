@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:indhostels/routing/app_roter.dart';
 import 'package:indhostels/routing/route_constants.dart';
 import 'package:indhostels/services/database/app_secure_storage.dart';
@@ -49,9 +48,7 @@ class DioClient {
           if (response.statusCode == 401 &&
               response.data["message"] ==
                   "session expired. Please login again.") {
-            await storage.delete("token");
-
-            final context = rootNavigatorKey.currentContext;
+            final context = rootNavigatorKey.currentContext; // ✅ move here
 
             if (context != null) {
               final endpoint = response.requestOptions.path;
@@ -59,20 +56,28 @@ class DioClient {
 
               showDialog(
                 context: context,
-                builder: (_) => AlertDialog(
-                  title: const Text("Session Expired"),
-                  content: Text(
-                    "API: $method $endpoint\n\nSession expired. Please login again.",
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        context.go(RouteList.login);
-                      },
-                      child: const Text("OK"),
+                barrierDismissible: false,
+                builder: (_) => PopScope(
+                  canPop: false,
+                  child: AlertDialog(
+                    title: const Text("Session Expired"),
+                    content: Text(
+                      "API: $method $endpoint\n\nSession expired. Please login again.",
                     ),
-                  ],
+                    actions: [
+                      TextButton(
+                        onPressed: () async {
+                          final navigator = Navigator.of(context);
+
+                          await storage.delete("token");
+
+                          navigator.pop();
+                          appRouter.go(RouteList.login);
+                        },
+                        child: const Text("OK"),
+                      ),
+                    ],
+                  ),
                 ),
               );
             }

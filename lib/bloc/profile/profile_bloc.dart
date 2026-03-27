@@ -48,6 +48,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         if (updatedUser != null) {
           UserSession().setUser(updatedUser);
         }
+        // ignore: await_only_futures
         await ProfileLoadEvent();
         emit(ProfileImgLoaded(updatedUser));
       } else {

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:indhostels/data/models/accomodation/accomodation_details_res.dart';
@@ -137,4 +140,15 @@ class _RoomsList extends StatelessWidget {
       ),
     );
   }
+}
+Widget getButton() {
+  return Platform.isIOS
+      ? CupertinoButton(
+          child: Text("Click"),
+          onPressed: () {},
+        )
+      : ElevatedButton(
+          onPressed: () {},
+          child: Text("Click"),
+        );
 }

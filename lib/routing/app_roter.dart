@@ -28,7 +28,7 @@ import 'package:indhostels/pages/profile/edit_profile.dart';
 import 'package:indhostels/pages/profile/profile.dart';
 import 'package:indhostels/pages/dashbord/search.dart';
 import 'package:indhostels/on_boarding_screen.dart';
-import 'package:indhostels/pages/notifications/notificationDetails.dart';
+import 'package:indhostels/pages/notifications/notification_details.dart';
 import 'package:indhostels/pages/notifications/notifications.dart';
 import 'package:indhostels/pages/notifications/review_update_screen.dart';
 import 'package:indhostels/pages/notifications/reviews_screen.dart';
@@ -36,7 +36,7 @@ import 'package:indhostels/pages/support/support_tickets_screen.dart';
 import 'package:indhostels/pages/support/contact_us.dart';
 import 'package:indhostels/pages/support/support_screen.dart';
 import 'package:indhostels/pages/wishlist/wishlist_screen.dart';
-import 'package:indhostels/spalshScreen.dart';
+import 'package:indhostels/spalsh_screen.dart';
 import 'package:indhostels/routing/route_constants.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -46,24 +46,24 @@ final GoRouter appRouter = GoRouter(
   routes: [
     GoRoute(
       path: RouteList.splash,
+      name: RouteList.splash,
       builder: (context, state) => const SplashScreen(),
     ),
     GoRoute(
       path: RouteList.signup,
+      name: RouteList.signup,
       builder: (context, state) => const SignUpScreen(),
     ),
-
     GoRoute(
       path: RouteList.onboarding,
+      name: RouteList.onboarding,
       builder: (context, state) => const OnboardingScreen(),
     ),
-
     GoRoute(
       path: RouteList.login,
       name: RouteList.login,
       builder: (context, state) => const LoginScreen(),
     ),
-
     ShellRoute(
       builder: (context, state, child) {
         return MainNavBarScreen(child: child);
@@ -156,7 +156,6 @@ final GoRouter appRouter = GoRouter(
         return RoomsScreen(acommodation: args.acommodation);
       },
     ),
-
     GoRoute(
       path: RouteList.roomDetails,
       name: RouteList.roomDetails,

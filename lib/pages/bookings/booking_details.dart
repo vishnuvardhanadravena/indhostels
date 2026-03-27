@@ -5,6 +5,7 @@ import 'package:indhostels/bloc/bookings/bookings_bloc.dart';
 import 'package:indhostels/data/models/bookings/booking_details_res.dart';
 import 'package:indhostels/pages/acommadtion/acommadation_detailes.dart';
 import 'package:indhostels/pages/profile/profile.dart';
+import 'package:indhostels/utils/helpers/app_toast.dart';
 import 'package:indhostels/utils/shimmers/booking_detailes_screen.dart';
 import 'package:indhostels/utils/theame/app_themes.dart';
 import 'package:intl/intl.dart';
@@ -40,22 +41,19 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
           try {
             await saveToDownloads(state.invoiceBytes!);
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Invoice downloaded successfully")),
-            );
+            if (!context.mounted) return;
 
+            AppToast.success("Invoice downloaded successfully");
             context.read<BookingsBloc>().add(InvoiceReset());
           } catch (e) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(e.toString())));
+            if (!context.mounted) return;
+
+            AppToast.error(e.toString());
           }
         }
 
         if (state.invoiceError != null) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.invoiceError!)));
+          AppToast.error(state.invoiceError!);
         }
       },
       child: Scaffold(
@@ -874,7 +872,7 @@ class _ErrorView extends StatelessWidget {
 
 class Cardwrapwer extends StatelessWidget {
   final Widget child;
-  const Cardwrapwer({required this.child});
+  const Cardwrapwer({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {

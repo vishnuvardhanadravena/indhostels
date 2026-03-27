@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:indhostels/data/models/bookings/coupons.dart';
 import 'package:indhostels/data/repo/bookings_repo.dart';
 import 'package:indhostels/services/payment/razorpay_gateway.dart';
-
 part 'payment_event.dart';
 part 'payment_state.dart';
 
@@ -32,7 +31,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<PaymentCheckoutRequested>(_onCheckoutRequested);
     on<PaymentVerifyRequested>(_onVerifyPayment);
     on<PaymentFailed>(_onPaymentFailed);
-    // In constructor, register:
     on<GetCouponsRequested>(_onGetCoupons);
     on<CouponApplied>(_onCouponApplied);
     on<CouponRemoved>(_onCouponRemoved);
@@ -48,16 +46,12 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       );
     });
   }
-
   void _onInitialized(PaymentInitialized e, Emitter<PaymentState> emit) {
     final checkIn = e.checkInDate;
-
     final isMonthly = e.pricingType.toLowerCase().contains('month');
-
     final checkOut = isMonthly && checkIn != null
         ? checkIn.add(const Duration(days: 30))
         : e.checkOutDate;
-
     emit(
       state.copyWith(
         stayType: e.stayType,
@@ -76,28 +70,23 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       ),
     );
   }
-
   void _onDateRangeUpdated(
     PaymentDateRangeUpdated e,
     Emitter<PaymentState> emit,
   ) {
     final checkIn = e.range.start;
-
     final isMonthly = state.pricingType.toLowerCase().contains('month');
 
     final checkOut = isMonthly
         ? checkIn.add(const Duration(days: 30))
         : e.range.end;
-
     emit(state.copyWith(checkInDate: checkIn, checkOutDate: checkOut));
   }
-
   void _onAdultsChanged(PaymentAdultsChanged e, Emitter<PaymentState> emit) {
     final next = (state.adults + e.delta).clamp(_minAdults, state.maxAdults);
 
     emit(state.copyWith(adults: next));
   }
-
   void _onChildrenChanged(
     PaymentChildrenChanged e,
     Emitter<PaymentState> emit,
@@ -105,30 +94,24 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     final next = (state.children + e.delta).clamp(_minChildren, _maxChildren);
     emit(state.copyWith(children: next));
   }
-
   void _onFullNameChanged(
     PaymentFullNameChanged e,
     Emitter<PaymentState> emit,
   ) {
     emit(state.copyWith(fullName: e.value));
   }
-
   void _onEmailChanged(PaymentEmailChanged e, Emitter<PaymentState> emit) {
     emit(state.copyWith(email: e.value));
   }
-
   void _onPhoneChanged(PaymentPhoneChanged e, Emitter<PaymentState> emit) {
     emit(state.copyWith(phone: e.value));
   }
-
   void _onGenderChanged(PaymentGenderChanged e, Emitter<PaymentState> emit) {
     emit(state.copyWith(gender: e.gender));
   }
-
   void _onTermsToggled(PaymentTermsToggled e, Emitter<PaymentState> emit) {
     emit(state.copyWith(termsAccepted: !state.termsAccepted));
   }
-
   Map<String, dynamic> _buildBookingBody() {
     return {
       "check_in_date": _formatDate(state.checkInDate),
@@ -150,7 +133,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       "discountamount": state.discountAmount.toInt(),
     };
   }
-
   Future<void> _onCheckoutRequested(
     PaymentCheckoutRequested e,
     Emitter<PaymentState> emit,
@@ -164,9 +146,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       );
       return;
     }
-
     emit(state.copyWith(status: PaymentStatus.creatingOrder));
-
     try {
       final body = _buildBookingBody();
 
@@ -175,9 +155,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         roomId: e.roomId,
         body: body,
       );
-
       emit(state.copyWith(status: PaymentStatus.openingGateway));
-
       razorpayService.openCheckout(
         orderId: order["id"],
         amount: order["ammount"],
@@ -208,7 +186,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       );
     }
   }
-
   Future<void> _onVerifyPayment(
     PaymentVerifyRequested e,
     Emitter<PaymentState> emit,
@@ -219,17 +196,13 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         "razorpay_order_id": e.orderId,
         "razorpay_payment_id": e.paymentId,
         "razorpay_signature": e.signature,
-
         "orderData": {
           "accoid": e.acoid,
           "roomid": e.roomid,
-
           "check_in_date": _formatDate(state.checkInDate),
           "check_out_date": _formatDate(state.checkOutDate),
           "price_type": state.pricingType,
-
           "noofguests": state.adults + state.children,
-
           "guestdetails": {
             "fullname": state.fullName.trim(),
             "mobilenumber": int.tryParse(state.phone) ?? 0,
@@ -239,16 +212,13 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
             "noofchildrens": state.children,
             "gender": state.gender.toLowerCase(),
           },
-
           "paymentmode": "online",
           "bookingamount": state.grandTotal.toDouble(),
           "couponCode": "",
           "discountamount": 0,
         },
       };
-
       await bookingsRepository.verifyPayment(body: body);
-
       emit(state.copyWith(status: PaymentStatus.success));
     } catch (e) {
       // emit(state.copyWith(status: PaymentStatus.initial));
@@ -260,14 +230,11 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       );
     }
   }
-
   void _onPaymentFailed(PaymentFailed e, Emitter<PaymentState> emit) {
     emit(
       state.copyWith(status: PaymentStatus.failure, errorMessage: e.message),
     );
   }
-  // Add these handler methods:
-
   Future<void> _onGetCoupons(
     GetCouponsRequested e,
     Emitter<PaymentState> emit,
@@ -280,24 +247,19 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       emit(state.copyWith(couponsLoading: false, couponsError: e.toString()));
     }
   }
-
   void _onCouponApplied(CouponApplied e, Emitter<PaymentState> emit) {
     final coupon = state.coupons.firstWhere(
       (c) => c.couponCode == e.code,
       orElse: () => Coupons(),
     );
-
     if (coupon.couponCode == null) {
       emit(state.copyWith(couponsError: 'Invalid coupon code'));
       return;
     }
-
     if (coupon.status?.toLowerCase() != 'active') {
       emit(state.copyWith(couponsError: 'This coupon is no longer active'));
       return;
     }
-
-    // Check expiry
     if (coupon.expireDate != null) {
       final expiry = DateTime.tryParse(coupon.expireDate!);
       if (expiry != null && DateTime.now().isAfter(expiry)) {
@@ -305,8 +267,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         return;
       }
     }
-
-    // Check minimum amount
     if (coupon.minimumamount != null &&
         state.grandTotal < coupon.minimumamount!) {
       emit(
@@ -317,17 +277,13 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       );
       return;
     }
-
     double discount = 0;
     if (coupon.discounttype?.toLowerCase() == 'percentage') {
       discount = (state.roomTotal * (coupon.discountpercentage ?? 0)) / 100;
     } else {
       discount = (coupon.discountamount ?? 0).toDouble();
     }
-
-    // Cap discount to grand total
     discount = discount.clamp(0, state.grandTotal);
-
     emit(
       state.copyWith(
         appliedCouponCode: coupon.couponCode,
@@ -336,7 +292,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       ),
     );
   }
-
   void _onCouponRemoved(CouponRemoved e, Emitter<PaymentState> emit) {
     emit(
       state.copyWith(
@@ -346,7 +301,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       ),
     );
   }
-
   String _formatDate(DateTime? date) {
     if (date == null) return "";
     return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";

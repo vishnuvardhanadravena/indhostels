@@ -30,6 +30,35 @@ class BookingsBloc extends Bloc<BookingsEvent, BookingsState> {
         ),
       );
     });
+    on<BookingResetRequested>((event, emit) {
+      switch (event.type) {
+        case BookingResetType.invoice:
+          emit(
+            state.copyWith(
+              invoiceSuccess: false,
+              invoiceError: null,
+              invoiceBytes: null,
+            ),
+          );
+          break;
+
+        case BookingResetType.cancel:
+          emit(state.copyWith(cancelSuccess: false, cancelError: null));
+          break;
+
+        case BookingResetType.bookings:
+          emit(state.copyWith(bookingsError: null, bookingsLoading: false));
+          break;
+
+        case BookingResetType.history:
+          emit(state.copyWith(bookingsHistoryError: null));
+          break;
+
+        case BookingResetType.details:
+          emit(state.copyWith(bookingDetail: null, bookingsDetailsError: null));
+          break;
+      }
+    });
   }
 
   Future<void> _fetchBookings(
@@ -265,3 +294,5 @@ Future<void> saveToDownloads(List<int> bytes) async {
 
   await OpenFile.open(file.path);
 }
+
+enum BookingResetType { invoice, cancel, bookings, history, details }

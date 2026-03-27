@@ -1,6 +1,10 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:indhostels/data/models/accomodation/room_card_model.dart';
 import 'package:indhostels/pages/profile/profile.dart';
+import 'package:indhostels/utils/constants/icons_contants.dart';
 
 class RoomsAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -153,7 +157,8 @@ class _RoomImageWidgetState extends State<RoomImageWidget> {
                 ? Image.network(
                     widget.imageUrl!,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => _placeholder(),
+                    errorBuilder: (context, error, stackTrace) =>
+                        _placeholder(),
                     loadingBuilder: (_, child, progress) =>
                         progress == null ? child : _shimmer(),
                   )
@@ -202,8 +207,8 @@ class _RoomImageWidgetState extends State<RoomImageWidget> {
 
   Widget _placeholder() => Container(
     color: const Color(0xFFF0F0F0),
-    child: const Center(
-      child: Icon(Icons.bed_outlined, size: 40, color: Color(0xFFBDBDBD)),
+    child: Center(
+      child: Icon(AppIcons.bed, size: 40, color: Color(0xFFBDBDBD)),
     ),
   );
 
@@ -259,7 +264,6 @@ class RoomCard extends StatelessWidget {
   final int taxamount;
   final R r;
   final VoidCallback? onTap;
-
   const RoomCard({
     super.key,
     required this.room,
@@ -268,7 +272,6 @@ class RoomCard extends StatelessWidget {
     required this.taxenable,
     this.onTap,
   });
-
   @override
   Widget build(BuildContext context) {
     final visibleBadges = [
@@ -284,31 +287,26 @@ class RoomCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(r.cardRadius),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha:0.07),
+              color: Colors.black.withValues(alpha: 0.07),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-
         child: Column(
-          mainAxisSize: MainAxisSize.min, // ✅ KEY FIX
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// IMAGE
             RoomImageWidget(imageUrl: room.primaryImage, r: r, rating: 4.0),
-
-            /// CONTENT
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: r.cardPadH,
                 // vertical: r.cardPadV,
               ),
               child: Column(
-                mainAxisSize: MainAxisSize.min, // ✅ KEY FIX
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  /// TITLE
                   Text(
                     room.roomTypeLabel,
                     style: TextStyle(
@@ -316,10 +314,7 @@ class RoomCard extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-
                   SizedBox(height: r.fieldGap * 0.2),
-
-                  /// DESCRIPTION
                   Text(
                     room.roomDescription,
                     maxLines: 2,
@@ -329,10 +324,7 @@ class RoomCard extends StatelessWidget {
                       color: Colors.grey.shade600,
                     ),
                   ),
-
                   SizedBox(height: r.fieldGap * 0.2),
-
-                  /// BADGES (LIMITED)
                   Wrap(
                     spacing: 8,
                     runSpacing: 6,
@@ -340,10 +332,7 @@ class RoomCard extends StatelessWidget {
                         .map((e) => RoomBadge(label: e, r: r))
                         .toList(),
                   ),
-
                   SizedBox(height: r.fieldGap * 0.2),
-
-                  /// PRICE
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
@@ -365,12 +354,8 @@ class RoomCard extends StatelessWidget {
                       ),
                     ],
                   ),
-
                   SizedBox(height: r.fieldGap * 0.2),
-
-                  /// AMENITIES
                   AmenitiesRow(amenities: room.parsedAmenities, r: r),
-
                   if (taxenable) ...[
                     SizedBox(height: r.fieldGap * 0.3),
                     Text(
@@ -386,34 +371,52 @@ class RoomCard extends StatelessWidget {
                     child: SizedBox(
                       width: double.infinity,
                       height: r.supportBtnHeight,
-                      child: ElevatedButton(
-                        onPressed: isAvailable ? onTap : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isAvailable
-                              ? const Color(0xFF3D3BF3)
-                              : Colors.grey.shade400,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              r.bookBtnRadius,
+                      child: Platform.isIOS
+                          ? CupertinoButton(
+                              onPressed: isAvailable ? onTap : null,
+                              padding: EdgeInsets.zero,
+                              borderRadius: BorderRadius.circular(
+                                r.bookBtnRadius,
+                              ),
+                              color: isAvailable
+                                  ? const Color(0xFF3D3BF3)
+                                  : Colors.grey.shade400,
+                              child: Text(
+                                isAvailable ? "View Details" : "Sold Out",
+                                style: TextStyle(
+                                  fontSize: r.bookBtnFont,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            )
+                          : ElevatedButton(
+                              onPressed: isAvailable ? onTap : null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: isAvailable
+                                    ? const Color(0xFF3D3BF3)
+                                    : Colors.grey.shade400,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    r.bookBtnRadius,
+                                  ),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: Text(
+                                isAvailable ? "View Details" : "Sold Out",
+                                style: TextStyle(
+                                  fontSize: r.bookBtnFont,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: Text(
-                          isAvailable ? "View Details" : "Sold Out",
-                          style: TextStyle(
-                            fontSize: r.bookBtnFont,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                 ],
               ),
             ),
-
             // SizedBox(height: r.fieldGap),
           ],
         ),

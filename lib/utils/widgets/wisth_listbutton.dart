@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:indhostels/bloc/wishlist/wishlist_bloc.dart';
+import 'package:indhostels/utils/constants/icons_contants.dart';
 import 'package:indhostels/utils/helpers/app_toast.dart';
 
 class WishlistButton extends StatelessWidget {
@@ -93,7 +94,8 @@ class WishlistButton extends StatelessWidget {
         transitionBuilder: (child, animation) =>
             ScaleTransition(scale: animation, child: child),
         child: Icon(
-          isWishlisted ? Icons.favorite : Icons.favorite_border,
+          AppIcons.wishlist(isWishlisted),
+          // isWishlisted ? Icons.favorite : Icons.favorite_border,
           key: ValueKey(isWishlisted),
           size: size,
           color: isWishlisted ? activeColor : inactiveColor,
@@ -109,7 +111,7 @@ class WishlistButton extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha:0.15),
+              color: Colors.black.withValues(alpha: 0.15),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),

@@ -225,6 +225,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             await sl<AppSecureStorage>().writeString("token", "");
             await sl<AppSecureStorage>().writeBool("login", false);
             await UserSession().clear();
+            if (!context.mounted) return;
             context.read<WishlistBloc>().add(ResetWishlistEvent());
             context.read<SearchBloc>().add(ResetSearchEvent());
 
@@ -320,7 +321,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   if (isProfileLoading)
                     Positioned.fill(
                       child: Container(
-                        color: Colors.black.withValues(alpha:0.4),
+                        color: Colors.black.withValues(alpha: 0.4),
                         child: const Center(child: CircularProgressIndicator()),
                       ),
                     ),
@@ -400,6 +401,7 @@ class _ProfileHeaderState extends State<_ProfileHeader> {
                 setState(() {
                   _pickedImage = file;
                 });
+                if (!context.mounted) return;
                 context.read<ProfileBloc>().add(
                   ProfileImgUpdateEvent(img: file),
                 );
@@ -479,7 +481,7 @@ class AvatarWidget extends StatelessWidget {
                 child: CircularProgressIndicator(strokeWidth: 2),
               );
             },
-            errorBuilder: (_, __, ___) {
+            errorBuilder: (ctx, e, s) {
               return const Icon(Icons.person, size: 40);
             },
           ),
@@ -497,7 +499,7 @@ class AvatarWidget extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF4B3FC8).withValues(alpha:0.20),
+                  color: const Color(0xFF4B3FC8).withValues(alpha: 0.20),
                   blurRadius: 18,
                   offset: const Offset(0, 6),
                 ),
@@ -522,7 +524,7 @@ class AvatarWidget extends StatelessWidget {
                   border: Border.all(color: Colors.white, width: 2.5),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF4B3FC8).withValues(alpha:0.35),
+                      color: const Color(0xFF4B3FC8).withValues(alpha: 0.35),
                       blurRadius: 8,
                       offset: const Offset(0, 3),
                     ),
@@ -555,12 +557,12 @@ class _MenuCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(r.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF4B3FC8).withValues(alpha:0.08),
+            color: const Color(0xFF4B3FC8).withValues(alpha: 0.08),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -571,7 +573,7 @@ class _MenuCard extends StatelessWidget {
           ...List.generate(menuItems.length, (index) {
             return _MenuItem(
               item: menuItems[index],
-              showDivider: index != menuItems.length - 1,
+              showDivider: index != menuItems.length,
               r: r,
             );
           }),
@@ -688,7 +690,7 @@ class _MenuItemState extends State<_MenuItem> {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 120),
             color: _pressed
-                ? const Color(0xFF4B3FC8).withValues(alpha:0.04)
+                ? const Color(0xFF4B3FC8).withValues(alpha: 0.04)
                 : Colors.transparent,
             padding: EdgeInsets.symmetric(
               horizontal: r.itemPadH,
@@ -700,7 +702,7 @@ class _MenuItemState extends State<_MenuItem> {
                   width: r.iconBox,
                   height: r.iconBox,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF4B3FC8).withValues(alpha:0.08),
+                    color: const Color(0xFF4B3FC8).withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(r.iconBoxRadius),
                   ),
                   child: Icon(
@@ -724,7 +726,7 @@ class _MenuItemState extends State<_MenuItem> {
                 Icon(
                   Icons.chevron_right_rounded,
                   size: r.chevronSize,
-                  color: const Color(0xFF1A1340).withValues(alpha:0.35),
+                  color: const Color(0xFF1A1340).withValues(alpha: 0.35),
                 ),
               ],
             ),
@@ -812,7 +814,7 @@ class _LogoutButtonState extends State<_LogoutButton>
             borderRadius: BorderRadius.circular(r.logoutRadius),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF4B3FC8).withValues(alpha:0.40),
+                color: const Color(0xFF4B3FC8).withValues(alpha: 0.40),
                 blurRadius: 16,
                 offset: const Offset(0, 6),
               ),

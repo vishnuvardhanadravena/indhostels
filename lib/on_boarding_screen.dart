@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:indhostels/routing/route_constants.dart';
+import 'package:indhostels/utils/constants/icons_contants.dart';
 
 // ─── Data Model ────────────────────────────────────────────────────────────────
 
@@ -277,7 +278,7 @@ class _OnboardingPage extends StatelessWidget {
   Widget _errorWidget() {
     return Container(
       color: const Color(0xFF1A1A2E),
-      child: const Icon(Icons.hotel, color: Colors.white30, size: 80),
+      child: Icon(AppIcons.hotel, color: Colors.white30, size: 80),
     );
   }
 

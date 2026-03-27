@@ -379,17 +379,21 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
     }
   }
 
-  Future<void> _clearAll() async {
-    setState(() {
-      _initPriceRange();
-      _selectedRoomTypes.clear();
-      _selectedAmenities.clear();
-      _selectedCategory = null;
-      _selectedLocation = null;
-    });
-    await _triggerUpdate();
-    Navigator.pop(context, _current);
-  }
+Future<void> _clearAll() async {
+  setState(() {
+    _initPriceRange();
+    _selectedRoomTypes.clear();
+    _selectedAmenities.clear();
+    _selectedCategory = null;
+    _selectedLocation = null;
+  });
+
+  await _triggerUpdate();
+
+  if (!mounted) return; 
+
+  Navigator.pop(context, _current);
+}
 
   void _apply() => Navigator.pop(context, _current);
 

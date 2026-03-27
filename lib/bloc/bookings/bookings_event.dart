@@ -51,6 +51,7 @@ class InvoiceReset extends BookingsEvent {
   @override
   List<Object?> get props => [];
 }
+
 class CancelBookingRequested extends BookingsEvent {
   final String bookingId;
 
@@ -58,4 +59,10 @@ class CancelBookingRequested extends BookingsEvent {
 
   @override
   List<Object?> get props => [bookingId];
+}
+
+class BookingResetRequested extends BookingsEvent {
+  final BookingResetType type;
+
+  const BookingResetRequested(this.type);
 }

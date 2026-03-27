@@ -90,6 +90,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isProfileLoading =
+        context.watch<ProfileBloc>().state is ProfileImgLoading;
     return BlocConsumer<ProfileBloc, ProfileState>(
       listener: (context, state) {
         if (state is ProfileError) {
@@ -100,6 +102,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         }
         if (state is ProfileImgLoading) {}
         if (state is ProfileImgError) {
+          setState(() {
+            _pickedImage = null;
+          });
           AppToast.error(state.message);
         }
         if (state is ProfileImgLoaded) {
@@ -131,135 +136,153 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
                 child: SafeArea(
-                  child: Column(
+                  child: Stack(
                     children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: r.screenPadH,
-                          vertical: r.screenPadV,
-                        ),
-                        child: _AppBar(r: r),
-                      ),
-
-                      Expanded(
-                        child: SingleChildScrollView(
-                          physics: const BouncingScrollPhysics(),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: r.screenPadH,
+                      Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: r.screenPadH,
+                              vertical: r.screenPadV,
+                            ),
+                            child: _AppBar(r: r),
                           ),
-                          child: Column(
-                            children: [
-                              AvatarWidget(
-                                r: r,
-                                heroTag: "profile_avatar",
-                                fileImage: _pickedImage,
-                                imageUrl: user.user?.profileUrl,
-                                onEditTap: () async {
-                                  final file = await ImagePickerSheet.show(
-                                    context,
-                                  );
-                                  if (file == null) return;
-                                  setState(() {
-                                    _pickedImage = file;
-                                  });
-                                  context.read<ProfileBloc>().add(
-                                    ProfileImgUpdateEvent(img: file),
-                                  );
-                                },
-                              ),
-                              SizedBox(height: r.avatarGap),
 
-                              Container(
-                                width: double.infinity,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: r.cardPadH,
-                                  vertical: r.cardPadV,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(
-                                    r.cardRadius,
+                          Expanded(
+                            child: SingleChildScrollView(
+                              physics: const BouncingScrollPhysics(),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: r.screenPadH,
+                              ),
+                              child: Column(
+                                children: [
+                                  AvatarWidget(
+                                    r: r,
+                                    heroTag: "profile_avatar",
+                                    fileImage: _pickedImage,
+                                    imageUrl: user.user?.profileUrl,
+                                    onEditTap: () async {
+                                      final file = await ImagePickerSheet.show(
+                                        context,
+                                      );
+                                      if (file == null) return;
+                                      setState(() {
+                                        _pickedImage = file;
+                                      });
+                                      if (!context.mounted) return;
+                                      context.read<ProfileBloc>().add(
+                                        ProfileImgUpdateEvent(img: file),
+                                      );
+                                    },
                                   ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(
-                                        0xFF4B3FC8,
-                                      ).withValues(alpha:0.07),
-                                      blurRadius: 24,
-                                      offset: const Offset(0, 8),
-                                    ),
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha:0.03),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    CustomTextField(
-                                      label: 'Full Name',
-                                      hintText: 'Enter your full name',
-                                      controller: _nameController,
-                                      keyboardType: TextInputType.name,
-                                      errorText: _errors['name'],
-                                      textInputAction: TextInputAction.next,
-                                    ),
-                                    SizedBox(height: r.fieldGap),
+                                  SizedBox(height: r.avatarGap),
 
-                                    CustomTextField(
-                                      label: 'Email Address',
-                                      hintText: 'Enter your email address',
-                                      controller: _emailController,
-                                      keyboardType: TextInputType.emailAddress,
-                                      errorText: _errors['email'],
-                                      textInputAction: TextInputAction.next,
+                                  Container(
+                                    width: double.infinity,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: r.cardPadH,
+                                      vertical: r.cardPadV,
                                     ),
-                                    SizedBox(height: r.fieldGap),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(
+                                        r.cardRadius,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color(
+                                            0xFF4B3FC8,
+                                          ).withValues(alpha: 0.07),
+                                          blurRadius: 24,
+                                          offset: const Offset(0, 8),
+                                        ),
+                                        BoxShadow(
+                                          color: Colors.black.withValues(
+                                            alpha: 0.03,
+                                          ),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        CustomTextField(
+                                          label: 'Full Name',
+                                          hintText: 'Enter your full name',
+                                          controller: _nameController,
+                                          keyboardType: TextInputType.name,
+                                          errorText: _errors['name'],
+                                          textInputAction: TextInputAction.next,
+                                        ),
+                                        SizedBox(height: r.fieldGap),
 
-                                    CustomTextField(
-                                      label: 'Phone Number',
-                                      hintText: 'Enter your phone number',
-                                      controller: _phoneController,
-                                      keyboardType: TextInputType.phone,
-                                      errorText: _errors['phone'],
-                                      textInputAction: TextInputAction.done,
-                                    ),
-                                    SizedBox(height: r.fieldGap),
+                                        CustomTextField(
+                                          label: 'Email Address',
+                                          hintText: 'Enter your email address',
+                                          controller: _emailController,
+                                          keyboardType:
+                                              TextInputType.emailAddress,
+                                          errorText: _errors['email'],
+                                          textInputAction: TextInputAction.next,
+                                        ),
+                                        SizedBox(height: r.fieldGap),
 
-                                    _GenderSelector(
-                                      r: r,
-                                      selected: _gender,
-                                      onChanged: (val) =>
-                                          setState(() => _gender = val),
+                                        CustomTextField(
+                                          label: 'Phone Number',
+                                          hintText: 'Enter your phone number',
+                                          controller: _phoneController,
+                                          keyboardType: TextInputType.phone,
+                                          errorText: _errors['phone'],
+                                          textInputAction: TextInputAction.done,
+                                        ),
+                                        SizedBox(height: r.fieldGap),
+
+                                        _GenderSelector(
+                                          r: r,
+                                          selected: _gender,
+                                          onChanged: (val) =>
+                                              setState(() => _gender = val),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
+                                  ),
+
+                                  SizedBox(height: r.sectionGap),
+
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: PrimaryButton(
+                                      text: 'Save Changes',
+                                      isLoading:
+                                          state is ProfileInitial ||
+                                          state is ProfileupdateLoading,
+                                      onPressed:
+                                          state is ProfileInitial ||
+                                              state is ProfileupdateLoading
+                                          ? null
+                                          : _onSave,
+                                    ),
+                                  ),
+
+                                  SizedBox(height: r.sectionGap),
+                                ],
                               ),
-
-                              SizedBox(height: r.sectionGap),
-
-                              SizedBox(
-                                width: double.infinity,
-                                child: PrimaryButton(
-                                  text: 'Save Changes',
-                                  isLoading:
-                                      state is ProfileInitial ||
-                                      state is ProfileupdateLoading,
-                                  onPressed:
-                                      state is ProfileInitial ||
-                                          state is ProfileupdateLoading
-                                      ? null
-                                      : _onSave,
-                                ),
-                              ),
-
-                              SizedBox(height: r.sectionGap),
-                            ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (isProfileLoading)
+                        Positioned.fill(
+                          child: Container(
+                            color: Colors.black.withValues(alpha: 0.4),
+                            child: const Center(
+                              child: CircularProgressIndicator(),
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -401,7 +424,7 @@ class _GenderOption extends StatelessWidget {
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               color: isSelected
                   ? const Color(0xFF4B3FC8)
-                  : const Color(0xFF1A1340).withValues(alpha:0.55),
+                  : const Color(0xFF1A1340).withValues(alpha: 0.55),
             ),
           ),
         ],
