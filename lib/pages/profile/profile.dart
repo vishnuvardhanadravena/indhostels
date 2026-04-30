@@ -11,6 +11,7 @@ import 'package:indhostels/bloc/profile/profile_bloc.dart';
 import 'package:indhostels/bloc/profile/profile_event.dart';
 import 'package:indhostels/bloc/profile/profile_state.dart';
 import 'package:indhostels/bloc/wishlist/wishlist_bloc.dart';
+import 'package:indhostels/main.dart';
 import 'package:indhostels/routing/route_constants.dart';
 import 'package:indhostels/services/database/app_secure_storage.dart';
 import 'package:indhostels/services/init.dart';
@@ -228,6 +229,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             if (!context.mounted) return;
             context.read<WishlistBloc>().add(ResetWishlistEvent());
             context.read<SearchBloc>().add(ResetSearchEvent());
+            appLogout(context);
 
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!context.mounted) return;
@@ -251,7 +253,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             await sl<AppSecureStorage>().writeString("token", "");
             await sl<AppSecureStorage>().writeBool("login", false);
             await UserSession().clear();
-
+            appLogout(context);
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!context.mounted) return;
               Navigator.of(context, rootNavigator: true).pop();

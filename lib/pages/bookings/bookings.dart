@@ -69,6 +69,15 @@ class _BookingsScreenState extends State<BookingsScreen> {
     return BlocBuilder<BookingsBloc, BookingsState>(
       builder: (context, state) {
         return MyBookingsScreen(
+          onRefresh: () async {
+            _selectedTab == 0
+                ? context.read<BookingsBloc>().add(
+                    const FetchBookings(page: 1, limit: 10),
+                  )
+                : context.read<BookingsBloc>().add(
+                    const FetchBookingsHistory(page: 1, limit: 10),
+                  );
+          },
           selectedTab: _selectedTab,
           onTabChanged: (index) {
             setState(() {
@@ -227,7 +236,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     child: ListView.builder(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-
+      physics: const AlwaysScrollableScrollPhysics(),
       itemCount: _current.length + (widget.isLoadingMore ? 1 : 0),
 
       itemBuilder: (_, i) {
@@ -502,7 +511,7 @@ class BookingCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),
@@ -588,7 +597,7 @@ class BookingCard extends StatelessWidget {
                             26,
                             34,
                             126,
-                          ).withValues(alpha:0.1),
+                          ).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: const Text(
@@ -735,8 +744,8 @@ class _PaymentPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: isPaid
-            ? const Color(0xFF4CAF50).withValues(alpha:0.1)
-            : const Color(0xFFFFA726).withValues(alpha:0.1),
+            ? const Color(0xFF4CAF50).withValues(alpha: 0.1)
+            : const Color(0xFFFFA726).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
@@ -761,7 +770,7 @@ class AppBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: status.color.withValues(alpha:0.1),
+        color: status.color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(

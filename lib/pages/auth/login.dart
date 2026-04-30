@@ -63,8 +63,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (phone.isEmpty) {
       errors['phone'] = '*Phone number is required';
-    } else if (!_isValidPhone(phone)){
-      errors['phone'] = '*Enter valid 10-digit number';}
+    } else if (!_isValidPhone(phone)) {
+      errors['phone'] = '*Enter valid 10-digit number';
+    }
 
     setState(() => _errors = errors);
     if (errors.isNotEmpty) return;

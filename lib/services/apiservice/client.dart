@@ -95,24 +95,7 @@ class DioClient {
     );
   }
 }
-//  onResponse: (response, handler) async {
-//           if (response.statusCode == 401 &&
-//               response.data["message"] ==
-//                   "session expired. Please login again.") {
-//             await storage.delete("token");
-//             final context = rootNavigatorKey.currentContext;
-//             if (context != null) {
-//               ScaffoldMessenger.of(context).showSnackBar(
-//                 const SnackBar(
-//                   content: Text("Session expired. Please login again."),
-//                 ),
-//               );
-//               context.go(RouteList.login);
-//             }
-//             return;
-//           }
-//           handler.next(response);
-//         },
+
 
 class AppLogger {
   static bool enableLogs = true;

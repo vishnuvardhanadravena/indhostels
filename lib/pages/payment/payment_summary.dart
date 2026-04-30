@@ -183,10 +183,8 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
   Widget build(BuildContext context) {
     bool isMonthly(PaymentState ps) =>
         ps.pricingType.toLowerCase().contains('month');
-
     bool isWeekly(PaymentState ps) =>
         ps.pricingType.toLowerCase().contains('week');
-
     bool isDaily(PaymentState ps) =>
         ps.pricingType.toLowerCase().contains('day');
     return BlocListener<PaymentBloc, PaymentState>(
@@ -201,7 +199,6 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
           );
           context.go(RouteList.paymentsuccess);
         }
-
         if (state.status == PaymentStatus.failure &&
             state.errorMessage != null) {
           ctx.read<PaymentBloc>().add(PaymentReset());
@@ -258,9 +255,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                           const SizedBox(height: 6),
                           _ErrorText(ps.dateError!),
                         ],
-
                         const SizedBox(height: 24),
-
                         _GuestCounter(
                           label: 'Adults',
                           count: ps.adults,
@@ -310,13 +305,10 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                           _ErrorText(ps.couponsError!),
                         ],
                         const SizedBox(height: 16),
-
                         const _SectionTitle(title: 'Payment Details'),
                         const SizedBox(height: 12),
                         _PaymentDetails(ps: ps),
-
                         const SizedBox(height: 28),
-
                         _GuestInfoSection(
                           ps: ps,
                           nameCtrl: _nameCtrl,
@@ -335,22 +327,18 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                             PaymentGenderChanged(v),
                           ),
                         ),
-
                         const SizedBox(height: 20),
-
                         _TermsSection(
                           ps: ps,
                           onToggle: () => ctx.read<PaymentBloc>().add(
                             const PaymentTermsToggled(),
                           ),
                         ),
-
                         const SizedBox(height: 16),
                       ],
                     ),
                   ),
                 ),
-
                 _CheckoutButton(
                   isLoading:
                       ps.status == PaymentStatus.creatingOrder ||
@@ -388,7 +376,6 @@ class _CouponInputRow extends StatelessWidget {
   final String? appliedCoupon;
   final VoidCallback onApply;
   final VoidCallback onRemove;
-
   const _CouponInputRow({
     required this.controller,
     required this.appliedCoupon,
@@ -399,7 +386,6 @@ class _CouponInputRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isApplied = appliedCoupon != null;
-
     return Row(
       children: [
         Expanded(
@@ -495,9 +481,7 @@ class _CouponInputRow extends StatelessWidget {
 
 class _CouponBrowserSheet extends StatelessWidget {
   final ValueChanged<String> onSelect;
-
   const _CouponBrowserSheet({required this.onSelect});
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PaymentBloc, PaymentState>(
@@ -561,7 +545,6 @@ class _CouponBrowserSheet extends StatelessWidget {
                 ),
               ),
               const Divider(color: Color(0xFFF0F0F0)),
-
               if (ps.couponsLoading)
                 const Padding(
                   padding: EdgeInsets.all(40),
@@ -620,7 +603,6 @@ class _CouponCard extends StatelessWidget {
   final Coupons coupon;
   final bool isApplied;
   final VoidCallback onTap;
-
   const _CouponCard({
     required this.coupon,
     required this.isApplied,
@@ -633,14 +615,12 @@ class _CouponCard extends StatelessWidget {
     }
     return '₹${coupon.discountamount ?? 0} OFF';
   }
-
   String get _expiryLabel {
     if (coupon.expireDate == null) return 'No expiry';
     final date = DateTime.tryParse(coupon.expireDate!);
     if (date == null) return coupon.expireDate!;
     return 'Expires: ${DateFormat('MMM dd, yyyy').format(date)}';
   }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -860,7 +840,7 @@ class _StayDurationRow extends StatelessWidget {
             label: 'Check - Out',
             value: _fmt(ps.checkOutDate),
             onTap: onTap,
-            locked: isMonthly, // ✅ fixed
+            locked: isMonthly,
           ),
         ),
       ],
@@ -1098,7 +1078,7 @@ class _PaymentDetails extends StatelessWidget {
           if (ps.taxEnabled)
             _PriceRow(
               label:
-                  // ps.taxAmount > 0
+                  // ps.taxAmount > 0               
                   //     ? "Tax (${ps.taxAmount.toStringAsFixed(0)}%)"
                   //     :
                   "Tax",
